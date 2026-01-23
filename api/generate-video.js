@@ -52,7 +52,8 @@ export default async function handler(req, res) {
                     {
                         prompt: `A cute crocheted potato doll saying: "${message}". The potato should be animated with mouth movements matching the speech. Cinematic lighting, photorealistic texture of yarn.`,
                         image: {
-                            bytesBase64Encoded: imageBase64
+                            bytesBase64Encoded: imageBase64,
+                                                mimeType: "image/jpeg"
                         }
                     }
                 ],
