@@ -33,6 +33,11 @@ export default async function handler(req, res) {
         const BASE_URL = 'https://crochet-friends1.vercel.app';
         const IMAGE_URL = `${BASE_URL}/images/potato.jpg`;
 
+        // Fetch and encode image
+        const imageResponse = await fetch(IMAGE_URL);
+        const imageBuffer = Buffer.from(await imageResponse.arrayBuffer());
+        const imageBase64 = imageBuffer.toString('base64');
+
         // Step 1: Start Video Generation
         const generateUrl = `https://${LOCATION}-aiplatform.googleapis.com/v1/projects/${PROJECT_ID}/locations/${LOCATION}/publishers/google/models/${MODEL_ID}:predictLongRunning`;
         
@@ -47,7 +52,7 @@ export default async function handler(req, res) {
                     {
                         prompt: `A cute crocheted potato doll saying: "${message}". The potato should be animated with mouth movements matching the speech. Cinematic lighting, photorealistic texture of yarn.`,
                         image: {
-                            sourceImage: { uri: IMAGE_URL }
+                            bytesBase64Encoded: imageBase64
                         }
                     }
                 ],
