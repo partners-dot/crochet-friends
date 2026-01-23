@@ -12,8 +12,8 @@ export default async function handler(req, res) {
 
     const DID_API_KEY = process.env.DID_API_KEY;
 
-    // Character image URLs (will be your deployed image URLs)
-    const BASE_URL = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000';
+        // Character image URLs - Use production URL since D-ID needs public access
+        const BASE_URL = 'https://crochet-friends1.vercel.app';
     const CHARACTER_IMAGES = {
         potato: `${BASE_URL}/images/potato.jpg`,
         avocado: `${BASE_URL}/images/potato.jpg`, // Use potato for now, add more later
