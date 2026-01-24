@@ -1,8 +1,9 @@
 {
-      "name": "crochet-friends",
-      "version": "1.0.0",
-      "private": true,
-      "dependencies": {
-                "google-auth-library": "^9.0.0"
-      }
+          "name": "crochet-friends",
+          "version": "1.0.0",
+          "type": "module",
+          "private": true,
+          "dependencies": {
+                        "google-auth-library": "^9.0.0"
+          }
 }
