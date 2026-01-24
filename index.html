@@ -3,83 +3,78 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Crochet Friends - Personalized Video Messages</title>
+  <title>Got You a Little Something - Personalized Video</title>
   <meta name="description" content="Create a personalized video message from your crocheted friend!">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-primary: #FFF9F5;
-      --bg-secondary: #FFF0E6;
-      --card-bg: #FFFFFF;
-      --text-primary: #2D2424;
-      --text-secondary: #7A6F6F;
-      --accent-primary: #E68E8E;
-      --accent-hover: #D67A7A;
-      --accent-light: #FBEAEA;
-      --border-color: #F0E6E6;
-      --success: #88C7B3;
-      --error: #E68E8E;
-      --shadow-sm: 0 4px 12px rgba(230,142,142,0.08);
-      --shadow-lg: 0 10px 40px -10px rgba(230,142,142,0.15);
+      --bg-primary: #050A30;
+      --bg-secondary: #000080;
+      --card-bg: rgba(255, 255, 255, 0.1);
+      --text-primary: #FFFFFF;
+      --text-secondary: rgba(255, 255, 255, 0.8);
+      --accent-neon: #FFFF00;
+      --accent-hover: #FFFF99;
+      --border-color: rgba(255, 255, 255, 0.2);
+      --glow: 0 0 10px rgba(255, 255, 0, 0.7), 0 0 20px rgba(255, 255, 0, 0.5);
       --radius-sm: 1rem;
       --radius-lg: 1.5rem;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Outfit', sans-serif; background: linear-gradient(135deg, var(--bg-primary), var(--bg-secondary)); min-height: 100vh; color: var(--text-primary); padding: 2rem 1rem; }
+    body { font-family: 'Outfit', sans-serif; background-color: var(--bg-primary); min-height: 100vh; color: var(--text-primary); padding: 2rem 1rem; background-image: linear-gradient(180deg, #050A30 0%, #000080 100%); }
     .container { max-width: 480px; margin: 0 auto; }
-    header { text-align: center; padding: 2rem 0 3rem; animation: fadeIn 0.8s ease-out; }
-    .logo { font-size: 3rem; margin-bottom: 0.75rem; display: inline-block; animation: bounce 2s infinite ease-in-out; }
-    h1 { font-size: 2rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem; }
-    .tagline { color: var(--text-secondary); font-size: 1.1rem; }
-    .card { background: var(--card-bg); border-radius: var(--radius-lg); padding: 2rem; margin-bottom: 1.5rem; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); transition: transform 0.3s, box-shadow 0.3s; }
-    .card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
-    label { display: block; font-weight: 600; margin-bottom: 0.75rem; color: var(--text-primary); font-size: 0.95rem; }
-    textarea { width: 100%; padding: 1.25rem; border: 2px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-primary); color: var(--text-primary); font-family: inherit; font-size: 1rem; resize: none; transition: all 0.2s; }
-    textarea:focus { outline: none; border-color: var(--accent-primary); background: #fff; box-shadow: 0 0 0 4px var(--accent-light); }
-    textarea::placeholder { color: #CCC; }
+    header { text-align: center; padding: 1rem 0 2rem; animation: fadeIn 0.8s ease-out; }
+    h1 { font-size: 2.5rem; font-weight: 700; color: var(--accent-neon); margin-bottom: 0.5rem; line-height: 1.1; text-transform: uppercase; text-shadow: var(--glow); }
+    .subtitle { font-size: 1.2rem; color: #FFF; font-weight: 600; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px; }
+    .tagline { font-family: 'Dancing Script', cursive; color: #FFF; font-size: 2rem; margin-top: 0.5rem; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+    .card { background: var(--card-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: var(--radius-lg); padding: 2rem; margin-bottom: 1.5rem; border: 1px solid var(--border-color); transition: transform 0.3s; }
+    .card:hover { transform: translateY(-2px); border-color: var(--accent-neon); }
+    label { display: block; font-weight: 600; margin-bottom: 0.75rem; color: var(--text-primary); font-size: 0.95rem; letter-spacing: 0.5px; }
+    textarea { width: 100%; padding: 1.25rem; border: 2px solid var(--border-color); border-radius: var(--radius-sm); background: rgba(0, 0, 0, 0.2); color: #FFF; font-family: inherit; font-size: 1rem; resize: none; transition: all 0.2s; }
+    textarea:focus { outline: none; border-color: var(--accent-neon); box-shadow: 0 0 15px rgba(255, 255, 0, 0.3); }
+    textarea::placeholder { color: rgba(255, 255, 255, 0.5); }
     .char-count { text-align: right; font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem; }
     .products { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1rem; }
-    .product { background: var(--bg-primary); border: 2px solid var(--border-color); border-radius: var(--radius-sm); padding: 1rem 0.5rem; text-align: center; cursor: pointer; transition: all 0.2s; position: relative; }
-    .product:hover { border-color: var(--accent-hover); transform: translateY(-2px); }
-    .product.selected { border-color: var(--accent-primary); background: var(--accent-light); }
-    .product.selected::after { content: '✓'; position: absolute; top: 0.25rem; right: 0.25rem; background: var(--accent-primary); color: white; width: 20px; height: 20px; border-radius: 50%; font-size: 12px; display: flex; align-items: center; justify-content: center; }
-    .product-img { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; margin-bottom: 0.75rem; box-shadow: 0 4px 10px rgba(0,0,0,0.1); background: white; }
+    .product { background: rgba(255, 255, 255, 0.05); border: 2px solid var(--border-color); border-radius: var(--radius-sm); padding: 1rem 0.5rem; text-align: center; cursor: pointer; transition: all 0.2s; position: relative; }
+    .product:hover { border-color: var(--accent-neon); transform: translateY(-2px); box-shadow: 0 0 10px rgba(255, 255, 0, 0.2); }
+    .product.selected { border-color: var(--accent-neon); background: rgba(255, 255, 0, 0.1); box-shadow: 0 0 15px rgba(255, 255, 0, 0.3); }
+    .product.selected::after { content: '✓'; position: absolute; top: 0.25rem; right: 0.25rem; background: var(--accent-neon); color: #000; width: 20px; height: 20px; border-radius: 50%; font-size: 12px; font-weight: bold; display: flex; align-items: center; justify-content: center; }
+    .product-img { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; margin-bottom: 0.75rem; border: 2px solid #FFF; background: white; }
     .product-emoji { font-size: 2.5rem; margin-bottom: 0.25rem; display: block; }
-    .product-name { font-size: 0.85rem; font-weight: 600; color: var(--text-primary); }
-    .btn { width: 100%; padding: 1.25rem; border: none; border-radius: var(--radius-sm); font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.3s; font-family: inherit; }
-    .btn-primary { background: var(--accent-primary); color: #fff; box-shadow: 0 4px 15px rgba(230,142,142,0.4); }
-    .btn-primary:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 8px 25px rgba(230,142,142,0.5); }
+    .product-name { font-size: 0.85rem; font-weight: 600; color: #FFF; }
+    .btn { width: 100%; padding: 1.25rem; border: none; border-radius: 50px; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: all 0.3s; font-family: inherit; text-transform: uppercase; letter-spacing: 1px; }
+    .btn-primary { background: var(--accent-neon); color: #050A30; box-shadow: var(--glow); }
+    .btn-primary:hover { background: #FFF; transform: translateY(-2px); box-shadow: 0 0 20px #FFF; }
     .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
-    .btn-secondary { background: transparent; color: var(--text-secondary); border: 2px solid var(--border-color); margin-top: 1rem; }
-    .btn-secondary:hover { border-color: var(--accent-primary); color: var(--accent-primary); background: var(--bg-primary); }
-    video { width: 100%; border-radius: var(--radius-sm); background: #000; box-shadow: var(--shadow-lg); margin-bottom: 1.5rem; }
+    .btn-secondary { background: transparent; color: #FFF; border: 2px solid #FFF; margin-top: 1rem; }
+    .btn-secondary:hover { border-color: var(--accent-neon); color: var(--accent-neon); background: rgba(255,255,0,0.1); }
+    video { width: 100%; border-radius: var(--radius-sm); background: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-bottom: 1.5rem; border: 2px solid var(--accent-neon); }
     .loading { text-align: center; padding: 3rem 1.5rem; }
-    .spinner { width: 50px; height: 50px; border: 4px solid var(--accent-light); border-top-color: var(--accent-primary); border-radius: 50%; animation: spin 1s ease-in-out infinite; margin: 0 auto 1.5rem; }
+    .spinner { width: 50px; height: 50px; border: 4px solid rgba(255,255,255,0.3); border-top-color: var(--accent-neon); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1.5rem; box-shadow: 0 0 15px var(--accent-neon); }
     @keyframes spin { to { transform: rotate(360deg); } }
-    @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     .progress-text { color: var(--text-secondary); font-size: 0.95rem; margin-top: 0.75rem; }
-    .error { background: #FFF5F5; padding: 1.5rem; border-radius: var(--radius-sm); color: var(--error); text-align: center; border: 1px solid #FFE0E0; }
+    .error { background: rgba(255, 0, 0, 0.1); padding: 1.5rem; border-radius: var(--radius-sm); color: #FF6B6B; text-align: center; border: 1px solid #FF6B6B; }
     .hidden { display: none !important; }
   </style>
 </head>
 <body>
   <div class="container">
     <header>
-      <div class="logo">🧶✨</div>
-      <h1>Crochet Friends</h1>
-      <p class="tagline">Create a personalized message from your crocheted friend!</p>
+      <div class="subtitle">Thanks for choosing</div>
+      <h1>Got You A<br>Little Something</h1>
+      <p class="tagline">When a little gift says a lot</p>
     </header>
     <form id="form">
       <div class="card">
-        <label for="message">Your Message</label>
-        <textarea id="message" rows="4" maxlength="200" placeholder="Happy Birthday, Tim! I hope this little potato makes you smile!" required></textarea>
+        <label for="message">YOUR MESSAGE</label>
+        <textarea id="message" rows="4" maxlength="200" placeholder="Happy Birthday! I hope this little friend makes you smile!" required></textarea>
         <div class="char-count"><span id="charCount">0</span>/200</div>
       </div>
       <div class="card">
-        <label>Choose Your Friend</label>
+        <label>CHOOSE YOUR FRIEND</label>
         <div class="products" id="products">
           <div class="product selected" data-product="potato">
             <img src="images/potato.jpg" alt="Potato" class="product-img" onerror="this.outerHTML='<div class=product-emoji>🥔</div>'">
@@ -100,7 +95,7 @@
     <div id="loading" class="card hidden">
       <div class="loading">
         <div class="spinner"></div>
-        <p>Creating your magical video...</p>
+        <p style="font-weight: 600;">Creating your magical video...</p>
         <p class="progress-text" id="progressText">This takes about 20-30 seconds</p>
       </div>
     </div>
