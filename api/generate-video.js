@@ -1,6 +1,4 @@
-/* Async Video Generation - Returns operationId immediately */
 import { GoogleAuth } from 'google-auth-library';
-
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -31,7 +29,7 @@ export default async function handler(req, res) {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json; charset=utf-8' },
             body: JSON.stringify({
-                instances: [{ prompt: `A cute crocheted potato doll saying: "${message}". The potato should be animated with mouth movements.`, image: { bytesBase64Encoded: imageBase64, mimeType: "image/jpeg" } }],
+                instances: [{ prompt: `A cute crocheted potato doll saying: "${message}". Animated with mouth movements.`, image: { bytesBase64Encoded: imageBase64, mimeType: "image/jpeg" } }],
                 parameters: { aspectRatio: "16:9", sampleCount: 1, personGeneration: "allow_adult" }
             })
         });
