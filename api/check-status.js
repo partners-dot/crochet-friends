@@ -1,6 +1,6 @@
 /* Check Video Generation Status - Polls Veo API for operation status */
 import { GoogleAuth } from 'google-auth-library';
-
+  
 export default async function handler(req, res) {
     // CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
