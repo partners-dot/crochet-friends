@@ -121,7 +121,35 @@
       products.forEach(x => x.classList.remove('selected'));
       p.classList.add('selected');
       selectedProduct = p.dataset.product;
-    }));
+    }));\n
+    // Convert data URI to Blob for proper download filename
+    function dataURItoBlob(dataURI) {
+      const byteString = atob(dataURI.split(',')[1]);
+      const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+      const ab = new ArrayBuffer(byteString.length);
+      const ia = new Uint8Array(ab);
+      for (let i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+      }
+      return new Blob([ab], { type: mimeString });
+    }
+
+    // Set up download button with proper filename
+    function setupDownload(videoUrl, character) {
+      const downloadBtn = document.getElementById('downloadBtn');
+      const filename = 'crochet-' + character + '-message.mp4';
+      
+      if (videoUrl.startsWith('data:')) {
+        // Convert data URI to Blob for proper filename support
+        const blob = dataURItoBlob(videoUrl);
+        const blobUrl = URL.createObjectURL(blob);
+        downloadBtn.href = blobUrl;
+      } else {
+        downloadBtn.href = videoUrl;
+      }
+      downloadBtn.download = filename;
+    }
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const text = message.value.trim();
@@ -155,8 +183,8 @@
         }
         if (!videoUrl) { throw new Error('Video generation timed out after 5 minutes'); }
         document.getElementById('video').src = videoUrl;
-        document.getElementById('downloadBtn').href = videoUrl;
-        document.getElementById('downloadBtn').download = `crochet-${selectedProduct}-message.mp4`;
+        setupDownload(videoUrl, selectedProduct);
+        
         document.getElementById('loading').classList.add('hidden');
         document.getElementById('result').classList.remove('hidden');
       } catch (err) {
@@ -173,3 +201,4 @@
   </script>
 </body>
 </html>
+
