@@ -89,7 +89,7 @@ export default async function handler(req, res) {
         if (!generateResponse.ok) {
             const errorText = await generateResponse.text();
             console.error("Veo generation error:", errorText);
-            throw new Error("Veo API Error: " + generateResponse.status + " " + generateResponse.statusText} - " + errorText);
+                    throw  new Error("Veo API Error: " + generateResponse.status + " " + generateResponse.statusText + " - " + errorText);
         }
 
         const generateData = await generateResponse.json();
