@@ -71,7 +71,7 @@ export default async function handler(req, res) {
             body: JSON.stringify({
                 instances: [
                     {
-                        prompt: `A cute ${charConfig.description} saying: "${message}". The character should be animated with mouth movements matching the speech. Cinematic lighting, photorealistic texture of yarn.`,
+                        prompt: `A cute ${charConfig.description} saying: "${message}". The character should be animated with mouth movements matching the speech. Notice to generate the product to look the same as in the reference image. Add some cute hand movements of the product, only one hand should move, the other hand should keep holding the sign. Ensure the product looks the same as in the reference image. Cinematic lighting, photorealistic texture of yarn.`,
                         image: {
                             bytesBase64Encoded: imageBase64,
                             mimeType: "image/jpeg"
