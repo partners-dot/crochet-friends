@@ -325,10 +325,14 @@
     function selectProductInUI(product) { const products = document.querySelectorAll('.product'); products.forEach(p => { p.classList.remove('selected'); if (p.dataset.product === product) p.classList.add('selected'); }); }
     function updateReviewLinks() { const url = amazonReviewUrls[selectedProduct] || amazonReviewUrls.default; document.querySelectorAll('#softReviewLink, #buyerReviewLink, #receiverReviewLink, #strongReviewLink').forEach(link => link.href = url); }
     function updateCreateHeader() { const header = document.getElementById('createHeader'); if (userType === 'receiver') header.textContent = 'Create Your Thank You Message'; else header.textContent = 'Create Your Greeting Message'; }
-    function playExampleVideos(containerId) { const container = document.getElementById(containerId); if (container) container.querySelectorAll('video').forEach(v => v.play().catch(() => {})); }
+    function playExampleVideos(containerId) { const container = document.getElementById(containerId); if (container) { const videos = container.querySelectorAll('video'); videos.forEach((v, i) => { if (i === 0) v.play().catch(() => {}); }); } }
+    function unmutewelcome() { const v = document.getElementById('welcomeVideo'); if (v) { v.muted = false; document.getElementById('welcomeSoundOverlay').classList.add('hidden'); } }
+    function unmuteExample(el) { const v = el.parentElement.querySelector('video'); if (v) { v.muted = false; el.classList.add('hidden'); } }
+    function playExample(el) { document.querySelectorAll('.video-example video').forEach(v => { v.pause(); v.muted = true; }); document.querySelectorAll('.play-overlay').forEach(p => p.style.display = 'flex'); document.querySelectorAll('.example-sound').forEach(s => { s.classList.remove('hidden'); }); const v = el.parentElement.querySelector('video'); if (v) { v.play(); el.style.display = 'none'; } }
     function trackEvent(eventType) { fetch('/api/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ event_type: eventType, product: selectedProduct, user_type: userType, email: userEmail }) }).catch(err => console.error('Track error:', err)); }
     function trackReviewClick(source) { trackEvent('review_clicked'); }
   </script>
 </body>
 </html>
+
 
