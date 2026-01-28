@@ -1,642 +1,320 @@
 <!DOCTYPE html>
-
 <html lang="en">
 
-
-
 <head>
-
   <meta charset="UTF-8">
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>Got You a Little Something - Personalized Video</title>
-
   <meta name="description" content="Create a personalized video message from your crocheted friend!">
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
-
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
   <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
   <style>
-
     :root {
-
       --bg-primary: #050A30;
-
       --bg-secondary: #000080;
-
       --card-bg: rgba(255, 255, 255, 0.1);
-
       --text-primary: #FFFFFF;
-
       --text-secondary: rgba(255, 255, 255, 0.8);
-
       --accent-neon: #FFD166;
-
       --accent-hover: #FFE082;
-
       --border-color: rgba(255, 255, 255, 0.2);
-
       --glow: 0 0 10px rgba(255, 209, 102, 0.5), 0 0 20px rgba(255, 209, 102, 0.3);
-
       --radius-sm: 1rem;
-
       --radius-lg: 1.5rem;
-
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
-
       font-family: 'Outfit', sans-serif;
-
       background: linear-gradient(180deg, #050A30 0%, #000080 100%);
-
       min-height: 100vh;
-
       color: var(--text-primary);
-
       padding: 2rem 1rem;
-
     }
-
     .container { max-width: 480px; margin: 0 auto; }
-
     header { text-align: center; padding: 1rem 0 2rem; animation: fadeIn 0.8s ease-out; }
-
     h1 { font-size: 2.5rem; font-weight: 700; color: var(--accent-neon); margin-bottom: 0.5rem; line-height: 1.1; text-transform: uppercase; text-shadow: var(--glow); }
-
     h2 { font-size: 1.5rem; font-weight: 600; color: var(--accent-neon); margin-bottom: 1rem; text-align: center; }
-
     .subtitle { font-size: 1.2rem; color: #FFF; font-weight: 600; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px; }
-
     .tagline { font-family: 'Dancing Script', cursive; color: #FFF; font-size: 2rem; margin-top: 0.5rem; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
-
     .card { background: var(--card-bg); backdrop-filter: blur(10px); border-radius: var(--radius-lg); padding: 2rem; margin-bottom: 1.5rem; border: 1px solid var(--border-color); transition: transform 0.3s; }
-
     .card:hover { transform: translateY(-2px); border-color: var(--accent-neon); }
-
     label { display: block; font-weight: 600; margin-bottom: 0.75rem; color: var(--text-primary); font-size: 0.95rem; letter-spacing: 0.5px; }
-
     input[type="email"], textarea { width: 100%; padding: 1.25rem; border: 2px solid var(--border-color); border-radius: var(--radius-sm); background: rgba(0,0,0,0.2); color: #FFF; font-family: inherit; font-size: 1rem; transition: all 0.2s; }
-
     input[type="email"]:focus, textarea:focus { outline: none; border-color: var(--accent-neon); box-shadow: 0 0 15px rgba(255,209,102,0.3); }
-
     input[type="email"]::placeholder, textarea::placeholder { color: rgba(255,255,255,0.5); }
-
     textarea { resize: none; }
-
     .char-count { text-align: right; font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem; }
-
     .products { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1rem; }
-
     .product { background: rgba(255,255,255,0.05); border: 2px solid var(--border-color); border-radius: var(--radius-sm); padding: 1rem 0.5rem; text-align: center; cursor: pointer; transition: all 0.2s; position: relative; }
-
     .product:hover { border-color: var(--accent-neon); transform: translateY(-2px); box-shadow: 0 0 10px rgba(255,209,102,0.2); }
-
     .product.selected { border-color: var(--accent-neon); background: rgba(255,209,102,0.1); box-shadow: 0 0 15px rgba(255,209,102,0.3); }
-
     .product.selected::after { content: '✓'; position: absolute; top: 0.25rem; right: 0.25rem; background: var(--accent-neon); color: #050A30; width: 20px; height: 20px; border-radius: 50%; font-size: 12px; font-weight: bold; display: flex; align-items: center; justify-content: center; }
-
     .product-img { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; margin-bottom: 0.75rem; border: 2px solid #FFF; background: white; }
-
     .product-emoji { font-size: 2.5rem; margin-bottom: 0.25rem; display: block; }
-
     .product-name { font-size: 0.85rem; font-weight: 600; color: #FFF; }
-
     .btn { width: 100%; padding: 1.25rem; border: none; border-radius: 50px; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: all 0.3s; font-family: inherit; text-transform: uppercase; letter-spacing: 1px; text-decoration: none; display: inline-block; text-align: center; }
-
     .btn-primary { background: var(--accent-neon); color: #050A30; box-shadow: var(--glow); }
-
     .btn-primary:hover { background: #FFF; transform: translateY(-2px); box-shadow: 0 0 20px #FFF; }
-
     .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
-
     .btn-secondary { background: transparent; color: #FFF; border: 2px solid #FFF; margin-top: 1rem; }
-
     .btn-secondary:hover { border-color: var(--accent-neon); color: var(--accent-neon); background: rgba(255,209,102,0.1); }
-
     .btn-amazon { background: linear-gradient(135deg, #FF9900 0%, #FF6600 100%); color: #000; margin-top: 1rem; }
-
     .btn-amazon:hover { background: linear-gradient(135deg, #FFB84D 0%, #FF8533 100%); transform: translateY(-2px); box-shadow: 0 0 20px rgba(255,153,0,0.5); }
-
     .branch-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem; }
-
     .branch-btn { background: var(--card-bg); border: 2px solid var(--border-color); border-radius: var(--radius-lg); padding: 1.5rem 1rem; text-align: center; cursor: pointer; transition: all 0.3s; }
-
     .branch-btn:hover { border-color: var(--accent-neon); transform: translateY(-2px); box-shadow: 0 0 15px rgba(255,209,102,0.3); }
-
     .branch-btn .emoji { font-size: 2.5rem; display: block; margin-bottom: 0.75rem; }
-
     .branch-btn .label { font-weight: 600; font-size: 0.9rem; color: #FFF; }
-
     .welcome-video-container { position: relative; width: 100%; margin-bottom: 1.5rem; border-radius: var(--radius-lg); overflow: hidden; border: 2px solid var(--accent-neon); box-shadow: var(--glow); }
-
     .welcome-video-container video { width: 100%; display: block; border: none; margin: 0; }
-
     .video-examples { display: flex; gap: 0.75rem; overflow-x: auto; padding-bottom: 0.5rem; margin-bottom: 1.5rem; }
-
     .video-example { flex: 0 0 140px; background: rgba(0,0,0,0.3); border-radius: var(--radius-sm); overflow: hidden; border: 2px solid var(--border-color); }
-
     .video-example video { width: 100%; height: 180px; object-fit: cover; border: none; margin: 0; }
-
     .video-example .caption { padding: 0.5rem; font-size: 0.75rem; text-align: center; color: var(--text-secondary); }
-
     .soft-review-link { display: block; text-align: center; color: var(--text-secondary); font-size: 0.9rem; margin-top: 1rem; text-decoration: none; transition: color 0.2s; }
-
     .soft-review-link:hover { color: var(--accent-neon); }
-
     video { width: 100%; border-radius: var(--radius-sm); background: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-bottom: 1.5rem; border: 2px solid var(--accent-neon); }
-
     .loading { text-align: center; padding: 3rem 1.5rem; }
-
     .spinner { width: 50px; height: 50px; border: 4px solid rgba(255,255,255,0.3); border-top-color: var(--accent-neon); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1.5rem; box-shadow: 0 0 15px var(--accent-neon); }
-
     @keyframes spin { to { transform: rotate(360deg); } }
-
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
     @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
     .progress-text { color: var(--text-secondary); font-size: 0.95rem; margin-top: 0.75rem; }
-
     .error { background: rgba(255,0,0,0.1); padding: 1.5rem; border-radius: var(--radius-sm); color: #FF6B6B; text-align: center; border: 1px solid #FF6B6B; }
-
     .rate-limit-warning { background: rgba(255,107,107,0.1); border: 1px solid #FF6B6B; border-radius: var(--radius-sm); padding: 1rem; margin-top: 1rem; text-align: center; color: #FF6B6B; }
-
     .hidden { display: none !important; }
-
     .section { animation: slideUp 0.5s ease-out; }
-
     .section-description { text-align: center; color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 1rem; line-height: 1.5; }
-
     .videos-remaining { text-align: center; color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.5rem; }
-
     .thank-you-header { text-align: center; margin-bottom: 1.5rem; }
-
     .thank-you-header .emoji { font-size: 3rem; display: block; margin-bottom: 0.5rem; }
-
     .review-cta-box { background: linear-gradient(135deg, rgba(255,153,0,0.2) 0%, rgba(255,102,0,0.2) 100%); border: 2px solid #FF9900; border-radius: var(--radius-lg); padding: 1.5rem; text-align: center; margin-top: 1.5rem; }
-
     .review-cta-box h3 { color: #FF9900; margin-bottom: 0.5rem; font-size: 1.1rem; }
-
     .review-cta-box p { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem; }
-
   </style>
-
 </head>
 
-
-
 <body>
-
   <div class="container">
-
     <section id="welcomeSection" class="section">
-
       <header>
-
         <div class="subtitle">Thanks for choosing</div>
-
         <h1>GOT YOU<br>A LITTLE<br>SOMETHING</h1>
-
       </header>
-
       <div class="welcome-video-container">
-
         <video id="welcomeVideo" playsinline muted autoplay loop>
-
           <source src="videos/welcome.mp4" type="video/mp4">
-
         </video>
-
       </div>
-
       <p class="section-description">Create a personalized video message for your loved one — your crocheted friend will read it out loud! 🎁</p>
-
       <button type="button" class="btn btn-primary" onclick="goToStep('branch')">✨ Let's Create Magic</button>
-
       <a href="#" id="softReviewLink" class="soft-review-link" onclick="trackReviewClick('soft')">⭐ Love your little friend? Leave us a review!</a>
-
     </section>
-
-
 
     <section id="branchSection" class="section hidden">
-
       <header><h1>WELCOME!</h1><p class="tagline">Tell us about your gift</p></header>
-
       <div class="card">
-
         <h2>How did you get this?</h2>
-
         <div class="branch-buttons">
-
           <div class="branch-btn" onclick="selectBranch('buyer')"><span class="emoji">🎁</span><span class="label">I bought this<br>as a gift</span></div>
-
           <div class="branch-btn" onclick="selectBranch('receiver')"><span class="emoji">🎀</span><span class="label">I received this<br>as a gift</span></div>
-
         </div>
-
       </div>
-
     </section>
-
-
 
     <section id="buyerSection" class="section hidden">
-
       <header><h2>Create a Greeting Video! 🎉</h2><p class="section-description">Make your gift extra special! Record a personalized message that your crocheted friend will say to the lucky recipient.</p></header>
-
       <div class="video-examples" id="buyerExamples">
-
         <div class="video-example"><video playsinline muted loop><source src="videos/example-buyer-1.mp4" type="video/mp4"></video><div class="caption">Birthday greeting</div></div>
-
         <div class="video-example"><video playsinline muted loop><source src="videos/example-buyer-2.mp4" type="video/mp4"></video><div class="caption">Thank you message</div></div>
-
         <div class="video-example"><video playsinline muted loop><source src="videos/example-buyer-3.mp4" type="video/mp4"></video><div class="caption">Just because!</div></div>
-
       </div>
-
       <button type="button" class="btn btn-primary" onclick="goToStep('email')">🎬 Create Your Video</button>
-
       <a href="#" id="buyerReviewLink" class="soft-review-link" onclick="trackReviewClick('buyer')">⭐ Help us grow — leave a review on Amazon!</a>
-
     </section>
-
-
 
     <section id="receiverSection" class="section hidden">
-
       <header><h2>Say Thank You! 💝</h2><p class="section-description">Send a thank-you video back to the person who gave you this wonderful gift!</p></header>
-
       <div class="video-examples" id="receiverExamples">
-
         <div class="video-example"><video playsinline muted loop><source src="videos/example-receiver-1.mp4" type="video/mp4"></video><div class="caption">Thank you!</div></div>
-
         <div class="video-example"><video playsinline muted loop><source src="videos/example-receiver-2.mp4" type="video/mp4"></video><div class="caption">You're the best!</div></div>
-
         <div class="video-example"><video playsinline muted loop><source src="videos/example-receiver-3.mp4" type="video/mp4"></video><div class="caption">I love it!</div></div>
-
       </div>
-
       <button type="button" class="btn btn-primary" onclick="goToStep('email')">🎬 Create Thank You Video</button>
-
       <a href="#" id="receiverReviewLink" class="soft-review-link" onclick="trackReviewClick('receiver')">⭐ Love your gift? Help us with a review!</a>
-
     </section>
-
-
 
     <section id="emailSection" class="section hidden">
-
       <header><h2>Almost There! ✉️</h2><p class="section-description">Enter your email to create your personalized video. You can create up to 2 free videos!</p></header>
-
       <form id="emailForm" class="card">
-
         <label for="email">Your Email Address</label>
-
         <input type="email" id="email" placeholder="you@example.com" required>
-
         <p class="videos-remaining" id="videosRemaining"></p>
-
         <div id="rateLimitWarning" class="rate-limit-warning hidden">You've already created 2 videos. Thank you for using our service!</div>
-
       </form>
-
       <button type="button" class="btn btn-primary" id="continueToCreateBtn" onclick="validateEmail()">Continue →</button>
-
       <button type="button" class="btn btn-secondary" onclick="goToStep('branch')">← Back</button>
-
     </section>
-
-
 
     <section id="createSection" class="section hidden">
-
       <header><h2 id="createHeader">Create Your Message</h2></header>
-
       <form id="form">
-
         <div class="card">
-
           <label for="message">Write Your Message</label>
-
           <textarea id="message" rows="4" maxlength="200" placeholder="Happy Birthday! I hope this little friend makes you smile!" required></textarea>
-
           <div class="char-count"><span id="charCount">0</span>/200</div>
-
         </div>
-
         <div class="card">
-
           <label>CHOOSE YOUR FRIEND</label>
-
           <div class="products" id="products">
-
             <div class="product selected" data-product="potato"><img src="images/potato.jpg" alt="Potato" class="product-img" onerror="this.outerHTML='<div class=product-emoji>🥔</div>'"><div class="product-name">Potato</div></div>
-
             <div class="product" data-product="cupcake"><img src="images/cupcake.jpg" alt="Cupcake" class="product-img" onerror="this.outerHTML='<div class=product-emoji>🧁</div>'"><div class="product-name">Cupcake</div></div>
-
             <div class="product" data-product="yoda"><img src="images/yoda.jpg" alt="Yoda" class="product-img" onerror="this.outerHTML='<div class=product-emoji>👽</div>'"><div class="product-name">Yoda</div></div>
-
           </div>
-
         </div>
-
         <button type="submit" class="btn btn-primary" id="generateBtn">✨ Create Video Message</button>
-
       </form>
-
     </section>
-
-
 
     <section id="loadingSection" class="card hidden">
-
       <div class="loading"><div class="spinner"></div><p style="font-weight:600;">Creating your magical video...</p><p class="progress-text" id="progressText">This takes about 20-30 seconds</p></div>
-
     </section>
-
-
 
     <section id="resultSection" class="section hidden">
-
       <div class="thank-you-header"><span class="emoji">🎉</span><h2>Your Video is Ready!</h2></div>
-
       <video id="video" controls playsinline autoplay></video>
-
       <button id="downloadBtn" class="btn btn-primary">📥 Download Video</button>
-
       <button type="button" class="btn btn-secondary" id="createAnotherBtn" onclick="createAnother()">Create Another Video</button>
-
       <div class="review-cta-box"><h3>⭐ Help Us Grow!</h3><p>If you love your crocheted friend, please leave us a review. It means the world to us!</p><a href="#" id="strongReviewLink" class="btn btn-amazon" onclick="trackReviewClick('strong')">Leave a Review ⭐</a></div>
-
     </section>
-
-
 
     <section id="errorSection" class="card error hidden">
-
       <p id="errorText">Oops! Something went wrong. Please try again.</p>
-
       <button type="button" class="btn btn-secondary" onclick="reset()">Try Again</button>
-
     </section>
-
   </div>
 
-
-
   <script>
-
     let currentStep = 'welcome';
-
     let userType = null;
-
     let userEmail = null;
-
     let videosRemaining = 2;
-
     let selectedProduct = 'potato';
-
     const urlParams = new URLSearchParams(window.location.search);
-
     const productFromUrl = urlParams.get('product');
-
     const amazonReviewUrls = {
-
       potato: 'https://www.amazon.com/review/create-review/?ie=UTF8&channel=glance-detail&asin=B0DVR6VBRR',
-
       cupcake: 'https://www.amazon.com/review/create-review/?ie=UTF8&channel=glance-detail&asin=B0DVGVHSZV',
-
       yoda: 'https://www.amazon.com/review/create-review/?ie=UTF8&channel=glance-detail&asin=B0DVGKZZS4',
-
       default: 'https://www.amazon.com/review/create-review/?ie=UTF8&channel=glance-detail&asin=B0DVR6VBRR'
-
     };
 
-
-
     document.addEventListener('DOMContentLoaded', () => {
-
       if (productFromUrl && ['potato', 'cupcake', 'yoda'].includes(productFromUrl)) {
-
         selectedProduct = productFromUrl;
-
         selectProductInUI(productFromUrl);
-
       }
-
       updateReviewLinks();
-
       const welcomeVideo = document.getElementById('welcomeVideo');
-
       if (welcomeVideo) welcomeVideo.play().catch(() => {});
-
       trackEvent('page_view');
-
       setupFormHandlers();
-
     });
 
-
-
     function goToStep(step) {
-
       document.querySelectorAll('.section, #loadingSection').forEach(s => s.classList.add('hidden'));
-
       currentStep = step;
-
       switch(step) {
-
         case 'welcome': document.getElementById('welcomeSection').classList.remove('hidden'); break;
-
         case 'branch': document.getElementById('branchSection').classList.remove('hidden'); break;
-
         case 'buyer': document.getElementById('buyerSection').classList.remove('hidden'); playExampleVideos('buyerExamples'); break;
-
         case 'receiver': document.getElementById('receiverSection').classList.remove('hidden'); playExampleVideos('receiverExamples'); break;
-
         case 'email': document.getElementById('emailSection').classList.remove('hidden'); break;
-
         case 'create': document.getElementById('createSection').classList.remove('hidden'); updateCreateHeader(); break;
-
         case 'result': document.getElementById('resultSection').classList.remove('hidden'); break;
-
       }
-
     }
-
-
 
     function selectBranch(type) { userType = type; goToStep(type); }
 
-
-
     async function validateEmail() {
-
       const emailInput = document.getElementById('email');
-
       const email = emailInput.value.trim();
-
       if (!email || !email.includes('@')) { alert('Please enter a valid email address'); return; }
-
       userEmail = email;
-
       try {
-
         const res = await fetch('/api/user', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, userType, product: selectedProduct }) });
-
         const data = await res.json();
-
         if (!data.allowed) { document.getElementById('rateLimitWarning').classList.remove('hidden'); document.getElementById('continueToCreateBtn').disabled = true; return; }
-
         videosRemaining = data.videosRemaining;
-
         goToStep('create');
-
       } catch (err) { console.error('Rate limit check failed:', err); goToStep('create'); }
-
     }
-
-
 
     function setupFormHandlers() {
-
       const form = document.getElementById('form');
-
       const message = document.getElementById('message');
-
       const charCount = document.getElementById('charCount');
-
       const products = document.querySelectorAll('.product');
-
       message.addEventListener('input', () => charCount.textContent = message.value.length);
-
       products.forEach(p => p.addEventListener('click', () => { products.forEach(x => x.classList.remove('selected')); p.classList.add('selected'); selectedProduct = p.dataset.product; updateReviewLinks(); }));
-
       form.addEventListener('submit', handleVideoGeneration);
-
     }
-
-
 
     async function handleVideoGeneration(e) {
-
       e.preventDefault();
-
       const text = document.getElementById('message').value.trim();
-
       if (!text) return;
-
       document.getElementById('createSection').classList.add('hidden');
-
       document.getElementById('loadingSection').classList.remove('hidden');
-
       const progressText = document.getElementById('progressText');
-
       progressText.textContent = 'Starting video generation...';
-
       try {
-
         const startRes = await fetch('/api/generate-video', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: text, character: selectedProduct, email: userEmail, userType: userType }) });
-
         const startData = await startRes.json();
-
         if (!startRes.ok) throw new Error(startData.error || 'Failed to start generation');
-
         const operationId = startData.operationId;
-
         progressText.textContent = 'Video is being created...';
-
         let videoUrl = null; let attempts = 0; let consecutiveFailures = 0; const maxAttempts = 60;
-
         while (!videoUrl && attempts < maxAttempts) {
-
           await new Promise(r => setTimeout(r, 5000)); attempts++;
-
           progressText.textContent = `Creating magic... (${attempts * 5}s)`;
-
           try {
-
             const statusRes = await fetch(`/api/check-status?operationId=${encodeURIComponent(operationId)}`);
-
             const statusData = await statusRes.json();
-
             if (!statusRes.ok) { consecutiveFailures++; if (consecutiveFailures >= 3) throw new Error(statusData.details || statusData.error || 'Video generation failed'); continue; }
-
             consecutiveFailures = 0;
-
             if (statusData.status === 'done') videoUrl = statusData.videoUrl;
-
             else if (statusData.status === 'error') throw new Error(statusData.error || 'Video generation failed');
-
           } catch (fetchErr) { consecutiveFailures++; if (consecutiveFailures >= 3) throw fetchErr; }
-
         }
-
         if (!videoUrl) throw new Error('Video generation timed out after 5 minutes');
-
         trackEvent('video_created');
-
         document.getElementById('video').src = videoUrl;
-
         window.videoData = videoUrl;
-
         window.videoFilename = `crochet-${selectedProduct}-message.mp4`;
-
         document.getElementById('downloadBtn').onclick = function() { const link = document.createElement('a'); link.href = window.videoData; link.download = window.videoFilename; link.click(); };
-
         videosRemaining--;
-
         if (videosRemaining <= 0) document.getElementById('createAnotherBtn').classList.add('hidden');
-
         document.getElementById('loadingSection').classList.add('hidden');
-
         goToStep('result');
-
       } catch (err) {
-
         console.error(err);
-
         document.getElementById('errorText').textContent = err.message || 'Something went wrong. Please try again.';
-
         document.getElementById('loadingSection').classList.add('hidden');
-
         document.getElementById('errorSection').classList.remove('hidden');
-
       }
-
     }
 
-
-
     function createAnother() { if (videosRemaining <= 0) { alert('You have used all your free videos!'); return; } document.getElementById('message').value = ''; document.getElementById('charCount').textContent = '0'; goToStep('create'); }
-
     function reset() { document.getElementById('errorSection').classList.add('hidden'); goToStep('create'); }
-
     function selectProductInUI(product) { const products = document.querySelectorAll('.product'); products.forEach(p => { p.classList.remove('selected'); if (p.dataset.product === product) p.classList.add('selected'); }); }
-
     function updateReviewLinks() { const url = amazonReviewUrls[selectedProduct] || amazonReviewUrls.default; document.querySelectorAll('#softReviewLink, #buyerReviewLink, #receiverReviewLink, #strongReviewLink').forEach(link => link.href = url); }
-
     function updateCreateHeader() { const header = document.getElementById('createHeader'); if (userType === 'receiver') header.textContent = 'Create Your Thank You Message'; else header.textContent = 'Create Your Greeting Message'; }
-
     function playExampleVideos(containerId) { const container = document.getElementById(containerId); if (container) container.querySelectorAll('video').forEach(v => v.play().catch(() => {})); }
-
     function trackEvent(eventType) { fetch('/api/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ event_type: eventType, product: selectedProduct, user_type: userType, email: userEmail }) }).catch(err => console.error('Track error:', err)); }
-
     function trackReviewClick(source) { trackEvent('review_clicked'); }
-
   </script>
-
 </body>
-
 </html>
-
-
-
