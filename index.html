@@ -198,6 +198,21 @@
     .soft-review-link:visited {
       color: var(--text-secondary);
     }
+    .btn-back {
+      display: block;
+      width: auto;
+      margin: 1rem auto 0;
+      padding: 0.5rem 1rem;
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .btn-back:hover {
+      color: var(--accent-neon);
+    }
   </style>
 </head>
 <body>
@@ -218,8 +233,9 @@
         </div>
       </div>
       <p class="section-description">Create a personalized video message for your loved one - your crocheted friend will read it out loud! 🎁</p>
-      <button type="button" class="btn btn-primary" onclick="goToStep('branch')">✨ Let's Create Magic</button>
-      <a href="#" id="softReviewLink" class="soft-review-link" onclick="trackReviewClick('soft')">⭐ Love your little friend? Leave us a review!</a>
+      <button type="button" class="btn btn-primary" onclick="goToStep('email')">🎬 Create Your Video</button>
+      <button type="button" class="btn-back" onclick="goToStep('branch')">← Back</button>
+      <a href="#" id="buyerReviewLink" class="soft-review-link" onclick="trackReviewClick('soft')">⭐ Love your little friend? Leave us a review!</a>
     </section>
     <section id="branchSection" class="section hidden">
       <header><h1>WELCOME!</h1><p class="tagline">Tell us about your gift</p></header>
@@ -303,6 +319,7 @@
         </div>
       </div>
       <button type="button" class="btn btn-primary" onclick="goToStep('email')">🎬 Create Thank You Video</button>
+      <button type="button" class="btn-back" onclick="goToStep('branch')">← Back</button>
       <a href="#" id="receiverReviewLink" class="soft-review-link" onclick="trackReviewClick('receiver')">⭐ Love your gift? Help us with a review!</a>
     </section>
     <section id="emailSection" class="section hidden">
@@ -376,19 +393,21 @@
       trackEvent('page_view');
       setupFormHandlers();
     });
-    function goToStep(step) {
+   function goToStep(step) {
       document.querySelectorAll('.section, #loadingSection').forEach(s => s.classList.add('hidden'));
+      
+      // Pause welcome video
       const welcomeVideo = document.getElementById('welcomeVideo');
       if (welcomeVideo) { welcomeVideo.pause(); welcomeVideo.muted = true; }
+      
+      // Pause all example videos
+      document.querySelectorAll('.video-example video').forEach(v => {
+        v.pause();
+        v.muted = true;
+        v.closest('.video-example').classList.remove('playing');
+      });
+      
       currentStep = step;
-      switch(step) {
-        case 'welcome': document.getElementById('welcomeSection').classList.remove('hidden'); break;
-        case 'branch': document.getElementById('branchSection').classList.remove('hidden'); break;
-        case 'buyer': document.getElementById('buyerSection').classList.remove('hidden'); playExampleVideos('buyerExamples'); break;
-        case 'receiver': document.getElementById('receiverSection').classList.remove('hidden'); playExampleVideos('receiverExamples'); break;
-        case 'email': document.getElementById('emailSection').classList.remove('hidden'); break;
-        case 'create': document.getElementById('createSection').classList.remove('hidden'); updateCreateHeader(); break;
-        case 'result': document.getElementById('resultSection').classList.remove('hidden'); break;
       }
     }
     function selectBranch(type) { userType = type; goToStep(type); }
@@ -565,6 +584,7 @@ function unmuteWelcome() {
   </script>
 </body>
 </html>
+
 
 
 
