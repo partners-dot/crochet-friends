@@ -139,9 +139,9 @@
     .video-example { position: relative; }
     .example-controls {
       position: absolute;
-      top: 50%;
+      bottom: 4px;
       left: 50%;
-      transform: translate(-50%, -50%);
+      transform: translateX(-50%);
       display: flex;
       gap: 8px;
       background: rgba(0, 0, 0, 0.5);
@@ -197,7 +197,7 @@
       <header><h2>Create a Greeting Video! 🎉</h2><p class="section-description">Make your gift extra special! Record a personalized message that your crocheted friend will say to the lucky recipient.</p></header>
       <div class="video-examples" id="buyerExamples">
         <div class="video-example">
-          <video playsinline muted loop data-index="0"><source src="videos/example-buyer-1.mp4" type="video/mp4"></video>
+          <video playsinline muted loop preload="metadata" data-index="0"><source src="videos/example-buyer-1.mp4" type="video/mp4"></video>
           <div class="example-controls">
             <button onclick="toggleExamplePlay(this)">⏸️</button>
             <button onclick="toggleExampleMute(this)">🔇</button>
@@ -205,7 +205,7 @@
           <div class="caption">Birthday greeting</div>
         </div>
         <div class="video-example">
-          <video playsinline muted loop data-index="1"><source src="videos/example-buyer-2.mp4" type="video/mp4"></video>
+          <video playsinline muted loop preload="metadata" data-index="1"><source src="videos/example-buyer-2.mp4" type="video/mp4"></video>
           <div class="example-controls">
             <button onclick="toggleExamplePlay(this)">▶️</button>
             <button onclick="toggleExampleMute(this)">🔇</button>
@@ -213,7 +213,7 @@
           <div class="caption">Thank you message</div>
         </div>
         <div class="video-example">
-          <video playsinline muted loop data-index="2"><source src="videos/example-buyer-3.mp4" type="video/mp4"></video>
+          <video playsinline muted loop preload="metadata" data-index="2"><source src="videos/example-buyer-3.mp4" type="video/mp4"></video>
           <div class="example-controls">
             <button onclick="toggleExamplePlay(this)">▶️</button>
             <button onclick="toggleExampleMute(this)">🔇</button>
@@ -228,7 +228,7 @@
       <header><h2>Say Thank You! 💝</h2><p class="section-description">Send a thank-you video back to the person who gave you this wonderful gift!</p></header>
      <div class="video-examples" id="receiverExamples">
         <div class="video-example">
-          <video playsinline muted loop data-index="0"><source src="videos/example-receiver-1.mp4" type="video/mp4"></video>
+          <video playsinline muted loop preload="metadata" data-index="0"><source src="videos/example-receiver-1.mp4" type="video/mp4"></video>
           <div class="example-controls">
             <button onclick="toggleExamplePlay(this)">⏸️</button>
             <button onclick="toggleExampleMute(this)">🔇</button>
@@ -236,7 +236,7 @@
           <div class="caption">Thank you!</div>
         </div>
         <div class="video-example">
-          <video playsinline muted loop data-index="1"><source src="videos/example-receiver-2.mp4" type="video/mp4"></video>
+          <video playsinline muted loop preload="metadata" data-index="1"><source src="videos/example-receiver-2.mp4" type="video/mp4"></video>
           <div class="example-controls">
             <button onclick="toggleExamplePlay(this)">▶️</button>
             <button onclick="toggleExampleMute(this)">🔇</button>
@@ -244,7 +244,7 @@
           <div class="caption">You're the best!</div>
         </div>
         <div class="video-example">
-          <video playsinline muted loop data-index="2"><source src="videos/example-receiver-3.mp4" type="video/mp4"></video>
+          <video playsinline muted loop preload="metadata" data-index="2"><source src="videos/example-receiver-3.mp4" type="video/mp4"></video>
           <div class="example-controls">
             <button onclick="toggleExamplePlay(this)">▶️</button>
             <button onclick="toggleExampleMute(this)">🔇</button>
@@ -441,7 +441,11 @@
           }
         });
         video.play();
+        video.muted = false;
         btn.textContent = '⏸️';
+        // Update mute button to show unmuted
+        const muteBtn = container.querySelectorAll('.example-controls button')[1];
+        if (muteBtn) muteBtn.textContent = '🔊';
       } else {
         video.pause();
         btn.textContent = '▶️';
@@ -505,6 +509,7 @@ function unmuteWelcome() {
   </script>
 </body>
 </html>
+
 
 
 
