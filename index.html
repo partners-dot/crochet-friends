@@ -114,8 +114,8 @@
 .video-controls {
       position: absolute;
       bottom: 4px;
-      left: 8px;
-      transform: none;
+      left: 50%;
+      transform: translateX(-50%);
       display: none;
       gap: 10px;
       background: rgba(255, 255, 255, 0.15);
@@ -145,7 +145,7 @@
         <div class="subtitle">Thanks for choosing</div>
         <h1>GOT YOU<br>A LITTLE<br>SOMETHING</h1>
       </header>
-     <div class="welcome-video-container" onclick="handleVideoClick()">
+     <div class="welcome-video-container" onclick="unmuteWelcome()">
         <video id="welcomeVideo" playsinline muted autoplay loop>
           <source src="videos/welcome.mp4" type="video/mp4">
         </video>
@@ -381,24 +381,9 @@ function unmuteWelcome() {
         video.muted = true;
         btn.textContent = '🔇';
       }
-function handleVideoClick() {
-      const overlay = document.getElementById('welcomeSoundOverlay');
-      
-      // First click: if overlay exists and is visible, unmute
-      if (overlay && getComputedStyle(overlay).display !== 'none') {
-        unmuteWelcome();
-        return;
-      }
-      
-      // After unmuted: toggle play/pause
-      togglePlay();
-    }
     }
   </script>
 </body>
 </html>
-
-
-
 
 
