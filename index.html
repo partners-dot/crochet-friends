@@ -114,8 +114,8 @@
 .video-controls {
       position: absolute;
       bottom: 4px;
-      left: 50%;
-      transform: translateX(-50%);
+      left: 8px;
+      transform: none;
       display: none;
       gap: 10px;
       background: rgba(255, 255, 255, 0.15);
@@ -240,6 +240,7 @@
     let userEmail = null;
     let videosRemaining = 2;
     let selectedProduct = 'potato';
+    let videoUnmuted = false;
     const urlParams = new URLSearchParams(window.location.search);
     const productFromUrl = urlParams.get('product');
     const amazonReviewUrls = {
@@ -353,12 +354,21 @@ function unmuteWelcome() {
       const video = document.getElementById('welcomeVideo');
       const overlay = document.getElementById('welcomeSoundOverlay');
       const controls = document.getElementById('videoControls');
-      if (video) {
-        video.muted = false;
-        video.volume = 1.0;
+      
+      // First click: unmute
+      if (!videoUnmuted) {
+        if (video) {
+          video.muted = false;
+          video.volume = 1.0;
+        }
+        if (overlay) overlay.style.display = 'none';
+        if (controls) controls.classList.add('visible');
+        videoUnmuted = true;
+        return;
       }
-      if (overlay) overlay.style.display = 'none';
-      if (controls) controls.classList.add('visible');
+      
+      // After unmuted: toggle play/pause
+      togglePlay();
     }
     function togglePlay() {
       const video = document.getElementById('welcomeVideo');
@@ -385,5 +395,6 @@ function unmuteWelcome() {
   </script>
 </body>
 </html>
+
 
 
