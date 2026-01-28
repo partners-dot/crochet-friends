@@ -259,6 +259,8 @@
     });
     function goToStep(step) {
       document.querySelectorAll('.section, #loadingSection').forEach(s => s.classList.add('hidden'));
+      const welcomeVideo = document.getElementById('welcomeVideo');
+      if (welcomeVideo) { welcomeVideo.pause(); welcomeVideo.muted = true; }
       currentStep = step;
       switch(step) {
         case 'welcome': document.getElementById('welcomeSection').classList.remove('hidden'); break;
@@ -381,4 +383,5 @@ function unmuteWelcome() {
   </script>
 </body>
 </html>
+
 
