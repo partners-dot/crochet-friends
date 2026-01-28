@@ -381,11 +381,11 @@ function unmuteWelcome() {
         video.muted = true;
         btn.textContent = '🔇';
       }
-      function handleVideoClick() {
+function handleVideoClick() {
       const overlay = document.getElementById('welcomeSoundOverlay');
       
-      // First click: if overlay is visible, unmute
-      if (overlay && overlay.style.display !== 'none') {
+      // First click: if overlay exists and is visible, unmute
+      if (overlay && getComputedStyle(overlay).display !== 'none') {
         unmuteWelcome();
         return;
       }
@@ -397,6 +397,7 @@ function unmuteWelcome() {
   </script>
 </body>
 </html>
+
 
 
 
