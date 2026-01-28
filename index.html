@@ -198,6 +198,18 @@
     .soft-review-link:visited {
       color: var(--text-secondary);
     }
+    .btn-back {
+      display: block;
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      margin: 0.75rem auto 0;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .btn-back:hover { color: var(--accent-neon); }
   </style>
 </head>
 <body>
@@ -267,6 +279,7 @@
         </div>
       </div>
       <button type="button" class="btn btn-primary" onclick="goToStep('email')">🎬 Create Your Video</button>
+      <button type="button" class="btn-back" onclick="goToStep('branch')">← Back</button>
       <a href="#" id="buyerReviewLink" class="soft-review-link" onclick="trackReviewClick('buyer')">⭐ Help us grow - leave a review on Amazon!</a>
     </section>
     <section id="receiverSection" class="section hidden">
@@ -303,6 +316,7 @@
         </div>
       </div>
       <button type="button" class="btn btn-primary" onclick="goToStep('email')">🎬 Create Thank You Video</button>
+      <button type="button" class="btn-back" onclick="goToStep('branch')">← Back</button>
       <a href="#" id="receiverReviewLink" class="soft-review-link" onclick="trackReviewClick('receiver')">⭐ Love your gift? Help us with a review!</a>
     </section>
     <section id="emailSection" class="section hidden">
@@ -575,4 +589,5 @@ function unmuteWelcome() {
   </script>
 </body>
 </html>
+
 
