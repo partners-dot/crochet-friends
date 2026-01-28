@@ -254,27 +254,30 @@
       <p class="examples-label">✨ See what you can create</p>
       
       <div class="video-examples" id="buyerExamples">
-        <div class="video-example">
+       <div class="video-example" onclick="handleExampleClick(this)">
+          <video playsinline
           <video playsinline muted loop preload="metadata" data-index="0"><source src="videos/example-buyer-1.mp4" type="video/mp4"></video>
           <div class="example-controls">
-            <button onclick="toggleExamplePlay(this)">⏸️</button>
-            <button onclick="toggleExampleMute(this)">🔇</button>
+            <button onclick="event.stopPropagation(); toggleExamplePlay(this)">⏸️</button>
+<button onclick="event.stopPropagation(); toggleExampleMute(this)">🔇</button>
           </div>
           <div class="caption">Graduation Message</div>
         </div>
-        <div class="video-example">
+        <div class="video-example" onclick="handleExampleClick(this)">
+          <video playsinline
           <video playsinline muted loop preload="metadata" data-index="1"><source src="videos/example-buyer-2.mp4" type="video/mp4"></video>
           <div class="example-controls">
-            <button onclick="toggleExamplePlay(this)">▶️</button>
-            <button onclick="toggleExampleMute(this)">🔇</button>
+            <button onclick="event.stopPropagation(); toggleExamplePlay(this)">⏸️</button>
+<button onclick="event.stopPropagation(); toggleExampleMute(this)">🔇</button>
           </div>
           <div class="caption">Birthday greeting</div>
         </div>
-        <div class="video-example">
+        <div class="video-example" onclick="handleExampleClick(this)">
+          <video playsinline
           <video playsinline muted loop preload="metadata" data-index="2"><source src="videos/example-buyer-3.mp4" type="video/mp4"></video>
           <div class="example-controls">
-            <button onclick="toggleExamplePlay(this)">▶️</button>
-            <button onclick="toggleExampleMute(this)">🔇</button>
+            <button onclick="event.stopPropagation(); toggleExamplePlay(this)">⏸️</button>
+<button onclick="event.stopPropagation(); toggleExampleMute(this)">🔇</button>
           </div>
           <div class="caption">Personal joke</div>
         </div>
@@ -291,27 +294,29 @@
       </header>
       <p class="examples-label">✨ See what you can create</p>
       <div class="video-examples" id="receiverExamples">
-        <div class="video-example">
+        <div class="video-example" onclick="handleExampleClick(this)">
+          <video playsinline
           <video playsinline muted loop preload="metadata" data-index="0"><source src="videos/example-receiver-1.mp4" type="video/mp4"></video>
           <div class="example-controls">
-            <button onclick="toggleExamplePlay(this)">⏸️</button>
-            <button onclick="toggleExampleMute(this)">🔇</button>
+            <button onclick="event.stopPropagation(); toggleExamplePlay(this)">⏸️</button>
+<button onclick="event.stopPropagation(); toggleExampleMute(this)">🔇</button>
           </div>
           <div class="caption">Thank you!</div>
         </div>
-        <div class="video-example">
+        <div class="video-example" onclick="handleExampleClick(this)">
+          <video playsinline
           <video playsinline muted loop preload="metadata" data-index="1"><source src="videos/example-receiver-2.mp4" type="video/mp4"></video>
           <div class="example-controls">
-            <button onclick="toggleExamplePlay(this)">▶️</button>
-            <button onclick="toggleExampleMute(this)">🔇</button>
-          </div>
+            <button onclick="event.stopPropagation(); toggleExamplePlay(this)">⏸️</button>
+<button onclick="event.stopPropagation(); toggleExampleMute(this)">🔇</button>
           <div class="caption">You're the best!</div>
         </div>
-        <div class="video-example">
+        <div class="video-example" onclick="handleExampleClick(this)">
+          <video playsinline
           <video playsinline muted loop preload="metadata" data-index="2"><source src="videos/example-receiver-3.mp4" type="video/mp4"></video>
           <div class="example-controls">
-            <button onclick="toggleExamplePlay(this)">▶️</button>
-            <button onclick="toggleExampleMute(this)">🔇</button>
+            <button onclick="event.stopPropagation(); toggleExamplePlay(this)">⏸️</button>
+<button onclick="event.stopPropagation(); toggleExampleMute(this)">🔇</button>
           </div>
           <div class="caption">I love it!</div>
         </div>
@@ -372,6 +377,8 @@
     let videosRemaining = 2;
     let selectedProduct = 'potato';
     let videoUnmuted = false;
+    let videoUnmuted = false;
+    let exampleSoundOn = false;
     const urlParams = new URLSearchParams(window.location.search);
     const productFromUrl = urlParams.get('product');
     const amazonReviewUrls = {
@@ -507,7 +514,11 @@
         });
       }
     }
-    function toggleExamplePlay(btn) {
+    function handleExampleClick(container) {
+      const btn = container.querySelector('.example-controls button');
+      if (btn) toggleExamplePlay(btn);
+    }
+function toggleExamplePlay(btn) {
       const container = btn.closest('.video-example');
       const video = container.querySelector('video');
       const allVideos = document.querySelectorAll('.video-example video');
@@ -522,11 +533,12 @@
           }
         });
         video.play();
-        video.muted = false;
+        // Use saved sound state
+        video.muted = !exampleSoundOn;
         btn.textContent = '⏸️';
-        // Update mute button to show unmuted
+        // Update mute button icon
         const muteBtn = container.querySelectorAll('.example-controls button')[1];
-        if (muteBtn) muteBtn.textContent = '🔊';
+        if (muteBtn) muteBtn.textContent = exampleSoundOn ? '🔊' : '🔇';
       } else {
         video.pause();
         btn.textContent = '▶️';
@@ -537,9 +549,11 @@
       const video = container.querySelector('video');
       if (video.muted) {
         video.muted = false;
+        exampleSoundOn = true;
         btn.textContent = '🔊';
       } else {
         video.muted = true;
+        exampleSoundOn = false;
         btn.textContent = '🔇';
       }
     }
@@ -590,6 +604,7 @@ function unmuteWelcome() {
   </script>
 </body>
 </html>
+
 
 
 
