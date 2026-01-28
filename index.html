@@ -421,7 +421,13 @@
           if (i === 0) {
             v.play().catch(() => {});
           } else {
-            v.pause();
+            // Force thumbnail on mobile: briefly play then pause
+            v.play().then(() => {
+              setTimeout(() => {
+                v.pause();
+                v.currentTime = 0;
+              }, 50);
+            }).catch(() => {});
           }
         });
       }
@@ -509,6 +515,7 @@ function unmuteWelcome() {
   </script>
 </body>
 </html>
+
 
 
 
