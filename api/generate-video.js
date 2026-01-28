@@ -1,5 +1,14 @@
 /* Async Video Generation - Returns operationId immediately */
 import { GoogleAuth } from 'google-auth-library';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_ANON_KEY;
+
+// Initialize Supabase client
+const supabase = supabaseUrl && supabaseKey
+    ? createClient(supabaseUrl, supabaseKey)
+    : null;
 
 export default async function handler(req, res) {
     // CORS headers
@@ -11,7 +20,7 @@ export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
     try {
-        const { message, character } = req.body;
+        const { message, character, email, userType } = req.body;
         if (!message) return res.status(400).json({ error: 'Message required' });
 
         // Parse Google Credentials from env var
@@ -96,6 +105,50 @@ export default async function handler(req, res) {
         const operationName = generateData.name; // "projects/.../operations/..."
 
         console.log('Video generation started:', operationName);
+
+        // Save to Supabase if configured and email provided
+        if (supabase && email) {
+            // 1. Log video session with operation_id
+            const { error: sessionError } = await supabase.from('video_sessions').insert([{
+                email: email.toLowerCase(),
+                product: selectedCharacter,
+                user_type: userType || null,
+                message: message,
+                operation_id: operationName,
+                status: 'pending'
+            }]);
+
+            if (sessionError) {
+                console.error('[Generate Video] video_sessions insert error:', sessionError);
+            } else {
+                console.log('[Generate Video] video_sessions insert OK for:', email);
+            }
+
+            // 2. Increment videos_created count
+            const { data: user, error: selectError } = await supabase
+                .from('users')
+                .select('videos_created')
+                .eq('email', email.toLowerCase())
+                .single();
+
+            if (user) {
+                const { error: updateError } = await supabase
+                    .from('users')
+                    .update({
+                        videos_created: (user.videos_created || 0) + 1,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('email', email.toLowerCase());
+
+                if (updateError) {
+                    console.error('[Generate Video] videos_created update error:', updateError);
+                } else {
+                    console.log('[Generate Video] videos_created incremented for:', email, 'to', (user.videos_created || 0) + 1);
+                }
+            } else if (selectError && selectError.code !== 'PGRST116') {
+                console.error('[Generate Video] user select error:', selectError);
+            }
+        }
 
         // Return immediately with operationId for frontend to poll
         return res.status(200).json({
