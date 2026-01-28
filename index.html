@@ -255,7 +255,6 @@
       
       <div class="video-examples" id="buyerExamples">
        <div class="video-example" onclick="handleExampleClick(this)">
-          <video playsinline
           <video playsinline muted loop preload="metadata" data-index="0"><source src="videos/example-buyer-1.mp4" type="video/mp4"></video>
           <div class="example-controls">
             <button onclick="event.stopPropagation(); toggleExamplePlay(this)">⏸️</button>
@@ -264,7 +263,6 @@
           <div class="caption">Graduation Message</div>
         </div>
         <div class="video-example" onclick="handleExampleClick(this)">
-          <video playsinline
           <video playsinline muted loop preload="metadata" data-index="1"><source src="videos/example-buyer-2.mp4" type="video/mp4"></video>
           <div class="example-controls">
             <button onclick="event.stopPropagation(); toggleExamplePlay(this)">⏸️</button>
@@ -273,7 +271,6 @@
           <div class="caption">Birthday greeting</div>
         </div>
         <div class="video-example" onclick="handleExampleClick(this)">
-          <video playsinline
           <video playsinline muted loop preload="metadata" data-index="2"><source src="videos/example-buyer-3.mp4" type="video/mp4"></video>
           <div class="example-controls">
             <button onclick="event.stopPropagation(); toggleExamplePlay(this)">⏸️</button>
@@ -295,7 +292,6 @@
       <p class="examples-label">✨ See what you can create</p>
       <div class="video-examples" id="receiverExamples">
         <div class="video-example" onclick="handleExampleClick(this)">
-          <video playsinline
           <video playsinline muted loop preload="metadata" data-index="0"><source src="videos/example-receiver-1.mp4" type="video/mp4"></video>
           <div class="example-controls">
             <button onclick="event.stopPropagation(); toggleExamplePlay(this)">⏸️</button>
@@ -304,7 +300,6 @@
           <div class="caption">Thank you!</div>
         </div>
         <div class="video-example" onclick="handleExampleClick(this)">
-          <video playsinline
           <video playsinline muted loop preload="metadata" data-index="1"><source src="videos/example-receiver-2.mp4" type="video/mp4"></video>
           <div class="example-controls">
             <button onclick="event.stopPropagation(); toggleExamplePlay(this)">⏸️</button>
@@ -312,7 +307,6 @@
           <div class="caption">You're the best!</div>
         </div>
         <div class="video-example" onclick="handleExampleClick(this)">
-          <video playsinline
           <video playsinline muted loop preload="metadata" data-index="2"><source src="videos/example-receiver-3.mp4" type="video/mp4"></video>
           <div class="example-controls">
             <button onclick="event.stopPropagation(); toggleExamplePlay(this)">⏸️</button>
@@ -376,7 +370,6 @@
     let userEmail = null;
     let videosRemaining = 2;
     let selectedProduct = 'potato';
-    let videoUnmuted = false;
     let videoUnmuted = false;
     let exampleSoundOn = false;
     const urlParams = new URLSearchParams(window.location.search);
@@ -604,6 +597,7 @@ function unmuteWelcome() {
   </script>
 </body>
 </html>
+
 
 
 
