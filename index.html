@@ -210,6 +210,61 @@
     .btn-amazon:visited {
       color: #FFF;
     }
+    .loading-container {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      border-radius: 24px;
+      padding: 2rem;
+      text-align: center;
+      border: 1px solid var(--glass-border);
+    }
+    .loading-container h2 {
+      margin-bottom: 0.5rem;
+    }
+    .loading-estimate {
+      color: var(--accent-neon);
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-bottom: 1.5rem;
+    }
+    .progress-steps {
+      text-align: left;
+      margin: 1.5rem 0;
+    }
+    .step {
+      padding: 0.75rem 1rem;
+      margin-bottom: 0.5rem;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.03);
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      transition: all 0.3s;
+    }
+    .step.active {
+      background: rgba(255, 209, 102, 0.15);
+      color: var(--text-primary);
+      border-left: 3px solid var(--accent-neon);
+    }
+    .step.done {
+      color: #4CAF50;
+    }
+    .step .icon {
+      margin-right: 8px;
+    }
+    .loading-tip {
+      background: rgba(255, 209, 102, 0.1);
+      border: 1px solid rgba(255, 209, 102, 0.3);
+      border-radius: 12px;
+      padding: 1rem;
+      font-size: 0.9rem;
+      color: var(--accent-neon);
+      margin: 1.5rem 0;
+    }
+    .progress-text {
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      margin-top: 1rem;
+    }
   </style>
 </head>
 <body>
@@ -350,8 +405,22 @@
         <button type="submit" class="btn btn-primary" id="generateBtn">✨ Create Video Message</button>
       </form>
     </section>
-    <section id="loadingSection" class="card hidden">
-      <div class="loading"><div class="spinner"></div><p style="font-weight:600;">Creating your magical video...</p><p class="progress-text" id="progressText">This takes about 20-30 seconds</p></div>
+    <section id="loadingSection" class="section hidden">
+      <div class="loading-container">
+        <h2>Creating Your Video ✨</h2>
+        <p class="loading-estimate">This usually takes 2-3 minutes. Feel free to lock your phone!</p>
+        
+        <div class="progress-steps">
+          <div class="step" id="step1"><span class="icon">⏳</span> Analyzing your message</div>
+          <div class="step" id="step2"><span class="icon">⏳</span> Creating voice audio</div>
+          <div class="step" id="step3"><span class="icon">⏳</span> Animating your friend</div>
+          <div class="step" id="step4"><span class="icon">⏳</span> Rendering final video</div>
+        </div>
+        
+        <div class="loading-tip" id="loadingTip">💡 Tip: Your video will be waiting for you when you come back!</div>
+        
+        <p class="progress-text" id="progressText">Starting...</p>
+      </div>
     </section>
     <section id="resultSection" class="section hidden">
       <div class="thank-you-header"><span class="emoji">🎉</span><h2>Your Video is Ready!</h2></div>
@@ -442,8 +511,9 @@
       if (!text) return;
       document.getElementById('createSection').classList.add('hidden');
       document.getElementById('loadingSection').classList.remove('hidden');
+      startLoadingAnimation();
       const progressText = document.getElementById('progressText');
-      progressText.textContent = 'Starting video generation...';
+      progressText.textContent = 'Starting...';
       try {
         const startRes = await fetch('/api/generate-video', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: text, character: selectedProduct, email: userEmail, userType: userType }) });
         const startData = await startRes.json();
@@ -481,10 +551,12 @@
         if (videosRemaining <= 0) document.getElementById('createAnotherBtn').classList.add('hidden');
         document.getElementById('loadingSection').classList.add('hidden');
         localStorage.removeItem('videoGeneration');
+        stopLoadingAnimation();
         goToStep('result');
       } catch (err) {
         console.error(err);
         localStorage.removeItem('videoGeneration');
+        stopLoadingAnimation();
         document.getElementById('errorText').textContent = err.message || 'Something went wrong. Please try again.';
         document.getElementById('loadingSection').classList.add('hidden');
         document.getElementById('errorSection').classList.remove('hidden');
@@ -624,6 +696,7 @@
     }
     
     async function resumePolling(operationId, startTime) {
+      startLoadingAnimation();
       const progressText = document.getElementById('progressText');
       let videoUrl = null;
       let attempts = Math.floor((Date.now() - startTime) / 5000); // Resume from where we left off
@@ -673,8 +746,61 @@
       document.getElementById('loadingSection').classList.add('hidden');
       goToStep('result');
     }
+    const loadingTips = [
+      "💡 Tip: Your video will be waiting for you when you come back!",
+      "🎬 Fun fact: Each video is uniquely generated just for you!",
+      "☕ Perfect time for a quick coffee break!",
+      "📱 You can lock your phone - we'll keep working!",
+      "✨ Your crocheted friend is practicing their lines...",
+      "🎁 Almost there! Great gifts take a little time!"
+    ];
+    let tipIndex = 0;
+    let tipInterval = null;
+    
+    function startLoadingAnimation() {
+      // Reset all steps
+      for (let i = 1; i <= 4; i++) {
+        const step = document.getElementById('step' + i);
+        step.classList.remove('active', 'done');
+        step.querySelector('.icon').textContent = '⏳';
+      }
+      
+      // Animate steps based on time
+      setTimeout(() => updateStep(1, 'active'), 500);
+      setTimeout(() => { updateStep(1, 'done'); updateStep(2, 'active'); }, 15000);
+      setTimeout(() => { updateStep(2, 'done'); updateStep(3, 'active'); }, 45000);
+      setTimeout(() => { updateStep(3, 'done'); updateStep(4, 'active'); }, 90000);
+      
+      // Rotate tips every 8 seconds
+      tipInterval = setInterval(() => {
+        tipIndex = (tipIndex + 1) % loadingTips.length;
+        document.getElementById('loadingTip').textContent = loadingTips[tipIndex];
+      }, 8000);
+    }
+    
+    function updateStep(stepNum, state) {
+      const step = document.getElementById('step' + stepNum);
+      if (!step) return;
+      
+      step.classList.remove('active', 'done');
+      step.classList.add(state);
+      
+      if (state === 'done') {
+        step.querySelector('.icon').textContent = '✅';
+      } else if (state === 'active') {
+        step.querySelector('.icon').textContent = '🔄';
+      }
+    }
+    
+    function stopLoadingAnimation() {
+      if (tipInterval) {
+        clearInterval(tipInterval);
+        tipInterval = null;
+      }
+    }
   </script>
 </body>
 </html>
+
 
 
