@@ -1,9 +1,10 @@
 {
-          "name": "crochet-friends",
-          "version": "1.0.0",
-          "type": "module",
-          "private": true,
-          "dependencies": {
-                        "google-auth-library": "^9.0.0"
-          }
+  "name": "crochet-friends",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "google-auth-library": "^9.0.0"
+  }
 }
