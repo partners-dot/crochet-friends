@@ -1,52 +1,96 @@
 // API endpoint: /api/user
 // Handles email registration and rate limiting with Supabase
-
 import { createClient } from '@supabase/supabase-js';
-
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_ANON_KEY;
-
-const supabase = supabaseUrl && supabaseKey 
-  ? createClient(supabaseUrl, supabaseKey)
-  : null;
-
+// Initialize Supabase client
+const supabase = supabaseUrl && supabaseKey
+    ? createClient(supabaseUrl, supabaseKey)
+    : null;
 const MAX_VIDEOS_PER_USER = 2;
-
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-
-  try {
-    const { email, userType, product } = req.body;
-    if (!email || !email.includes('@')) return res.status(400).json({ error: 'Valid email required' });
-
-    if (!supabase) {
-      console.log('[User API] Supabase not configured, allowing request');
-      return res.status(200).json({ allowed: true, videosRemaining: MAX_VIDEOS_PER_USER, isNewUser: true });
+    // DEBUG: Log environment variables (remove after debugging)
+    console.log('[User API] SUPABASE_URL exists:', !!process.env.SUPABASE_URL);
+    console.log('[User API] SUPABASE_ANON_KEY exists:', !!process.env.SUPABASE_ANON_KEY);
+    console.log('[User API] Supabase client initialized:', !!supabase);
+    // Enable CORS
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
     }
-
-    const { data: existingUser, error: selectError } = await supabase
-      .from('users')
-      .select('*')
-      .eq('email', email.toLowerCase())
-      .single();
-
-    if (selectError && selectError.code !== 'PGRST116') throw selectError;
-
-    if (existingUser) {
-      const videosCreated = existingUser.videos_created || 0;
-      const allowed = videosCreated < MAX_VIDEOS_PER_USER;
-      return res.status(200).json({ allowed, videosRemaining: Math.max(0, MAX_VIDEOS_PER_USER - videosCreated), isNewUser: false });
-    } else {
-      await supabase.from('users').insert([{ email: email.toLowerCase(), videos_created: 0, user_type: userType || null, product: product || null }]);
-      return res.status(200).json({ allowed: true, videosRemaining: MAX_VIDEOS_PER_USER, isNewUser: true });
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method not allowed' });
     }
-  } catch (error) {
-    console.error('[User API] Error:', error);
-    return res.status(200).json({ allowed: true, videosRemaining: MAX_VIDEOS_PER_USER, error: 'Database unavailable' });
-  }
+    try {
+        const { email, userType, product } = req.body;
+        if (!email || !email.includes('@')) {
+            return res.status(400).json({ error: 'Valid email required' });
+        }
+        // If Supabase is not configured, allow with graceful fallback
+        if (!supabase) {
+            console.log('[User API] Supabase not configured, allowing request');
+            return res.status(200).json({
+                allowed: true,
+                videosRemaining: MAX_VIDEOS_PER_USER,
+                isNewUser: true
+            });
+        }
+        // Check if user exists
+        const { data: existingUser, error: selectError } = await supabase
+            .from('users')
+            .select('*')
+            .eq('email', email.toLowerCase())
+            .single();
+        if (selectError && selectError.code !== 'PGRST116') {
+            // PGRST116 = no rows found (new user)
+            console.error('[User API] DB select error:', selectError);
+            throw selectError;
+        }
+        if (existingUser) {
+            // Existing user - check rate limit
+            const videosCreated = existingUser.videos_created || 0;
+            const allowed = videosCreated < MAX_VIDEOS_PER_USER;
+            const videosRemaining = Math.max(0, MAX_VIDEOS_PER_USER - videosCreated);
+            console.log('[User API] Existing user:', email, 'videos_created:', videosCreated, 'allowed:', allowed);
+            return res.status(200).json({
+                allowed,
+                videosRemaining,
+                isNewUser: false
+            });
+        } else {
+            // New user - create record
+            const { data: newUser, error: insertError } = await supabase
+                .from('users')
+                .insert([
+                    {
+                        email: email.toLowerCase(),
+                        videos_created: 0,
+                        user_type: userType || null,
+                        product: product || null
+                    }
+                ])
+                .select()
+                .single();
+            if (insertError) {
+                console.error('[User API] DB insert error:', insertError);
+                throw insertError;
+            }
+            console.log('[User API] New user created:', email);
+            return res.status(200).json({
+                allowed: true,
+                videosRemaining: MAX_VIDEOS_PER_USER,
+                isNewUser: true
+            });
+        }
+    } catch (error) {
+        console.error('[User API] Error:', error);
+        // Graceful degradation - allow if DB fails
+        return res.status(200).json({
+            allowed: true,
+            videosRemaining: MAX_VIDEOS_PER_USER,
+            error: 'Database unavailable, allowing request'
+        });
+    }
 }
