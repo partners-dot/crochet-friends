@@ -117,11 +117,12 @@
       left: 4px;
       transform: none;
       display: none;
-      gap: 4px;
-      background: rgba(0, 0, 0, 0.5);
-      padding: 3px 6px;
-      border-radius: 12px;
-      border: none;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(8px);
+      padding: 3px 8px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
       z-index: 10;
     }
     .video-controls.visible { display: flex; }
@@ -129,13 +130,12 @@
       background: none;
       border: none;
       color: white;
-      font-size: 0.7rem;
+      font-size: 0.75rem;
       cursor: pointer;
-      padding: 2px;
-      opacity: 0.8;
-      transition: opacity 0.2s;
+      padding: 1px 2px;
+      transition: transform 0.2s;
     }
-    .video-controls button:hover { opacity: 1; }
+    .video-controls button:hover { transform: scale(1.1); }
   </style>
 </head>
 <body>
@@ -149,9 +149,10 @@
         <video id="welcomeVideo" playsinline muted autoplay loop>
           <source src="videos/welcome.mp4" type="video/mp4">
         </video>
+        <div id="welcomeSoundOverlay" class="sound-overlay">🔊 Tap for sound</div>
         <div id="videoControls" class="video-controls">
-          <button onclick="event.stopPropagation(); togglePlay();" id="playPauseBtn">▐▐</button>
-          <button onclick="event.stopPropagation(); toggleMute();" id="muteBtn">♪</button>
+          <button onclick="event.stopPropagation(); togglePlay();" id="playPauseBtn">⏸️</button>
+          <button onclick="event.stopPropagation(); toggleMute();" id="muteBtn">🔊</button>
         </div>
       </div>
       <p class="section-description">Create a personalized video message for your loved one — your crocheted friend will read it out loud! 🎁</p>
@@ -374,10 +375,10 @@ function unmuteWelcome() {
       const btn = document.getElementById('playPauseBtn');
       if (video.paused) {
         video.play();
-        btn.textContent = '▐▐';
+        btn.textContent = '⏸️';
       } else {
         video.pause();
-        btn.textContent = '▶';
+        btn.textContent = '▶️';
       }
     }
     function toggleMute() {
@@ -385,16 +386,14 @@ function unmuteWelcome() {
       const btn = document.getElementById('muteBtn');
       if (video.muted) {
         video.muted = false;
-        btn.textContent = '♪';
+        btn.textContent = '🔊';
       } else {
         video.muted = true;
-        btn.textContent = '♪̸';
+        btn.textContent = '🔇';
       }
     }
   </script>
 </body>
 </html>
-
-
 
 
