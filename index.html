@@ -139,7 +139,7 @@
     .video-example { position: relative; }
     .example-controls {
       position: absolute;
-      bottom: 4px;
+      bottom: 30px;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
@@ -323,8 +323,14 @@
       updateReviewLinks();
       const welcomeVideo = document.getElementById('welcomeVideo');
       if (welcomeVideo) welcomeVideo.play().catch(() => {});
-      trackEvent('page_view');
+     trackEvent('page_view');
       setupFormHandlers();
+      // Force load video thumbnails on mobile
+      document.querySelectorAll('.video-example video').forEach(v => {
+        v.load();
+        v.currentTime = 0.1;
+      });
+    });
     });
     function goToStep(step) {
       document.querySelectorAll('.section, #loadingSection').forEach(s => s.classList.add('hidden'));
@@ -509,6 +515,7 @@ function unmuteWelcome() {
   </script>
 </body>
 </html>
+
 
 
 
