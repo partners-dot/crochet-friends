@@ -382,6 +382,7 @@
       default: 'https://www.amazon.com/review/create-review/?ie=UTF8&channel=glance-detail&asin=B0DVR6VBRR'
     };
     document.addEventListener('DOMContentLoaded', () => {
+      checkAndResumeGeneration(); // Check for ongoing generation
       if (productFromUrl && ['potato', 'cupcake', 'yoda'].includes(productFromUrl)) {
         selectedProduct = productFromUrl;
         selectProductInUI(productFromUrl);
@@ -448,6 +449,14 @@
         const startData = await startRes.json();
         if (!startRes.ok) throw new Error(startData.error || 'Failed to start generation');
         const operationId = startData.operationId;
+        // Save generation state to localStorage
+        localStorage.setItem('videoGeneration', JSON.stringify({
+          operationId: operationId,
+          email: userEmail,
+          userType: userType,
+          product: selectedProduct,
+          startTime: Date.now()
+        }));
         progressText.textContent = 'Video is being created...';
         let videoUrl = null; let attempts = 0; let consecutiveFailures = 0; const maxAttempts = 60;
         while (!videoUrl && attempts < maxAttempts) {
@@ -471,9 +480,11 @@
         videosRemaining--;
         if (videosRemaining <= 0) document.getElementById('createAnotherBtn').classList.add('hidden');
         document.getElementById('loadingSection').classList.add('hidden');
+        localStorage.removeItem('videoGeneration');
         goToStep('result');
       } catch (err) {
         console.error(err);
+        localStorage.removeItem('videoGeneration');
         document.getElementById('errorText').textContent = err.message || 'Something went wrong. Please try again.';
         document.getElementById('loadingSection').classList.add('hidden');
         document.getElementById('errorSection').classList.remove('hidden');
@@ -588,7 +599,82 @@
         btn.textContent = '🔇';
       }
     }
+    function checkAndResumeGeneration() {
+      const saved = localStorage.getItem('videoGeneration');
+      if (!saved) return;
+      
+      const data = JSON.parse(saved);
+      // If too old (more than 10 minutes), clear and don't resume
+      if (Date.now() - data.startTime > 10 * 60 * 1000) {
+        localStorage.removeItem('videoGeneration');
+        return;
+      }
+      
+      // Restore state
+      userEmail = data.email;
+      userType = data.userType;
+      selectedProduct = data.product;
+      
+      // Show loading section
+      document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+      document.getElementById('loadingSection').classList.remove('hidden');
+      
+      // Resume polling
+      resumePolling(data.operationId, data.startTime);
+    }
+    
+    async function resumePolling(operationId, startTime) {
+      const progressText = document.getElementById('progressText');
+      let videoUrl = null;
+      let attempts = Math.floor((Date.now() - startTime) / 5000); // Resume from where we left off
+      let consecutiveFailures = 0;
+      const maxAttempts = 60;
+      
+      while (!videoUrl && attempts < maxAttempts) {
+        await new Promise(r => setTimeout(r, 5000));
+        attempts++;
+        progressText.textContent = `Creating magic... (${attempts * 5}s)`;
+        
+        try {
+          const statusRes = await fetch(`/api/check-status?operationId=${encodeURIComponent(operationId)}`);
+          const statusData = await statusRes.json();
+          
+          if (!statusRes.ok) {
+            consecutiveFailures++;
+            if (consecutiveFailures >= 3) throw new Error(statusData.details || statusData.error || 'Video generation failed');
+            continue;
+          }
+          consecutiveFailures = 0;
+          
+          if (statusData.status === 'done') {
+            videoUrl = statusData.videoUrl;
+          } else if (statusData.status === 'error') {
+            throw new Error(statusData.error || 'Video generation failed');
+          }
+        } catch (fetchErr) {
+          consecutiveFailures++;
+          if (consecutiveFailures >= 3) throw fetchErr;
+        }
+      }
+      
+      if (!videoUrl) throw new Error('Video generation timed out');
+      
+      localStorage.removeItem('videoGeneration');
+      trackEvent('video_created');
+      document.getElementById('video').src = videoUrl;
+      window.videoData = videoUrl;
+      window.videoFilename = `crochet-${selectedProduct}-message.mp4`;
+      document.getElementById('downloadBtn').onclick = function() {
+        const link = document.createElement('a');
+        link.href = window.videoData;
+        link.download = window.videoFilename;
+        link.click();
+      };
+      document.getElementById('loadingSection').classList.add('hidden');
+      goToStep('result');
+    }
   </script>
 </body>
 </html>
+
 
