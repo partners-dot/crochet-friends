@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -92,9 +91,28 @@
     .review-cta-box { background: linear-gradient(135deg, rgba(255,153,0,0.2) 0%, rgba(255,102,0,0.2) 100%); border: 2px solid #FF9900; border-radius: var(--radius-lg); padding: 1.5rem; text-align: center; margin-top: 1.5rem; }
     .review-cta-box h3 { color: #FF9900; margin-bottom: 0.5rem; font-size: 1.1rem; }
     .review-cta-box p { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem; }
+    .sound-overlay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 50px;
+      cursor: pointer;
+      z-index: 10;
+      font-weight: 600;
+      font-size: 0.95rem;
+      border: 2px solid var(--accent-neon);
+      transition: all 0.2s;
+    }
+    .sound-overlay:hover {
+      background: rgba(0, 0, 0, 0.9);
+      transform: translate(-50%, -50%) scale(1.05);
+    }
   </style>
 </head>
-
 <body>
   <div class="container">
     <section id="welcomeSection" class="section">
@@ -102,16 +120,16 @@
         <div class="subtitle">Thanks for choosing</div>
         <h1>GOT YOU<br>A LITTLE<br>SOMETHING</h1>
       </header>
-      <div class="welcome-video-container">
+      <div class="welcome-video-container" onclick="unmuteWelcome()">
         <video id="welcomeVideo" playsinline muted autoplay loop>
           <source src="videos/welcome.mp4" type="video/mp4">
         </video>
+        <div id="welcomeSoundOverlay" class="sound-overlay">🔊 Tap for sound</div>
       </div>
       <p class="section-description">Create a personalized video message for your loved one — your crocheted friend will read it out loud! 🎁</p>
       <button type="button" class="btn btn-primary" onclick="goToStep('branch')">✨ Let's Create Magic</button>
       <a href="#" id="softReviewLink" class="soft-review-link" onclick="trackReviewClick('soft')">⭐ Love your little friend? Leave us a review!</a>
     </section>
-
     <section id="branchSection" class="section hidden">
       <header><h1>WELCOME!</h1><p class="tagline">Tell us about your gift</p></header>
       <div class="card">
@@ -122,7 +140,6 @@
         </div>
       </div>
     </section>
-
     <section id="buyerSection" class="section hidden">
       <header><h2>Create a Greeting Video! 🎉</h2><p class="section-description">Make your gift extra special! Record a personalized message that your crocheted friend will say to the lucky recipient.</p></header>
       <div class="video-examples" id="buyerExamples">
@@ -133,7 +150,6 @@
       <button type="button" class="btn btn-primary" onclick="goToStep('email')">🎬 Create Your Video</button>
       <a href="#" id="buyerReviewLink" class="soft-review-link" onclick="trackReviewClick('buyer')">⭐ Help us grow — leave a review on Amazon!</a>
     </section>
-
     <section id="receiverSection" class="section hidden">
       <header><h2>Say Thank You! 💝</h2><p class="section-description">Send a thank-you video back to the person who gave you this wonderful gift!</p></header>
       <div class="video-examples" id="receiverExamples">
@@ -144,7 +160,6 @@
       <button type="button" class="btn btn-primary" onclick="goToStep('email')">🎬 Create Thank You Video</button>
       <a href="#" id="receiverReviewLink" class="soft-review-link" onclick="trackReviewClick('receiver')">⭐ Love your gift? Help us with a review!</a>
     </section>
-
     <section id="emailSection" class="section hidden">
       <header><h2>Almost There! ✉️</h2><p class="section-description">Enter your email to create your personalized video. You can create up to 2 free videos!</p></header>
       <form id="emailForm" class="card">
@@ -156,7 +171,6 @@
       <button type="button" class="btn btn-primary" id="continueToCreateBtn" onclick="validateEmail()">Continue →</button>
       <button type="button" class="btn btn-secondary" onclick="goToStep('branch')">← Back</button>
     </section>
-
     <section id="createSection" class="section hidden">
       <header><h2 id="createHeader">Create Your Message</h2></header>
       <form id="form">
@@ -176,11 +190,9 @@
         <button type="submit" class="btn btn-primary" id="generateBtn">✨ Create Video Message</button>
       </form>
     </section>
-
     <section id="loadingSection" class="card hidden">
       <div class="loading"><div class="spinner"></div><p style="font-weight:600;">Creating your magical video...</p><p class="progress-text" id="progressText">This takes about 20-30 seconds</p></div>
     </section>
-
     <section id="resultSection" class="section hidden">
       <div class="thank-you-header"><span class="emoji">🎉</span><h2>Your Video is Ready!</h2></div>
       <video id="video" controls playsinline autoplay></video>
@@ -188,13 +200,11 @@
       <button type="button" class="btn btn-secondary" id="createAnotherBtn" onclick="createAnother()">Create Another Video</button>
       <div class="review-cta-box"><h3>⭐ Help Us Grow!</h3><p>If you love your crocheted friend, please leave us a review. It means the world to us!</p><a href="#" id="strongReviewLink" class="btn btn-amazon" onclick="trackReviewClick('strong')">Leave a Review ⭐</a></div>
     </section>
-
     <section id="errorSection" class="card error hidden">
       <p id="errorText">Oops! Something went wrong. Please try again.</p>
       <button type="button" class="btn btn-secondary" onclick="reset()">Try Again</button>
     </section>
   </div>
-
   <script>
     let currentStep = 'welcome';
     let userType = null;
@@ -209,7 +219,6 @@
       yoda: 'https://www.amazon.com/review/create-review/?ie=UTF8&channel=glance-detail&asin=B0DVGKZZS4',
       default: 'https://www.amazon.com/review/create-review/?ie=UTF8&channel=glance-detail&asin=B0DVR6VBRR'
     };
-
     document.addEventListener('DOMContentLoaded', () => {
       if (productFromUrl && ['potato', 'cupcake', 'yoda'].includes(productFromUrl)) {
         selectedProduct = productFromUrl;
@@ -221,7 +230,6 @@
       trackEvent('page_view');
       setupFormHandlers();
     });
-
     function goToStep(step) {
       document.querySelectorAll('.section, #loadingSection').forEach(s => s.classList.add('hidden'));
       currentStep = step;
@@ -235,9 +243,7 @@
         case 'result': document.getElementById('resultSection').classList.remove('hidden'); break;
       }
     }
-
     function selectBranch(type) { userType = type; goToStep(type); }
-
     async function validateEmail() {
       const emailInput = document.getElementById('email');
       const email = emailInput.value.trim();
@@ -251,7 +257,6 @@
         goToStep('create');
       } catch (err) { console.error('Rate limit check failed:', err); goToStep('create'); }
     }
-
     function setupFormHandlers() {
       const form = document.getElementById('form');
       const message = document.getElementById('message');
@@ -261,7 +266,6 @@
       products.forEach(p => p.addEventListener('click', () => { products.forEach(x => x.classList.remove('selected')); p.classList.add('selected'); selectedProduct = p.dataset.product; updateReviewLinks(); }));
       form.addEventListener('submit', handleVideoGeneration);
     }
-
     async function handleVideoGeneration(e) {
       e.preventDefault();
       const text = document.getElementById('message').value.trim();
@@ -306,7 +310,6 @@
         document.getElementById('errorSection').classList.remove('hidden');
       }
     }
-
     function createAnother() { if (videosRemaining <= 0) { alert('You have used all your free videos!'); return; } document.getElementById('message').value = ''; document.getElementById('charCount').textContent = '0'; goToStep('create'); }
     function reset() { document.getElementById('errorSection').classList.add('hidden'); goToStep('create'); }
     function selectProductInUI(product) { const products = document.querySelectorAll('.product'); products.forEach(p => { p.classList.remove('selected'); if (p.dataset.product === product) p.classList.add('selected'); }); }
@@ -315,6 +318,15 @@
     function playExampleVideos(containerId) { const container = document.getElementById(containerId); if (container) container.querySelectorAll('video').forEach(v => v.play().catch(() => {})); }
     function trackEvent(eventType) { fetch('/api/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ event_type: eventType, product: selectedProduct, user_type: userType, email: userEmail }) }).catch(err => console.error('Track error:', err)); }
     function trackReviewClick(source) { trackEvent('review_clicked'); }
+    function unmuteWelcome() {
+      const video = document.getElementById('welcomeVideo');
+      const overlay = document.getElementById('welcomeSoundOverlay');
+      if (video) {
+        video.muted = false;
+        video.volume = 1.0;
+      }
+      if (overlay) overlay.style.display = 'none';
+    }
   </script>
 </body>
 </html>
