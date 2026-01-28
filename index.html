@@ -111,6 +111,29 @@
       background: rgba(0, 0, 0, 0.9);
       transform: translate(-50%, -50%) scale(1.05);
     }
+    .video-controls {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: none;
+      gap: 12px;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 8px 16px;
+      border-radius: 25px;
+      z-index: 10;
+    }
+    .video-controls.visible { display: flex; }
+    .video-controls button {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 4px 8px;
+      transition: transform 0.2s;
+    }
+    .video-controls button:hover { transform: scale(1.2); }
   </style>
 </head>
 <body>
@@ -120,11 +143,15 @@
         <div class="subtitle">Thanks for choosing</div>
         <h1>GOT YOU<br>A LITTLE<br>SOMETHING</h1>
       </header>
-      <div class="welcome-video-container" onclick="unmuteWelcome()">
+     <div class="welcome-video-container" onclick="unmuteWelcome()">
         <video id="welcomeVideo" playsinline muted autoplay loop>
           <source src="videos/welcome.mp4" type="video/mp4">
         </video>
         <div id="welcomeSoundOverlay" class="sound-overlay">🔊 Tap for sound</div>
+        <div id="videoControls" class="video-controls">
+          <button onclick="event.stopPropagation(); togglePlay();" id="playPauseBtn">⏸️</button>
+          <button onclick="event.stopPropagation(); toggleMute();" id="muteBtn">🔊</button>
+        </div>
       </div>
       <p class="section-description">Create a personalized video message for your loved one — your crocheted friend will read it out loud! 🎁</p>
       <button type="button" class="btn btn-primary" onclick="goToStep('branch')">✨ Let's Create Magic</button>
@@ -318,15 +345,40 @@
     function playExampleVideos(containerId) { const container = document.getElementById(containerId); if (container) container.querySelectorAll('video').forEach(v => v.play().catch(() => {})); }
     function trackEvent(eventType) { fetch('/api/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ event_type: eventType, product: selectedProduct, user_type: userType, email: userEmail }) }).catch(err => console.error('Track error:', err)); }
     function trackReviewClick(source) { trackEvent('review_clicked'); }
-    function unmuteWelcome() {
+function unmuteWelcome() {
       const video = document.getElementById('welcomeVideo');
       const overlay = document.getElementById('welcomeSoundOverlay');
+      const controls = document.getElementById('videoControls');
       if (video) {
         video.muted = false;
         video.volume = 1.0;
       }
       if (overlay) overlay.style.display = 'none';
+      if (controls) controls.classList.add('visible');
+    }
+    function togglePlay() {
+      const video = document.getElementById('welcomeVideo');
+      const btn = document.getElementById('playPauseBtn');
+      if (video.paused) {
+        video.play();
+        btn.textContent = '⏸️';
+      } else {
+        video.pause();
+        btn.textContent = '▶️';
+      }
+    }
+    function toggleMute() {
+      const video = document.getElementById('welcomeVideo');
+      const btn = document.getElementById('muteBtn');
+      if (video.muted) {
+        video.muted = false;
+        btn.textContent = '🔊';
+      } else {
+        video.muted = true;
+        btn.textContent = '🔇';
+      }
     }
   </script>
 </body>
 </html>
+
