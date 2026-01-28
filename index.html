@@ -111,16 +111,18 @@
       background: rgba(0, 0, 0, 0.9);
       transform: translate(-50%, -50%) scale(1.05);
     }
-    .video-controls {
+.video-controls {
       position: absolute;
-      bottom: 10px;
+      bottom: 4px;
       left: 50%;
       transform: translateX(-50%);
       display: none;
-      gap: 12px;
-      background: rgba(0, 0, 0, 0.6);
-      padding: 8px 16px;
-      border-radius: 25px;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(8px);
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.25);
       z-index: 10;
     }
     .video-controls.visible { display: flex; }
@@ -128,12 +130,12 @@
       background: none;
       border: none;
       color: white;
-      font-size: 1.2rem;
+      font-size: 0.9rem;
       cursor: pointer;
-      padding: 4px 8px;
+      padding: 2px 4px;
       transition: transform 0.2s;
     }
-    .video-controls button:hover { transform: scale(1.2); }
+    .video-controls button:hover { transform: scale(1.15); }
   </style>
 </head>
 <body>
@@ -383,5 +385,6 @@ function unmuteWelcome() {
   </script>
 </body>
 </html>
+
 
 
