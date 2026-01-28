@@ -136,6 +136,30 @@
       transition: transform 0.2s;
     }
     .video-controls button:hover { transform: scale(1.1); }
+    .video-example { position: relative; }
+    .example-controls {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      gap: 8px;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 4px 10px;
+      border-radius: 16px;
+      z-index: 10;
+    }
+    .example-controls button {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 0.8rem;
+      cursor: pointer;
+      padding: 2px;
+      opacity: 0.9;
+      transition: opacity 0.2s;
+    }
+    .example-controls button:hover { opacity: 1; }
   </style>
 </head>
 <body>
@@ -172,19 +196,61 @@
     <section id="buyerSection" class="section hidden">
       <header><h2>Create a Greeting Video! 🎉</h2><p class="section-description">Make your gift extra special! Record a personalized message that your crocheted friend will say to the lucky recipient.</p></header>
       <div class="video-examples" id="buyerExamples">
-        <div class="video-example"><video playsinline muted loop><source src="videos/example-buyer-1.mp4" type="video/mp4"></video><div class="caption">Birthday greeting</div></div>
-        <div class="video-example"><video playsinline muted loop><source src="videos/example-buyer-2.mp4" type="video/mp4"></video><div class="caption">Thank you message</div></div>
-        <div class="video-example"><video playsinline muted loop><source src="videos/example-buyer-3.mp4" type="video/mp4"></video><div class="caption">Just because!</div></div>
+        <div class="video-example">
+          <video playsinline muted loop data-index="0"><source src="videos/example-buyer-1.mp4" type="video/mp4"></video>
+          <div class="example-controls">
+            <button onclick="toggleExamplePlay(this)">⏸️</button>
+            <button onclick="toggleExampleMute(this)">🔇</button>
+          </div>
+          <div class="caption">Birthday greeting</div>
+        </div>
+        <div class="video-example">
+          <video playsinline muted loop data-index="1"><source src="videos/example-buyer-2.mp4" type="video/mp4"></video>
+          <div class="example-controls">
+            <button onclick="toggleExamplePlay(this)">▶️</button>
+            <button onclick="toggleExampleMute(this)">🔇</button>
+          </div>
+          <div class="caption">Thank you message</div>
+        </div>
+        <div class="video-example">
+          <video playsinline muted loop data-index="2"><source src="videos/example-buyer-3.mp4" type="video/mp4"></video>
+          <div class="example-controls">
+            <button onclick="toggleExamplePlay(this)">▶️</button>
+            <button onclick="toggleExampleMute(this)">🔇</button>
+          </div>
+          <div class="caption">Just because!</div>
+        </div>
       </div>
       <button type="button" class="btn btn-primary" onclick="goToStep('email')">🎬 Create Your Video</button>
       <a href="#" id="buyerReviewLink" class="soft-review-link" onclick="trackReviewClick('buyer')">⭐ Help us grow — leave a review on Amazon!</a>
     </section>
     <section id="receiverSection" class="section hidden">
       <header><h2>Say Thank You! 💝</h2><p class="section-description">Send a thank-you video back to the person who gave you this wonderful gift!</p></header>
-      <div class="video-examples" id="receiverExamples">
-        <div class="video-example"><video playsinline muted loop><source src="videos/example-receiver-1.mp4" type="video/mp4"></video><div class="caption">Thank you!</div></div>
-        <div class="video-example"><video playsinline muted loop><source src="videos/example-receiver-2.mp4" type="video/mp4"></video><div class="caption">You're the best!</div></div>
-        <div class="video-example"><video playsinline muted loop><source src="videos/example-receiver-3.mp4" type="video/mp4"></video><div class="caption">I love it!</div></div>
+     <div class="video-examples" id="receiverExamples">
+        <div class="video-example">
+          <video playsinline muted loop data-index="0"><source src="videos/example-receiver-1.mp4" type="video/mp4"></video>
+          <div class="example-controls">
+            <button onclick="toggleExamplePlay(this)">⏸️</button>
+            <button onclick="toggleExampleMute(this)">🔇</button>
+          </div>
+          <div class="caption">Thank you!</div>
+        </div>
+        <div class="video-example">
+          <video playsinline muted loop data-index="1"><source src="videos/example-receiver-2.mp4" type="video/mp4"></video>
+          <div class="example-controls">
+            <button onclick="toggleExamplePlay(this)">▶️</button>
+            <button onclick="toggleExampleMute(this)">🔇</button>
+          </div>
+          <div class="caption">You're the best!</div>
+        </div>
+        <div class="video-example">
+          <video playsinline muted loop data-index="2"><source src="videos/example-receiver-3.mp4" type="video/mp4"></video>
+          <div class="example-controls">
+            <button onclick="toggleExamplePlay(this)">▶️</button>
+            <button onclick="toggleExampleMute(this)">🔇</button>
+          </div>
+          <div class="caption">I love it!</div>
+        </div>
       </div>
       <button type="button" class="btn btn-primary" onclick="goToStep('email')">🎬 Create Thank You Video</button>
       <a href="#" id="receiverReviewLink" class="soft-review-link" onclick="trackReviewClick('receiver')">⭐ Love your gift? Help us with a review!</a>
@@ -347,7 +413,51 @@
     function selectProductInUI(product) { const products = document.querySelectorAll('.product'); products.forEach(p => { p.classList.remove('selected'); if (p.dataset.product === product) p.classList.add('selected'); }); }
     function updateReviewLinks() { const url = amazonReviewUrls[selectedProduct] || amazonReviewUrls.default; document.querySelectorAll('#softReviewLink, #buyerReviewLink, #receiverReviewLink, #strongReviewLink').forEach(link => link.href = url); }
     function updateCreateHeader() { const header = document.getElementById('createHeader'); if (userType === 'receiver') header.textContent = 'Create Your Thank You Message'; else header.textContent = 'Create Your Greeting Message'; }
-    function playExampleVideos(containerId) { const container = document.getElementById(containerId); if (container) container.querySelectorAll('video').forEach(v => v.play().catch(() => {})); }
+    function playExampleVideos(containerId) {
+      const container = document.getElementById(containerId);
+      if (container) {
+        const videos = container.querySelectorAll('video');
+        videos.forEach((v, i) => {
+          if (i === 0) {
+            v.play().catch(() => {});
+          } else {
+            v.pause();
+          }
+        });
+      }
+    }
+    function toggleExamplePlay(btn) {
+      const container = btn.closest('.video-example');
+      const video = container.querySelector('video');
+      const allVideos = document.querySelectorAll('.video-example video');
+      
+      if (video.paused) {
+        // Pause all other videos first
+        allVideos.forEach(v => {
+          if (v !== video) {
+            v.pause();
+            const otherBtn = v.closest('.video-example').querySelector('.example-controls button');
+            if (otherBtn) otherBtn.textContent = '▶️';
+          }
+        });
+        video.play();
+        btn.textContent = '⏸️';
+      } else {
+        video.pause();
+        btn.textContent = '▶️';
+      }
+    }
+    function toggleExampleMute(btn) {
+      const container = btn.closest('.video-example');
+      const video = container.querySelector('video');
+      if (video.muted) {
+        video.muted = false;
+        btn.textContent = '🔊';
+      } else {
+        video.muted = true;
+        btn.textContent = '🔇';
+      }
+    }
     function trackEvent(eventType) { fetch('/api/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ event_type: eventType, product: selectedProduct, user_type: userType, email: userEmail }) }).catch(err => console.error('Track error:', err)); }
     function trackReviewClick(source) { trackEvent('review_clicked'); }
 function unmuteWelcome() {
@@ -395,5 +505,6 @@ function unmuteWelcome() {
   </script>
 </body>
 </html>
+
 
 
