@@ -425,6 +425,13 @@
       color: var(--text-primary);
     }
 
+    .choice-card .sub-label {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      opacity: 0.9;
+      font-weight: 400;
+    }
+
     label {
       display: block;
       font-weight: 600;
@@ -688,37 +695,21 @@
           <button onclick="event.stopPropagation(); toggleMute();" id="muteBtn">🔊</button>
         </div>
       </div>
-      <p class="section-description">Create a personalized video message for your loved one - your crocheted friend will
-        read it out loud! 🎁</p>
+      <p class="section-description">Let's create your special moment ✨</p>
       <div class="hero-choices">
         <button type="button" class="choice-card giver" onclick="selectBranch('buyer')">
           <span class="emoji">🎁</span>
           <span class="label">I'm Giving This Gift</span>
+          <span class="sub-label">Create a greeting video</span>
         </button>
         <button type="button" class="choice-card receiver" onclick="selectBranch('receiver')">
           <span class="emoji">🎀</span>
           <span class="label">I Received This Gift</span>
+          <span class="sub-label">Send a thank you video</span>
         </button>
       </div>
-      <a href="#" id="softReviewLink" class="soft-review-link" onclick="trackReviewClick('soft')">⭐ Love your little
-        friend? Leave us a review!</a>
     </section>
-    <section id="branchSection" class="section hidden">
-      <header>
-        <h1>WELCOME!</h1>
-        <p class="tagline">Tell us about your gift</p>
-      </header>
-      <div class="card">
-        <h2>How did you get this?</h2>
-        <div class="branch-buttons">
-          <div class="branch-btn" onclick="selectBranch('buyer')"><span class="emoji">🎁</span><span class="label">I
-              bought this<br>as a gift<br>for someone</span></div>
-          <div class="branch-btn" onclick="selectBranch('receiver')"><span class="emoji">🎀</span><span class="label">I
-              received this<br>as a gift</span></div>
-        </div>
-      </div>
-      <button type="button" class="btn-back" onclick="goToStep('welcome')">← Back</button>
-    </section>
+    <!-- Branch Section Removed -->
     <section id="buyerSection" class="section hidden">
       <header>
         <div class="subtitle">Step 1</div>
@@ -760,7 +751,7 @@
         </div>
       </div>
       <button type="button" class="btn btn-primary" onclick="goToStep('email')">🎬 Create Your Video</button>
-      <button type="button" class="btn-back" onclick="goToStep('branch')">← Back</button>
+      <button type="button" class="btn-back" onclick="goToStep('welcome')">← Back</button>
       <a href="#" id="buyerReviewLink" class="soft-review-link" onclick="trackReviewClick('buyer')">⭐ Help us grow -
         leave a review on Amazon!</a>
     </section>
@@ -804,7 +795,7 @@
         </div>
       </div>
       <button type="button" class="btn btn-primary" onclick="goToStep('email')">🎬 Create Thank You Video</button>
-      <button type="button" class="btn-back" onclick="goToStep('branch')">← Back</button>
+      <button type="button" class="btn-back" onclick="goToStep('welcome')">← Back</button>
       <a href="#" id="receiverReviewLink" class="soft-review-link" onclick="trackReviewClick('receiver')">⭐ Love your
         gift? Help us with a review!</a>
     </section>
@@ -823,7 +814,7 @@
       </form>
       <button type="button" class="btn btn-primary" id="continueToCreateBtn" onclick="validateEmail()">Continue
         →</button>
-      <button type="button" class="btn btn-secondary" onclick="goToStep('branch')">← Back</button>
+      <button type="button" class="btn btn-secondary" onclick="goToStep('welcome')">← Back</button>
     </section>
     <section id="createSection" class="section hidden">
       <header>
@@ -929,7 +920,7 @@
       currentStep = step;
       switch (step) {
         case 'welcome': document.getElementById('welcomeSection').classList.remove('hidden'); break;
-        case 'branch': document.getElementById('branchSection').classList.remove('hidden'); break;
+        // case 'branch': removed
         case 'buyer': document.getElementById('buyerSection').classList.remove('hidden'); playExampleVideos('buyerExamples'); break;
         case 'receiver': document.getElementById('receiverSection').classList.remove('hidden'); playExampleVideos('receiverExamples'); break;
         case 'email': document.getElementById('emailSection').classList.remove('hidden'); break;
