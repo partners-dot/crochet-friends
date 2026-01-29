@@ -15,7 +15,7 @@ The goal is to create a delightful, low-friction experience that adds emotional 
 
 ## 2. Target Users
 
-* Customers who purchased crocheted doll products as gifts
+* Customers who purchased crocheted doll products as gifts, so either a buyer for someone or a receiver of the gift.
 * Likely mobile users (QR scan → phone browser)
 * Non-technical, casual users
 
