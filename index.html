@@ -369,6 +369,62 @@
       animation: slideUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
 
+    .hero-choices {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .choice-card {
+      background: var(--card-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 1.5rem 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .choice-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .choice-card.giver {
+      border-color: var(--accent-neon);
+      background: linear-gradient(135deg, rgba(255, 209, 102, 0.15) 0%, rgba(250, 188, 42, 0.1) 100%);
+    }
+
+    .choice-card.giver:hover {
+      background: linear-gradient(135deg, rgba(255, 209, 102, 0.25) 0%, rgba(250, 188, 42, 0.2) 100%);
+      box-shadow: 0 10px 30px rgba(255, 209, 102, 0.2);
+    }
+
+    .choice-card.receiver {
+      border-color: rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .choice-card.receiver:hover {
+      border-color: rgba(255, 255, 255, 0.5);
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .choice-card .emoji {
+      font-size: 2.2rem;
+    }
+
+    .choice-card .label {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--text-primary);
+    }
+
     label {
       display: block;
       font-weight: 600;
@@ -634,7 +690,16 @@
       </div>
       <p class="section-description">Create a personalized video message for your loved one - your crocheted friend will
         read it out loud! 🎁</p>
-      <button type="button" class="btn btn-primary" onclick="goToStep('branch')">✨ Let's Create Magic</button>
+      <div class="hero-choices">
+        <button type="button" class="choice-card giver" onclick="selectBranch('buyer')">
+          <span class="emoji">🎁</span>
+          <span class="label">I'm Giving This Gift</span>
+        </button>
+        <button type="button" class="choice-card receiver" onclick="selectBranch('receiver')">
+          <span class="emoji">🎀</span>
+          <span class="label">I Received This Gift</span>
+        </button>
+      </div>
       <a href="#" id="softReviewLink" class="soft-review-link" onclick="trackReviewClick('soft')">⭐ Love your little
         friend? Leave us a review!</a>
     </section>
