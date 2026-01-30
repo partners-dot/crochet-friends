@@ -1041,15 +1041,20 @@
         allVideos.forEach(v => {
           if (v !== video) {
             v.pause();
-            const otherBtn = v.closest('.video-example').querySelector('.example-controls button');
-            if (otherBtn) otherBtn.textContent = '▶️';
+            v.muted = true;
+            const otherContainer = v.closest('.video-example');
+            const otherPlayBtn = otherContainer.querySelector('.example-controls button');
+            const otherMuteBtn = otherContainer.querySelectorAll('.example-controls button')[1];
+            if (otherPlayBtn) otherPlayBtn.textContent = '▶️';
+            if (otherMuteBtn) otherMuteBtn.textContent = '🔇';
           }
         });
         video.play();
-        video.muted = !exampleSoundOn;
+        video.muted = false;
+        exampleSoundOn = true;
         btn.textContent = '⏸️';
         const muteBtn = container.querySelectorAll('.example-controls button')[1];
-        if (muteBtn) muteBtn.textContent = exampleSoundOn ? '🔊' : '🔇';
+        if (muteBtn) muteBtn.textContent = '🔊';
       } else {
         video.pause();
         btn.textContent = '▶️';
