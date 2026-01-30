@@ -181,7 +181,7 @@
 
     .example-controls {
       position: absolute;
-      bottom: 55px;
+      bottom: 80px;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
@@ -739,7 +739,7 @@
       <p class="examples-label">✨ See what you can create</p>
       <div class="video-examples" id="buyerExamples">
         <div class="video-example" onclick="handleExampleClick(this)"
-          data-template="Happy Birthday, [NAME]! Other treats disappear, but I'm here to stay sweet for life. Hope you had a great birthday.">
+          data-template="Happy Birthday, _____! Other treats disappear, but I'm here to stay sweet for life. Hope you had a great birthday.">
           <video playsinline muted loop preload="metadata" data-index="0">
             <source src="videos/example-buyer-1.mp4" type="video/mp4">
           </video>
@@ -748,11 +748,10 @@
             <button onclick="event.stopPropagation(); toggleExampleMute(this)">🔇</button>
           </div>
           <div class="caption">Birthday Greeting</div>
-          <button class="template-btn" onclick="event.stopPropagation(); useTemplate(this)">📝 Use This
-            Template</button>
+          <button class="template-btn" onclick="event.stopPropagation(); useTemplate(this)">📝 Use Template</button>
         </div>
         <div class="video-example" onclick="handleExampleClick(this)"
-          data-template="Hey [NAME]. Clear a VIP spot on your shelf! I'm cute, zero calories, and I'm on my way!">
+          data-template="Hey _____. Clear a VIP spot on your shelf! I'm cute, zero calories, and I'm on my way!">
           <video playsinline muted loop preload="metadata" data-index="1">
             <source src="videos/example-buyer-2.mp4" type="video/mp4">
           </video>
@@ -761,11 +760,10 @@
             <button onclick="event.stopPropagation(); toggleExampleMute(this)">🔇</button>
           </div>
           <div class="caption">Teaser Message</div>
-          <button class="template-btn" onclick="event.stopPropagation(); useTemplate(this)">📝 Use This
-            Template</button>
+          <button class="template-btn" onclick="event.stopPropagation(); useTemplate(this)">📝 Use Template</button>
         </div>
         <div class="video-example" onclick="handleExampleClick(this)"
-          data-template="Hey [NAME]! Since you kill every plant you touch... good news! I don't need water. You can't kill me!">
+          data-template="Hey _____! Since you kill every plant you touch... good news! I don't need water. You can't kill me!">
           <video playsinline muted loop preload="metadata" data-index="2">
             <source src="videos/example-buyer-3.mp4" type="video/mp4">
           </video>
@@ -774,8 +772,7 @@
             <button onclick="event.stopPropagation(); toggleExampleMute(this)">🔇</button>
           </div>
           <div class="caption">Personal Joke</div>
-          <button class="template-btn" onclick="event.stopPropagation(); useTemplate(this)">📝 Use This
-            Template</button>
+          <button class="template-btn" onclick="event.stopPropagation(); useTemplate(this)">📝 Use Template</button>
         </div>
       </div>
       <button type="button" class="btn btn-primary" onclick="goToStep('create')">🎬 Create Your Video</button>
@@ -829,9 +826,8 @@
     </section>
     <section id="emailSection" class="section hidden">
       <header>
-        <h2>Almost There! ✉️</h2>
-        <p class="section-description">Enter your email to create your personalized video. You can create up to 2 free
-          videos!</p>
+        <h2>Where Should We Send Your Video? ✉️</h2>
+        <p class="section-description">We'll email you the finished video so you can share it anytime!</p>
       </header>
       <form id="emailForm" class="card">
         <label for="email">Your Email Address</label>
@@ -851,9 +847,9 @@
       <form id="form">
         <div class="card">
           <label for="message">Write Your Message</label>
-          <textarea id="message" rows="4" maxlength="200"
+          <textarea id="message" rows="4" maxlength="120"
             placeholder="Happy Birthday! I hope this little friend makes you smile!" required></textarea>
-          <div class="char-count"><span id="charCount">0</span>/200</div>
+          <div class="char-count"><span id="charCount">0</span>/120</div>
         </div>
         <div class="card">
           <label>CHOOSE YOUR FRIEND</label>
@@ -874,6 +870,7 @@
         </div>
         <button type="submit" class="btn btn-primary" id="generateBtn">✨ Create Video Message</button>
       </form>
+      <button type="button" class="btn-back" onclick="goToStep(userType)">← Back</button>
     </section>
     <section id="loadingSection" class="section hidden">
       <div class="loading-container">
@@ -1000,8 +997,8 @@
       e.preventDefault();
       const text = document.getElementById('message').value.trim();
       if (!text) return;
-      if (text.includes('[NAME]')) {
-        alert('Please replace [NAME] with your friend\'s actual name before creating the video!');
+      if (text.includes('_____')) {
+        alert('Please replace _____ with your friend\'s name before creating the video!');
         return;
       }
       pendingMessage = text;
