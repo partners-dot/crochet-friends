@@ -431,6 +431,26 @@
       font-weight: 400;
     }
 
+    .template-btn {
+      display: block;
+      width: 100%;
+      margin-top: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      background: linear-gradient(135deg, rgba(255, 209, 102, 0.2) 0%, rgba(250, 188, 42, 0.15) 100%);
+      border: 1px solid var(--accent-neon);
+      border-radius: 12px;
+      color: var(--accent-neon);
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .template-btn:hover {
+      background: linear-gradient(135deg, rgba(255, 209, 102, 0.35) 0%, rgba(250, 188, 42, 0.25) 100%);
+      transform: scale(1.02);
+    }
+
     label {
       display: block;
       font-weight: 600;
@@ -718,7 +738,8 @@
       </header>
       <p class="examples-label">✨ See what you can create</p>
       <div class="video-examples" id="buyerExamples">
-        <div class="video-example" onclick="handleExampleClick(this)">
+        <div class="video-example" onclick="handleExampleClick(this)"
+          data-template="Happy Birthday, [NAME]! Other treats disappear, but I'm here to stay sweet for life. Hope you had a great birthday.">
           <video playsinline muted loop preload="metadata" data-index="0">
             <source src="videos/example-buyer-1.mp4" type="video/mp4">
           </video>
@@ -727,8 +748,11 @@
             <button onclick="event.stopPropagation(); toggleExampleMute(this)">🔇</button>
           </div>
           <div class="caption">Birthday Greeting</div>
+          <button class="template-btn" onclick="event.stopPropagation(); useTemplate(this)">📝 Use This
+            Template</button>
         </div>
-        <div class="video-example" onclick="handleExampleClick(this)">
+        <div class="video-example" onclick="handleExampleClick(this)"
+          data-template="Hey [NAME]. Clear a VIP spot on your shelf! I'm cute, zero calories, and I'm on my way!">
           <video playsinline muted loop preload="metadata" data-index="1">
             <source src="videos/example-buyer-2.mp4" type="video/mp4">
           </video>
@@ -737,8 +761,11 @@
             <button onclick="event.stopPropagation(); toggleExampleMute(this)">🔇</button>
           </div>
           <div class="caption">Teaser Message</div>
+          <button class="template-btn" onclick="event.stopPropagation(); useTemplate(this)">📝 Use This
+            Template</button>
         </div>
-        <div class="video-example" onclick="handleExampleClick(this)">
+        <div class="video-example" onclick="handleExampleClick(this)"
+          data-template="Hey [NAME]! Since you kill every plant you touch... good news! I don't need water. You can't kill me!">
           <video playsinline muted loop preload="metadata" data-index="2">
             <source src="videos/example-buyer-3.mp4" type="video/mp4">
           </video>
@@ -747,9 +774,11 @@
             <button onclick="event.stopPropagation(); toggleExampleMute(this)">🔇</button>
           </div>
           <div class="caption">Personal Joke</div>
+          <button class="template-btn" onclick="event.stopPropagation(); useTemplate(this)">📝 Use This
+            Template</button>
         </div>
       </div>
-      <button type="button" class="btn btn-primary" onclick="goToStep('email')">🎬 Create Your Video</button>
+      <button type="button" class="btn btn-primary" onclick="goToStep('create')">🎬 Create Your Video</button>
       <button type="button" class="btn-back" onclick="goToStep('welcome')">← Back</button>
       <a href="#" id="buyerReviewLink" class="soft-review-link" onclick="trackReviewClick('buyer')">⭐ Help us grow -
         leave a review on Amazon!</a>
@@ -793,7 +822,7 @@
           <div class="caption">I love it!</div>
         </div>
       </div>
-      <button type="button" class="btn btn-primary" onclick="goToStep('email')">🎬 Create Thank You Video</button>
+      <button type="button" class="btn btn-primary" onclick="goToStep('create')">🎬 Create Thank You Video</button>
       <button type="button" class="btn-back" onclick="goToStep('welcome')">← Back</button>
       <a href="#" id="receiverReviewLink" class="soft-review-link" onclick="trackReviewClick('receiver')">⭐ Love your
         gift? Help us with a review!</a>
@@ -813,7 +842,7 @@
       </form>
       <button type="button" class="btn btn-primary" id="continueToCreateBtn" onclick="validateEmail()">Continue
         →</button>
-      <button type="button" class="btn btn-secondary" onclick="goToStep('welcome')">← Back</button>
+      <button type="button" class="btn btn-secondary" onclick="goToStep('create')">← Back</button>
     </section>
     <section id="createSection" class="section hidden">
       <header>
@@ -923,7 +952,7 @@
         case 'buyer': document.getElementById('buyerSection').classList.remove('hidden'); playExampleVideos('buyerExamples'); break;
         case 'receiver': document.getElementById('receiverSection').classList.remove('hidden'); playExampleVideos('receiverExamples'); break;
         case 'email': document.getElementById('emailSection').classList.remove('hidden'); break;
-        case 'create': document.getElementById('createSection').classList.remove('hidden'); updateCreateHeader(); break;
+        case 'create': document.getElementById('createSection').classList.remove('hidden'); updateCreateHeader(); applyPendingTemplate(); break;
         case 'result': document.getElementById('resultSection').classList.remove('hidden'); break;
       }
     }
@@ -938,8 +967,8 @@
         const data = await res.json();
         if (!data.allowed) { document.getElementById('rateLimitWarning').classList.remove('hidden'); document.getElementById('continueToCreateBtn').disabled = true; return; }
         videosRemaining = data.videosRemaining;
-        goToStep('create');
-      } catch (err) { console.error('Rate limit check failed:', err); goToStep('create'); }
+        startVideoGeneration();
+      } catch (err) { console.error('Rate limit check failed:', err); startVideoGeneration(); }
     }
     function setupFormHandlers() {
       const form = document.getElementById('form');
@@ -950,11 +979,38 @@
       products.forEach(p => p.addEventListener('click', () => { products.forEach(x => x.classList.remove('selected')); p.classList.add('selected'); selectedProduct = p.dataset.product; updateReviewLinks(); }));
       form.addEventListener('submit', handleVideoGeneration);
     }
+    let pendingTemplate = null;
+    function useTemplate(btn) {
+      const container = btn.closest('.video-example');
+      const templateText = container.dataset.template;
+      if (!templateText) return;
+      pendingTemplate = templateText;
+      goToStep('create');
+    }
+    function applyPendingTemplate() {
+      if (pendingTemplate) {
+        const messageArea = document.getElementById('message');
+        messageArea.value = pendingTemplate;
+        document.getElementById('charCount').textContent = pendingTemplate.length;
+        pendingTemplate = null;
+      }
+    }
+    let pendingMessage = null;
     async function handleVideoGeneration(e) {
       e.preventDefault();
       const text = document.getElementById('message').value.trim();
       if (!text) return;
-      document.getElementById('createSection').classList.add('hidden');
+      if (text.includes('[NAME]')) {
+        alert('Please replace [NAME] with your friend\'s actual name before creating the video!');
+        return;
+      }
+      pendingMessage = text;
+      goToStep('email');
+    }
+    async function startVideoGeneration() {
+      const text = pendingMessage;
+      if (!text) { goToStep('create'); return; }
+      document.getElementById('emailSection').classList.add('hidden');
       document.getElementById('loadingSection').classList.remove('hidden');
       startLoadingAnimation();
       const progressText = document.getElementById('progressText');
