@@ -110,11 +110,17 @@ export default async function handler(req, res) {
 
                 // Save video URL to Supabase immediately
                 if (supabase) {
-                    await supabase
+                    console.log('Attempting to save video URL, length:', videoUrl ? videoUrl.length : 0);
+                    const { error: updateError } = await supabase
                         .from('video_sessions')
                         .update({ video_url: videoUrl, status: 'complete' })
                         .eq('operation_id', operationId);
-                    console.log('Video URL saved to database');
+
+                    if (updateError) {
+                        console.error('Failed to save video URL:', updateError);
+                    } else {
+                        console.log('Video URL saved to database successfully');
+                    }
                 }
 
                 // Send email if Supabase and Resend are configured
