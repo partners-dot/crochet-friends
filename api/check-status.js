@@ -109,8 +109,9 @@ export default async function handler(req, res) {
                 }
 
                 // Save video URL to Supabase immediately
+                console.log('[DEBUG] About to save video, supabase exists:', !!supabase);
                 if (supabase) {
-                    console.log('Attempting to save video URL, length:', videoUrl ? videoUrl.length : 0);
+                    console.log('[DEBUG] Saving video URL, length:', videoUrl ? videoUrl.length : 0);
                     const { error: updateError } = await supabase
                         .from('video_sessions')
                         .update({ video_url: videoUrl, status: 'complete' })
