@@ -119,7 +119,7 @@ export default async function handler(req, res) {
                             .single();
 
                         if (session && session.email && !session.email_sent) {
-                            const BASE_URL = 'https://crochet-friends1.vercel.app';
+                            const BASE_URL = 'https://video.gotyoualittlesomething.com';
                             const videoPageUrl = `${BASE_URL}/video.html?v=${encodeURIComponent(videoUrl)}`;
 
                             const characterImages = {
