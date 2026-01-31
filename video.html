@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Video Message | Got You A Little Something</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0a0a2e 0%, #1a1a4e 50%, #0d0d35 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: white;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .logo {
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.8rem;
+            color: #ffd166;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 10px rgba(255, 209, 102, 0.3);
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 2rem;
+            font-size: 1rem;
+        }
+
+        .video-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 24px;
+            padding: 20px;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        video {
+            width: 100%;
+            border-radius: 16px;
+            background: #000;
+        }
+
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ffd166 0%, #f4a942 100%);
+            color: #1a1a4e;
+            box-shadow: 0 8px 25px rgba(255, 209, 102, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(255, 209, 102, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .divider {
+            margin: 2rem 0;
+            border: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .review-section {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .review-section p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .review-link {
+            color: #ffd166;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .review-link:hover {
+            text-decoration: underline;
+        }
+
+        .error-state {
+            text-align: center;
+            padding: 3rem 1rem;
+        }
+
+        .error-state h2 {
+            margin-bottom: 1rem;
+            color: #ff6b6b;
+        }
+
+        .error-state a {
+            color: #ffd166;
+        }
+
+        .footer {
+            margin-top: 2rem;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container" id="content">
+        <!-- Content will be loaded by JavaScript -->
+    </div>
+
+    <script>
+        function getVideoUrl() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('v');
+        }
+
+        function renderVideo() {
+            const container = document.getElementById('content');
+            const videoUrl = getVideoUrl();
+
+            if (!videoUrl) {
+                container.innerHTML = `
+                    <div class="error-state">
+                        <h2>🎬 No Video Found</h2>
+                        <p>This video link seems to be broken or expired.</p>
+                        <p><a href="/">Create a new video →</a></p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="logo">Got You A Little Something</div>
+                <h1>🎉 Your Video Message!</h1>
+                <p class="subtitle">Someone special made this just for you</p>
+                
+                <div class="video-container">
+                    <video id="video" controls autoplay playsinline>
+                        <source src="${videoUrl}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                
+                <div class="buttons">
+                    <a href="${videoUrl}" download="my-crochet-friend-video.mp4" class="btn btn-primary">
+                        📥 Download Video
+                    </a>
+                    <button onclick="shareVideo()" class="btn btn-secondary">
+                        📤 Share Video
+                    </button>
+                </div>
+                
+                <hr class="divider">
+                
+                <div class="review-section">
+                    <p>⭐ Love this experience? Help us grow with a quick review!</p>
+                    <a href="https://www.amazon.com/review/create-review?asin=B0DK1RF3TZ" target="_blank" class="review-link">
+                        Leave a Review on Amazon →
+                    </a>
+                </div>
+                
+                <p class="footer">Made with 💛 by Got You A Little Something</p>
+            `;
+        }
+
+        async function shareVideo() {
+            const videoUrl = getVideoUrl();
+            const shareData = {
+                title: 'Your Special Video Message',
+                text: 'Someone made this video just for you! 🎉',
+                url: window.location.href
+            };
+
+            try {
+                if (navigator.share) {
+                    await navigator.share(shareData);
+                } else {
+                    // Fallback: copy link to clipboard
+                    await navigator.clipboard.writeText(window.location.href);
+                    alert('Link copied to clipboard! Share it with someone special 💝');
+                }
+            } catch (err) {
+                console.error('Share failed:', err);
+            }
+        }
+
+        // Initialize
+        renderVideo();
+    </script>
+</body>
+
+</html>
