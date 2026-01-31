@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Video Message | Got You A Little Something</title>
+    <title>A Special Thank You | Got You A Little Something</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link
         href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@400;600;700&display=swap"
@@ -45,12 +45,14 @@
         h1 {
             font-size: 1.8rem;
             margin-bottom: 0.5rem;
+            line-height: 1.3;
         }
 
         .subtitle {
-            color: rgba(255, 255, 255, 0.7);
+            color: rgba(255, 255, 255, 0.8);
             margin-bottom: 2rem;
             font-size: 1rem;
+            line-height: 1.5;
         }
 
         .video-container {
@@ -159,6 +161,23 @@
             color: rgba(255, 255, 255, 0.4);
             font-size: 0.8rem;
         }
+
+        .heart-emoji {
+            display: inline-block;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
+        }
     </style>
 </head>
 
@@ -170,7 +189,6 @@
     <script>
         function getVideoUrl() {
             const params = new URLSearchParams(window.location.search);
-            // Support both old 'v' param and new 'id' param
             return params.get('v');
         }
 
@@ -184,19 +202,24 @@
                 const res = await fetch(`/api/get-video?id=${encodeURIComponent(operationId)}`);
                 if (!res.ok) return null;
                 const data = await res.json();
-                return data.videoUrl;
+                return {
+                    videoUrl: data.videoUrl,
+                    userType: data.userType || 'receiver',
+                    product: data.product
+                };
             } catch (err) {
                 console.error('Failed to fetch video:', err);
                 return null;
             }
         }
 
-        function renderVideoContent(videoUrl) {
+        function renderReceiverContent(videoUrl) {
+            // This is when the BUYER views the thank-you video from the receiver
             const container = document.getElementById('content');
             container.innerHTML = `
                 <div class="logo">Got You A Little Something</div>
-                <h1>🎉 Your Video Message!</h1>
-                <p class="subtitle">Someone special made this just for you</p>
+                <h1><span class="heart-emoji">💝</span> Someone Loved<br>Your Gift!</h1>
+                <p class="subtitle">The lucky recipient of your gift made this special thank-you video just for you</p>
                 
                 <div class="video-container">
                     <video id="video" controls autoplay playsinline>
@@ -206,11 +229,8 @@
                 </div>
                 
                 <div class="buttons">
-                    <a href="${videoUrl}" download="my-crochet-friend-video.mp4" class="btn btn-primary">
-                        📥 Download Video
-                    </a>
-                    <button onclick="shareVideo()" class="btn btn-secondary">
-                        📤 Share Video
+                    <button onclick="shareVideo()" class="btn btn-primary">
+                        📤 Share This Moment
                     </button>
                 </div>
                 
@@ -227,11 +247,45 @@
             `;
         }
 
+        function renderBuyerContent(videoUrl) {
+            // This is when the RECEIVER views the video the buyer made for them
+            const container = document.getElementById('content');
+            container.innerHTML = `
+                <div class="logo">Got You A Little Something</div>
+                <h1>🎉 A Message<br>Just For You!</h1>
+                <p class="subtitle">Someone special made this video to share a heartfelt message with you</p>
+                
+                <div class="video-container">
+                    <video id="video" controls autoplay playsinline>
+                        <source src="${videoUrl}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                
+                <div class="buttons">
+                    <button onclick="shareVideo()" class="btn btn-primary">
+                        📤 Share This Video
+                    </button>
+                </div>
+                
+                <hr class="divider">
+                
+                <div class="review-section">
+                    <p>⭐ Loved this surprise? Help us spread joy with a quick review!</p>
+                    <a href="https://www.amazon.com/review/create-review?asin=B0DK1RF3TZ" target="_blank" class="review-link">
+                        Leave a Review on Amazon →
+                    </a>
+                </div>
+                
+                <p class="footer">Made with 💛 by Got You A Little Something</p>
+            `;
+        }
+
         function renderError(message) {
             const container = document.getElementById('content');
             container.innerHTML = `
                 <div class="error-state">
-                    <h2>🎬 ${message || 'No Video Found'}</h2>
+                    <h2>🎬 Video not found or not ready</h2>
                     <p>This video link seems to be broken or expired.</p>
                     <p><a href="/">Create a new video →</a></p>
                 </div>
@@ -252,18 +306,25 @@
             const videoUrl = getVideoUrl();
             const operationId = getOperationId();
 
-            // If we have a direct video URL
+            // If we have a direct video URL (legacy support)
             if (videoUrl) {
-                renderVideoContent(videoUrl);
+                renderReceiverContent(videoUrl);
                 return;
             }
 
             // If we have an operation ID, fetch from DB
             if (operationId) {
                 renderLoading();
-                const fetchedUrl = await fetchVideoFromDb(operationId);
-                if (fetchedUrl) {
-                    renderVideoContent(fetchedUrl);
+                const data = await fetchVideoFromDb(operationId);
+                if (data && data.videoUrl) {
+                    // Show different content based on who made the video
+                    if (data.userType === 'buyer') {
+                        // Buyer made the video -> Receiver is viewing it
+                        renderBuyerContent(data.videoUrl);
+                    } else {
+                        // Receiver made the video -> Buyer is viewing it
+                        renderReceiverContent(data.videoUrl);
+                    }
                 } else {
                     renderError('Video not found or not ready');
                 }
@@ -276,8 +337,8 @@
 
         async function shareVideo() {
             const shareData = {
-                title: 'Your Special Video Message',
-                text: 'Someone made this video just for you! 🎉',
+                title: 'A Special Thank You Video',
+                text: 'Watch this heartfelt video message! 💝',
                 url: window.location.href
             };
 

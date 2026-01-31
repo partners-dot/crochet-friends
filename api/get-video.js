@@ -25,7 +25,7 @@ export default async function handler(req, res) {
         // Look up the video session
         const { data: session, error } = await supabase
             .from('video_sessions')
-            .select('video_url, product, status')
+            .select('video_url, product, status, user_type')
             .eq('operation_id', id)
             .single();
 
@@ -39,7 +39,8 @@ export default async function handler(req, res) {
 
         return res.status(200).json({
             videoUrl: session.video_url,
-            product: session.product
+            product: session.product,
+            userType: session.user_type
         });
 
     } catch (err) {
