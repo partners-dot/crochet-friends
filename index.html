@@ -784,11 +784,13 @@
       <header>
         <div class="subtitle">Step 1</div>
         <h2>Say Thank You! 💝</h2>
-        <p class="section-description">Send a heartwarming video back to the person who gave you this gift.</p>
+        <p class="section-description">Create a video where your crochet friend speaks your words. Use a template or
+          write your own!</p>
       </header>
       <p class="examples-label">✨ See what you can create</p>
       <div class="video-examples" id="receiverExamples">
-        <div class="video-example" onclick="handleExampleClick(this)">
+        <div class="video-example" onclick="handleExampleClick(this)"
+          data-template="Thank you, _____! I tried to take a bite... tastes like yarn, but looks adorable! I love it!">
           <video playsinline muted loop preload="metadata" data-index="0">
             <source src="videos/example-receiver-1.mp4" type="video/mp4">
           </video>
@@ -796,9 +798,11 @@
             <button onclick="event.stopPropagation(); toggleExamplePlay(this)">⏸️</button>
             <button onclick="event.stopPropagation(); toggleExampleMute(this)">🔇</button>
           </div>
-          <div class="caption">Thank you!</div>
+          <div class="caption">Funny Thanks</div>
+          <button class="template-btn" onclick="event.stopPropagation(); useTemplate(this)">📝 Use Template</button>
         </div>
-        <div class="video-example" onclick="handleExampleClick(this)">
+        <div class="video-example" onclick="handleExampleClick(this)"
+          data-template="Thank you, _____! This little guy has already made himself at home on my desk. Best surprise ever!">
           <video playsinline muted loop preload="metadata" data-index="1">
             <source src="videos/example-receiver-2.mp4" type="video/mp4">
           </video>
@@ -806,9 +810,11 @@
             <button onclick="event.stopPropagation(); toggleExamplePlay(this)">▶️</button>
             <button onclick="event.stopPropagation(); toggleExampleMute(this)">🔇</button>
           </div>
-          <div class="caption">You're the best!</div>
+          <div class="caption">Sweet Gratitude</div>
+          <button class="template-btn" onclick="event.stopPropagation(); useTemplate(this)">📝 Use Template</button>
         </div>
-        <div class="video-example" onclick="handleExampleClick(this)">
+        <div class="video-example" onclick="handleExampleClick(this)"
+          data-template="Thank you for the cupcake, _____! Nice try ruining my diet... but this one has zero calories. I win!">
           <video playsinline muted loop preload="metadata" data-index="2">
             <source src="videos/example-receiver-3.mp4" type="video/mp4">
           </video>
@@ -816,7 +822,8 @@
             <button onclick="event.stopPropagation(); toggleExamplePlay(this)">▶️</button>
             <button onclick="event.stopPropagation(); toggleExampleMute(this)">🔇</button>
           </div>
-          <div class="caption">I love it!</div>
+          <div class="caption">Personal Joke</div>
+          <button class="template-btn" onclick="event.stopPropagation(); useTemplate(this)">📝 Use Template</button>
         </div>
       </div>
       <button type="button" class="btn btn-primary" onclick="goToStep('create')">🎬 Create Thank You Video</button>
