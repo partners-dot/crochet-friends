@@ -200,7 +200,7 @@ export default async function handler(req, res) {
 </html>`;
 
                             const { error: emailError } = await resend.emails.send({
-                                from: 'Got You A Little Something <noreply@resend.dev>',
+                                from: 'Got You A Little Something <info@gotyoualittlesomething.com>',
                                 to: session.email,
                                 subject: '🎉 Your Video is Ready to Share!',
                                 html: emailHtml
