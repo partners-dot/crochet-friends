@@ -170,24 +170,29 @@
     <script>
         function getVideoUrl() {
             const params = new URLSearchParams(window.location.search);
+            // Support both old 'v' param and new 'id' param
             return params.get('v');
         }
 
-        function renderVideo() {
-            const container = document.getElementById('content');
-            const videoUrl = getVideoUrl();
+        function getOperationId() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('id');
+        }
 
-            if (!videoUrl) {
-                container.innerHTML = `
-                    <div class="error-state">
-                        <h2>🎬 No Video Found</h2>
-                        <p>This video link seems to be broken or expired.</p>
-                        <p><a href="/">Create a new video →</a></p>
-                    </div>
-                `;
-                return;
+        async function fetchVideoFromDb(operationId) {
+            try {
+                const res = await fetch(`/api/get-video?id=${encodeURIComponent(operationId)}`);
+                if (!res.ok) return null;
+                const data = await res.json();
+                return data.videoUrl;
+            } catch (err) {
+                console.error('Failed to fetch video:', err);
+                return null;
             }
+        }
 
+        function renderVideoContent(videoUrl) {
+            const container = document.getElementById('content');
             container.innerHTML = `
                 <div class="logo">Got You A Little Something</div>
                 <h1>🎉 Your Video Message!</h1>
@@ -222,8 +227,54 @@
             `;
         }
 
-        async function shareVideo() {
+        function renderError(message) {
+            const container = document.getElementById('content');
+            container.innerHTML = `
+                <div class="error-state">
+                    <h2>🎬 ${message || 'No Video Found'}</h2>
+                    <p>This video link seems to be broken or expired.</p>
+                    <p><a href="/">Create a new video →</a></p>
+                </div>
+            `;
+        }
+
+        function renderLoading() {
+            const container = document.getElementById('content');
+            container.innerHTML = `
+                <div class="logo">Got You A Little Something</div>
+                <h1>⏳ Loading your video...</h1>
+                <p class="subtitle">Just a moment!</p>
+            `;
+        }
+
+        async function renderVideo() {
+            const container = document.getElementById('content');
             const videoUrl = getVideoUrl();
+            const operationId = getOperationId();
+
+            // If we have a direct video URL
+            if (videoUrl) {
+                renderVideoContent(videoUrl);
+                return;
+            }
+
+            // If we have an operation ID, fetch from DB
+            if (operationId) {
+                renderLoading();
+                const fetchedUrl = await fetchVideoFromDb(operationId);
+                if (fetchedUrl) {
+                    renderVideoContent(fetchedUrl);
+                } else {
+                    renderError('Video not found or not ready');
+                }
+                return;
+            }
+
+            // No video info provided
+            renderError('No Video Found');
+        }
+
+        async function shareVideo() {
             const shareData = {
                 title: 'Your Special Video Message',
                 text: 'Someone made this video just for you! 🎉',

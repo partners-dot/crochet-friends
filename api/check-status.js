@@ -120,15 +120,8 @@ export default async function handler(req, res) {
 
                         if (session && session.email && !session.email_sent) {
                             const BASE_URL = 'https://video.gotyoualittlesomething.com';
-                            const videoPageUrl = `${BASE_URL}/video.html?v=${encodeURIComponent(videoUrl)}`;
-
-                            const characterImages = {
-                                potato: `${BASE_URL}/images/potato.jpg`,
-                                cupcake: `${BASE_URL}/images/cupcake.jpg`,
-                                yoda: `${BASE_URL}/images/yoda.jpg`
-                            };
-                            const characterImage = characterImages[session.product] || characterImages.potato;
-                            const amazonReviewUrl = 'https://www.amazon.com/review/create-review?asin=B0DK1RF3TZ';
+                            // Use operation ID to keep email small - video.html will fetch from DB
+                            const videoPageUrl = `${BASE_URL}/video.html?id=${encodeURIComponent(operationId)}`;
 
                             const emailHtml = `
 <!DOCTYPE html>
