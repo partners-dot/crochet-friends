@@ -630,6 +630,112 @@
       color: #FFF;
     }
 
+    /* Thank You Section Styles */
+    .thank-you-section {
+      text-align: center;
+    }
+
+    .thank-you-emoji {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+
+    .thank-you-subtext {
+      color: var(--text-secondary);
+      font-size: 1.05rem;
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+
+    .pro-tip-box {
+      background: rgba(255, 209, 102, 0.1);
+      border: 1px solid rgba(255, 209, 102, 0.3);
+      border-radius: 16px;
+      padding: 1.2rem;
+      margin-bottom: 2rem;
+    }
+
+    .pro-tip-box strong {
+      color: var(--accent-neon);
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    .pro-tip-box p {
+      color: var(--text-secondary);
+      margin: 0;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    .review-divider {
+      border: none;
+      border-top: 1px solid var(--glass-border);
+      margin: 2rem 0;
+    }
+
+    .review-ask-text {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+    }
+
+    .review-ask-text strong {
+      color: var(--text-primary);
+      display: block;
+      font-size: 1.1rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .btn-review-large {
+      display: inline-block;
+      background: linear-gradient(135deg, #ffd166 0%, #f4a942 100%);
+      color: #1a1a4e;
+      padding: 1rem 2rem;
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 1.1rem;
+      transition: all 0.3s;
+      box-shadow: 0 8px 25px rgba(255, 209, 102, 0.3);
+      margin-bottom: 1rem;
+    }
+
+    .btn-review-large:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 35px rgba(255, 209, 102, 0.4);
+    }
+
+    .btn-review-large:visited {
+      color: #1a1a4e;
+    }
+
+    .create-another-link {
+      display: block;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-top: 1.5rem;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .create-another-link:hover {
+      color: var(--accent-neon);
+    }
+
     .loading-container {
       background: var(--card-bg);
       backdrop-filter: blur(16px);
@@ -847,6 +953,32 @@
         →</button>
       <button type="button" class="btn btn-secondary" onclick="goToStep('create')">← Back</button>
     </section>
+    <section id="thankYouSection" class="section hidden thank-you-section">
+      <div class="thank-you-emoji">✨</div>
+      <h2 id="thankYouHeadline">Your Video is Being Created!</h2>
+      <p class="thank-you-subtext" id="thankYouSubtext">
+        We're crafting your personalized message right now.<br>
+        Check your inbox in 2-3 minutes – we'll send it ready to share!
+      </p>
+
+      <div class="pro-tip-box">
+        <strong>📲 Pro Tip</strong>
+        <p id="thankYouProTip">When you get the email, just tap "Watch & Share" to send your special message. They're
+          going to love it!</p>
+      </div>
+
+      <hr class="review-divider">
+
+      <div class="review-ask-text" id="reviewAskText">
+        <strong>💛 While you wait...</strong>
+        If you're loving this experience, we'd really appreciate a quick review!
+      </div>
+
+      <a href="#" id="thankYouReviewLink" class="btn-review-large" onclick="trackReviewClick('thankyou')">⭐ Leave a
+        Review on Amazon</a>
+
+      <a class="create-another-link" onclick="createAnother()">← Create Another Video</a>
+    </section>
     <section id="createSection" class="section hidden">
       <header>
         <h2 id="createHeader">Create Your Message</h2>
@@ -957,10 +1089,35 @@
         case 'receiver': document.getElementById('receiverSection').classList.remove('hidden'); playExampleVideos('receiverExamples'); break;
         case 'email': document.getElementById('emailSection').classList.remove('hidden'); break;
         case 'create': document.getElementById('createSection').classList.remove('hidden'); updateCreateHeader(); applyPendingTemplate(); break;
+        case 'thankyou': document.getElementById('thankYouSection').classList.remove('hidden'); populateThankYouContent(); break;
         case 'result': document.getElementById('resultSection').classList.remove('hidden'); break;
       }
     }
     function selectBranch(type) { userType = type; goToStep(type); }
+    function populateThankYouContent() {
+      const headline = document.getElementById('thankYouHeadline');
+      const subtext = document.getElementById('thankYouSubtext');
+      const proTip = document.getElementById('thankYouProTip');
+      const reviewAsk = document.getElementById('reviewAskText');
+      const reviewLink = document.getElementById('thankYouReviewLink');
+
+      if (userType === 'receiver') {
+        headline.textContent = '💝 Your Thank-You Video is on the Way!';
+        subtext.innerHTML = 'Your personalized thank-you is being created!<br>Check your inbox in 2-3 minutes – we\'ll send it ready to share!';
+        proTip.textContent = 'Use the link in the email to share your thank-you video with your gift-giver!';
+        reviewAsk.innerHTML = '<strong>⭐ Loving your crocheted friend?</strong>A quick review helps other gift-lovers find us – and it only takes 30 seconds!';
+        reviewLink.textContent = '⭐ Share the Love – Leave a Review';
+      } else {
+        headline.textContent = '✨ Your Video is Being Created!';
+        subtext.innerHTML = 'We\'re crafting your personalized message right now.<br>Check your inbox in 2-3 minutes – we\'ll send it ready to share!';
+        proTip.textContent = 'When you get the email, just tap "Watch & Share" to send your special message. They\'re going to love it!';
+        reviewAsk.innerHTML = '<strong>💛 While you wait...</strong>If you\'re loving this experience, we\'d really appreciate a quick review!';
+        reviewLink.textContent = '⭐ Leave a Review on Amazon';
+      }
+
+      // Update review link URL
+      reviewLink.href = amazonReviewUrls[selectedProduct] || amazonReviewUrls.default;
+    }
     async function validateEmail() {
       const emailInput = document.getElementById('email');
       const email = emailInput.value.trim();
@@ -1014,11 +1171,8 @@
     async function startVideoGeneration() {
       const text = pendingMessage;
       if (!text) { goToStep('create'); return; }
-      document.getElementById('emailSection').classList.add('hidden');
-      document.getElementById('loadingSection').classList.remove('hidden');
-      startLoadingAnimation();
-      const progressText = document.getElementById('progressText');
-      progressText.textContent = 'Starting...';
+      // Show thank you page and start generation in background
+      goToStep('thankyou');
       try {
         const startRes = await fetch('/api/generate-video', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: text, character: selectedProduct, email: userEmail, userType: userType }) });
         const startData = await startRes.json();
