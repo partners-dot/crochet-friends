@@ -108,6 +108,15 @@ export default async function handler(req, res) {
                     console.log('Video generation successful, URL:', videoUrl);
                 }
 
+                // Save video URL to Supabase immediately
+                if (supabase) {
+                    await supabase
+                        .from('video_sessions')
+                        .update({ video_url: videoUrl, status: 'complete' })
+                        .eq('operation_id', operationId);
+                    console.log('Video URL saved to database');
+                }
+
                 // Send email if Supabase and Resend are configured
                 if (supabase && resend) {
                     try {
@@ -182,7 +191,7 @@ export default async function handler(req, res) {
                                 // Mark email as sent
                                 await supabase
                                     .from('video_sessions')
-                                    .update({ email_sent: true, video_url: videoUrl, status: 'complete' })
+                                    .update({ email_sent: true })
                                     .eq('operation_id', operationId);
                             }
                         }
