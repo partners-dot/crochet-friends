@@ -161,16 +161,6 @@ export default async function handler(req, res) {
                         </td>
                     </tr>
                     <tr>
-                        <td align="center" style="padding: 24px 30px; border-top: 1px solid #eeeeee;">
-                            <p style="margin: 0 0 12px; color: #888888; font-size: 14px;">
-                                ⭐ Love your experience? Help us grow!
-                            </p>
-                            <a href="${amazonReviewUrl}" style="color: #f4a942; text-decoration: none; font-size: 14px; font-weight: 600;">
-                                Leave a Review on Amazon →
-                            </a>
-                        </td>
-                    </tr>
-                    <tr>
                         <td align="center" style="padding: 20px 30px; background: #fafafa; border-radius: 0 0 16px 16px;">
                             <p style="margin: 0; color: #aaaaaa; font-size: 12px;">
                                 © Got You A Little Something<br>
