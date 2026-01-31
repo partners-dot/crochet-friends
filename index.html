@@ -1200,6 +1200,19 @@
           } catch (fetchErr) { consecutiveFailures++; if (consecutiveFailures >= 3) throw fetchErr; }
         }
         if (!videoUrl) throw new Error('Video generation timed out after 5 minutes');
+
+        // Save video URL to database from frontend (backup save)
+        try {
+          await fetch('/api/save-video', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ operationId: operationId, videoUrl: videoUrl })
+          });
+          console.log('Video URL saved to database');
+        } catch (saveErr) {
+          console.error('Failed to save video URL:', saveErr);
+        }
+
         trackEvent('video_created');
         document.getElementById('video').src = videoUrl;
         window.videoData = videoUrl;
