@@ -137,56 +137,42 @@ export default async function handler(req, res) {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0a0a2e;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #0a0a2e; padding: 40px 20px;">
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f5f5f5;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
         <tr>
             <td align="center">
-                <table width="100%" max-width="500" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, #1a1a4e 0%, #0d0d35 100%); border-radius: 24px; overflow: hidden; max-width: 500px;">
+                <table width="100%" cellpadding="0" cellspacing="0" style="background: #ffffff; border-radius: 16px; max-width: 480px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
                     <tr>
                         <td align="center" style="padding: 40px 30px 20px;">
-                            <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700;">
-                                🎉 Your Video is Ready!
+                            <div style="font-size: 48px; margin-bottom: 16px;">🎉</div>
+                            <h1 style="margin: 0; color: #1a1a1a; font-size: 24px; font-weight: 700;">
+                                Your Video is Ready!
                             </h1>
                         </td>
                     </tr>
                     <tr>
-                        <td align="center" style="padding: 20px 30px;">
-                            <img src="${characterImage}" alt="Your Crochet Friend" style="width: 150px; height: 150px; border-radius: 20px; object-fit: cover; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
-                        </td>
-                    </tr>
-                    <tr>
                         <td align="center" style="padding: 10px 30px 30px;">
-                            <p style="margin: 0; color: #e0e0e0; font-size: 18px; line-height: 1.6;">
-                                Your personalized video message is ready!<br>
-                                <strong style="color: #ffd166;">Share it with someone special 💝</strong>
+                            <p style="margin: 0 0 24px; color: #666666; font-size: 16px; line-height: 1.6;">
+                                Your personalized video message is ready to share with someone special!
                             </p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td align="center" style="padding: 0 30px 30px;">
-                            <a href="${videoPageUrl}" style="display: inline-block; background: linear-gradient(135deg, #ffd166 0%, #f4a942 100%); color: #1a1a4e; text-decoration: none; padding: 18px 40px; border-radius: 50px; font-size: 18px; font-weight: 700; box-shadow: 0 8px 25px rgba(255, 209, 102, 0.4);">
+                            <a href="${videoPageUrl}" style="display: inline-block; background: #ffd166; color: #1a1a1a; text-decoration: none; padding: 16px 32px; border-radius: 50px; font-size: 16px; font-weight: 700;">
                                 👀 Watch & Share Your Video
                             </a>
                         </td>
                     </tr>
                     <tr>
-                        <td style="padding: 0 30px;">
-                            <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 0;">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td align="center" style="padding: 30px;">
-                            <p style="margin: 0 0 15px; color: #a0a0a0; font-size: 14px;">
+                        <td align="center" style="padding: 24px 30px; border-top: 1px solid #eeeeee;">
+                            <p style="margin: 0 0 12px; color: #888888; font-size: 14px;">
                                 ⭐ Love your experience? Help us grow!
                             </p>
-                            <a href="${amazonReviewUrl}" style="color: #ffd166; text-decoration: none; font-size: 14px; font-weight: 600;">
+                            <a href="${amazonReviewUrl}" style="color: #f4a942; text-decoration: none; font-size: 14px; font-weight: 600;">
                                 Leave a Review on Amazon →
                             </a>
                         </td>
                     </tr>
                     <tr>
-                        <td align="center" style="padding: 20px 30px 30px; border-top: 1px solid rgba(255,255,255,0.05);">
-                            <p style="margin: 0; color: #666; font-size: 12px;">
+                        <td align="center" style="padding: 20px 30px; background: #fafafa; border-radius: 0 0 16px 16px;">
+                            <p style="margin: 0; color: #aaaaaa; font-size: 12px;">
                                 © Got You A Little Something<br>
                                 Made with 💛 for gift-givers everywhere
                             </p>
