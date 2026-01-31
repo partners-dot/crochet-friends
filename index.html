@@ -739,7 +739,7 @@
       <p class="examples-label">✨ See what you can create</p>
       <div class="video-examples" id="buyerExamples">
         <div class="video-example" onclick="handleExampleClick(this)"
-          data-template="Happy Birthday, _____! Other treats disappear, but I'm here to stay sweet for life. Hope you had a great birthday.">
+          data-template="Happy Birthday, NAME! Other treats disappear, but I'm here to stay sweet for life. Hope you had a great birthday.">
           <video playsinline muted loop preload="metadata" data-index="0">
             <source src="videos/example-buyer-1.mp4" type="video/mp4">
           </video>
@@ -751,7 +751,7 @@
           <button class="template-btn" onclick="event.stopPropagation(); useTemplate(this)">📝 Use Template</button>
         </div>
         <div class="video-example" onclick="handleExampleClick(this)"
-          data-template="Hey _____. Clear a VIP spot on your shelf! I'm cute, zero calories, and I'm on my way!">
+          data-template="Hey NAME. Clear a VIP spot on your shelf! I'm cute, zero calories, and I'm on my way!">
           <video playsinline muted loop preload="metadata" data-index="1">
             <source src="videos/example-buyer-2.mp4" type="video/mp4">
           </video>
@@ -763,7 +763,7 @@
           <button class="template-btn" onclick="event.stopPropagation(); useTemplate(this)">📝 Use Template</button>
         </div>
         <div class="video-example" onclick="handleExampleClick(this)"
-          data-template="Hey _____! Since you kill every plant you touch... good news! I don't need water. You can't kill me!">
+          data-template="Hey NAME! Since you kill every plant you touch... good news! I don't need water. You can't kill me!">
           <video playsinline muted loop preload="metadata" data-index="2">
             <source src="videos/example-buyer-3.mp4" type="video/mp4">
           </video>
@@ -790,7 +790,7 @@
       <p class="examples-label">✨ See what you can create</p>
       <div class="video-examples" id="receiverExamples">
         <div class="video-example" onclick="handleExampleClick(this)"
-          data-template="Thank you, _____! I tried to take a bite... tastes like yarn, but looks adorable! I love it!">
+          data-template="Thank you, NAME! I tried to take a bite... tastes like yarn, but looks adorable! I love it!">
           <video playsinline muted loop preload="metadata" data-index="0">
             <source src="videos/example-receiver-1.mp4" type="video/mp4">
           </video>
@@ -802,7 +802,7 @@
           <button class="template-btn" onclick="event.stopPropagation(); useTemplate(this)">📝 Use Template</button>
         </div>
         <div class="video-example" onclick="handleExampleClick(this)"
-          data-template="Thank you, _____! This little guy has already made himself at home on my desk. Best surprise ever!">
+          data-template="Thank you, NAME! This little guy has already made himself at home on my desk. Best surprise ever!">
           <video playsinline muted loop preload="metadata" data-index="1">
             <source src="videos/example-receiver-2.mp4" type="video/mp4">
           </video>
@@ -814,7 +814,7 @@
           <button class="template-btn" onclick="event.stopPropagation(); useTemplate(this)">📝 Use Template</button>
         </div>
         <div class="video-example" onclick="handleExampleClick(this)"
-          data-template="Thank you for the cupcake, _____! Nice try ruining my diet... but this one has zero calories. I win!">
+          data-template="Thank you for the cupcake, NAME! Nice try ruining my diet... but this one has zero calories. I win!">
           <video playsinline muted loop preload="metadata" data-index="2">
             <source src="videos/example-receiver-3.mp4" type="video/mp4">
           </video>
@@ -1004,8 +1004,8 @@
       e.preventDefault();
       const text = document.getElementById('message').value.trim();
       if (!text) return;
-      if (text.includes('_____')) {
-        alert('Please replace _____ with your friend\'s name before creating the video!');
+      if (text.includes('NAME')) {
+        alert('Please replace NAME with your friend\'s name before creating the video!');
         return;
       }
       pendingMessage = text;
