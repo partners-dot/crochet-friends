@@ -1102,13 +1102,13 @@
       const reviewLink = document.getElementById('thankYouReviewLink');
 
       if (userType === 'receiver') {
-        headline.textContent = '💝 Your Thank-You Video<br>is on the Way!';
+        headline.innerHTML = '💝 Your Thank-You Video<br>is on the Way!';
         subtext.innerHTML = 'Your personalized thank-you is being created!<br>Check your inbox in 2-3 minutes – we\'ll send it ready to share!';
         proTip.textContent = 'Use the link in the email to share your thank-you video with your gift-giver!';
         reviewAsk.innerHTML = '<strong>⭐ Loving your crocheted friend?</strong>A quick review helps other gift-lovers find us – and it only takes 30 seconds!';
         reviewLink.textContent = '⭐ Share the Love – Leave a Review';
       } else {
-        headline.textContent = '✨ Your Video is<br>Being Created!';
+        headline.innerHTML = '✨ Your Video is<br>Being Created!';
         subtext.innerHTML = 'We\'re crafting your personalized message right now.<br>Check your inbox in 2-3 minutes – we\'ll send it ready to share!';
         proTip.textContent = 'When you get the email, just tap "Watch & Share" to send your special message. They\'re going to love it!';
         reviewAsk.innerHTML = '<strong>💛 While you wait...</strong>If you\'re loving this experience, we\'d really appreciate a quick review!';
