@@ -11,6 +11,16 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Outfit:wght@300;400;500;600;700&display=swap"
     rel="stylesheet">
+  <!-- PostHog Analytics -->
+  <script>
+    !function (t, e) { var o, n, p, r; e.__SV || (window.posthog = e, e._i = [], e.init = function (i, s, a) { function g(t, e) { var o = e.split("."); 2 == o.length && (t = t[o[0]], e = o[1]), t[e] = function () { t.push([e].concat(Array.prototype.slice.call(arguments, 0))) } } (p = t.createElement("script")).type = "text/javascript", p.async = !0, p.src = s.api_host.replace(".i.posthog.com", "-assets.i.posthog.com") + "/static/array.js", (r = t.getElementsByTagName("script")[0]).parentNode.insertBefore(p, r); var u = e; for (void 0 !== a ? u = e[a] = [] : a = "posthog", u.people = u.people || [], u.toString = function (t) { var e = "posthog"; return "posthog" !== a && (e += "." + a), t || (e += " (stub)"), e }, u.people.toString = function () { return u.toString(1) + ".people (stub)" }, o = "init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey getNextSurveyStep identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug getPageViewId".split(" "), n = 0; n < o.length; n++)g(u, o[n]); e._i.push([i, s, a]) }, e.__SV = 1) }(document, window.posthog || []);
+    posthog.init('phx_13wn9ctJ5OexrS5Tdcv1amw653LUesNgXFuNtem5keA97I3r', {
+      api_host: 'https://us.i.posthog.com',
+      person_profiles: 'identified_only',
+      capture_pageview: false,
+      capture_pageleave: true
+    });
+  </script>
   <style>
     :root {
       --bg-primary: #050A30;
@@ -1074,6 +1084,8 @@
       const welcomeVideo = document.getElementById('welcomeVideo');
       if (welcomeVideo) welcomeVideo.play().catch(() => { });
       trackEvent('page_view');
+      // PostHog page view with initial properties
+      if (window.posthog) posthog.capture('$pageview', { page: 'main', product_from_url: productFromUrl });
       setupFormHandlers();
     });
     function goToStep(step) {
@@ -1086,6 +1098,8 @@
         v.closest('.video-example').classList.remove('playing');
       });
       currentStep = step;
+      // PostHog: Track step navigation
+      if (window.posthog) posthog.capture('step_viewed', { step_name: step, product: selectedProduct, user_type: userType });
       switch (step) {
         case 'welcome': document.getElementById('welcomeSection').classList.remove('hidden'); break;
         // case 'branch': removed
@@ -1097,7 +1111,12 @@
         case 'result': document.getElementById('resultSection').classList.remove('hidden'); break;
       }
     }
-    function selectBranch(type) { userType = type; goToStep(type); }
+    function selectBranch(type) {
+      userType = type;
+      // PostHog: Track user type selection
+      if (window.posthog) posthog.capture('user_type_selected', { user_type: type });
+      goToStep(type);
+    }
     function populateThankYouContent() {
       const headline = document.getElementById('thankYouHeadline');
       const subtext = document.getElementById('thankYouSubtext');
@@ -1127,10 +1146,20 @@
       const email = emailInput.value.trim();
       if (!email || !email.includes('@')) { alert('Please enter a valid email address'); return; }
       userEmail = email;
+      // PostHog: Identify user by email and track email entered
+      if (window.posthog) {
+        posthog.identify(email);
+        posthog.capture('email_entered', { email: email, user_type: userType, product: selectedProduct });
+      }
       try {
         const res = await fetch('/api/user', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, userType, product: selectedProduct }) });
         const data = await res.json();
-        if (!data.allowed) { document.getElementById('rateLimitWarning').classList.remove('hidden'); document.getElementById('continueToCreateBtn').disabled = true; return; }
+        if (!data.allowed) {
+          if (window.posthog) posthog.capture('rate_limited', { email: email });
+          document.getElementById('rateLimitWarning').classList.remove('hidden');
+          document.getElementById('continueToCreateBtn').disabled = true;
+          return;
+        }
         videosRemaining = data.videosRemaining;
         startVideoGeneration();
       } catch (err) { console.error('Rate limit check failed:', err); startVideoGeneration(); }
@@ -1141,7 +1170,14 @@
       const charCount = document.getElementById('charCount');
       const products = document.querySelectorAll('.product');
       message.addEventListener('input', () => charCount.textContent = message.value.length);
-      products.forEach(p => p.addEventListener('click', () => { products.forEach(x => x.classList.remove('selected')); p.classList.add('selected'); selectedProduct = p.dataset.product; updateReviewLinks(); }));
+      products.forEach(p => p.addEventListener('click', () => {
+        products.forEach(x => x.classList.remove('selected'));
+        p.classList.add('selected');
+        selectedProduct = p.dataset.product;
+        // PostHog: Track product selection
+        if (window.posthog) posthog.capture('product_selected', { product: selectedProduct, user_type: userType });
+        updateReviewLinks();
+      }));
       form.addEventListener('submit', handleVideoGeneration);
     }
     let pendingTemplate = null;
@@ -1149,6 +1185,8 @@
       const container = btn.closest('.video-example');
       const templateText = container.dataset.template;
       if (!templateText) return;
+      // PostHog: Track template usage
+      if (window.posthog) posthog.capture('template_used', { template_preview: templateText.substring(0, 50), user_type: userType });
       pendingTemplate = templateText;
       goToStep('create');
     }
@@ -1170,6 +1208,8 @@
         return;
       }
       pendingMessage = text;
+      // PostHog: Track message submitted
+      if (window.posthog) posthog.capture('message_submitted', { message_length: text.length, product: selectedProduct, user_type: userType });
       goToStep('email');
     }
     async function startVideoGeneration() {
@@ -1177,6 +1217,8 @@
       if (!text) { goToStep('create'); return; }
       // Show thank you page and start generation in background
       goToStep('thankyou');
+      // PostHog: Track video generation started
+      if (window.posthog) posthog.capture('video_generation_started', { product: selectedProduct, user_type: userType, message_length: text.length });
       try {
         const startRes = await fetch('/api/generate-video', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: text, character: selectedProduct, email: userEmail, userType: userType }) });
         const startData = await startRes.json();
@@ -1221,7 +1263,14 @@
         document.getElementById('video').src = videoUrl;
         window.videoData = videoUrl;
         window.videoFilename = `crochet-${selectedProduct}-message.mp4`;
-        document.getElementById('downloadBtn').onclick = function () { const link = document.createElement('a'); link.href = window.videoData; link.download = window.videoFilename; link.click(); };
+        document.getElementById('downloadBtn').onclick = function () {
+          // PostHog: Track download
+          if (window.posthog) posthog.capture('video_downloaded', { product: selectedProduct, user_type: userType });
+          const link = document.createElement('a');
+          link.href = window.videoData;
+          link.download = window.videoFilename;
+          link.click();
+        };
         videosRemaining--;
         if (videosRemaining <= 0) document.getElementById('createAnotherBtn').classList.add('hidden');
         document.getElementById('loadingSection').classList.add('hidden');
@@ -1304,8 +1353,16 @@
         btn.textContent = '🔇';
       }
     }
-    function trackEvent(eventType) { fetch('/api/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ event_type: eventType, product: selectedProduct, user_type: userType, email: userEmail }) }).catch(err => console.error('Track error:', err)); }
-    function trackReviewClick(source) { trackEvent('review_clicked'); }
+    function trackEvent(eventType, extraProps = {}) {
+      const props = { event_type: eventType, product: selectedProduct, user_type: userType, email: userEmail, ...extraProps };
+      // Send to Supabase (existing)
+      fetch('/api/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(props) }).catch(err => console.error('Track error:', err));
+      // Send to PostHog
+      if (window.posthog) posthog.capture(eventType, props);
+    }
+    function trackReviewClick(source) {
+      trackEvent('review_clicked', { source: source });
+    }
     function unmuteWelcome() {
       const video = document.getElementById('welcomeVideo');
       const overlay = document.getElementById('welcomeSoundOverlay');
