@@ -843,15 +843,16 @@
 
     @media (max-width: 480px) {
       .info-tooltip {
-        width: 260px;
-        left: auto;
-        right: -10px;
+        width: 280px;
+        left: 0;
+        right: auto;
         transform: none;
+        z-index: 99999;
       }
 
       .info-tooltip::before {
-        left: auto;
-        right: 20px;
+        left: 10px;
+        right: auto;
         transform: none;
       }
     }
@@ -1107,8 +1108,10 @@
       </header>
       <form id="form">
         <div class="card">
-          <label for="message" style="display: inline-flex; align-items: center; gap: 6px;">Write Your Message
-            <span class="info-icon-wrapper" onclick="event.stopPropagation();" style="z-index: 20;">
+          <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 0.8rem;">
+            <label for="message" style="margin-bottom: 0;">Write Your Message</label>
+            <span class="info-icon-wrapper" onclick="event.preventDefault(); event.stopPropagation();"
+              style="z-index: 9999;">
               <svg class="info-icon-svg" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
                 fill="none" stroke="#FFD166" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                 style="cursor: pointer;">
@@ -1116,7 +1119,7 @@
                 <line x1="12" y1="16" x2="12" y2="12"></line>
                 <line x1="12" y1="8" x2="12.01" y2="8"></line>
               </svg>
-              <div class="info-tooltip">
+              <div class="info-tooltip" style="left: 0; right: auto; transform: none;">
                 <h4>🎬 How It Works</h4>
                 <ul>
                   <li>Write a personal message (up to 120 characters)</li>
@@ -1128,7 +1131,7 @@
                   technology!</div>
               </div>
             </span>
-          </label>
+          </div>
           <textarea id="message" rows="4" maxlength="120"
             placeholder="Happy Birthday! I hope this little friend makes you smile!" required></textarea>
           <div class="char-count"><span id="charCount">0</span>/120</div>
