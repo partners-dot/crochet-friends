@@ -755,31 +755,17 @@
       margin-left: 0.5rem;
     }
 
-    .info-icon {
-      width: 24px;
-      height: 24px;
-      min-width: 24px;
-      border-radius: 50%;
-      background: rgba(255, 209, 102, 0.2);
-      border: 2px solid #FFD166;
-      color: #FFD166;
-      font-size: 14px;
-      font-weight: 700;
-      font-style: italic;
-      font-family: Georgia, serif;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
+    .info-icon-svg {
       transition: all 0.2s ease;
-      flex-shrink: 0;
     }
 
-    .info-icon:hover {
-      background: var(--accent-neon);
-      color: var(--bg-primary);
+    .info-icon-wrapper:hover .info-icon-svg {
+      stroke: var(--accent-neon);
       transform: scale(1.1);
+      filter: drop-shadow(0 0 8px var(--accent-neon));
     }
+
+
 
     .info-tooltip {
       position: absolute;
@@ -1118,10 +1104,16 @@
     <section id="createSection" class="section hidden">
       <header>
         <h2 id="createHeader"
-          style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap;">
+          style="display: inline-flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;">
           <span>Create Your Message</span>
-          <span class="info-icon-wrapper" onclick="event.stopPropagation();">
-            <span class="info-icon">i</span>
+          <span class="info-icon-wrapper" onclick="event.stopPropagation();" style="z-index: 20;">
+            <svg class="info-icon-svg" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+              fill="none" stroke="#FFD166" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              style="cursor: pointer; filter: drop-shadow(0 0 5px rgba(255, 209, 102, 0.5));">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
             <div class="info-tooltip">
               <h4>🎬 How It Works</h4>
               <ul>
