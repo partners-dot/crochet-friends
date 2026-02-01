@@ -755,21 +755,23 @@
     }
 
     .info-icon {
-      width: 20px;
-      height: 20px;
+      width: 24px;
+      height: 24px;
+      min-width: 24px;
       border-radius: 50%;
-      background: rgba(255, 255, 255, 0.1);
-      border: 1.5px solid var(--accent-neon);
-      color: var(--accent-neon);
-      font-size: 12px;
+      background: rgba(255, 209, 102, 0.2);
+      border: 2px solid #FFD166;
+      color: #FFD166;
+      font-size: 14px;
       font-weight: 700;
       font-style: italic;
       font-family: Georgia, serif;
-      display: flex;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       transition: all 0.2s ease;
+      flex-shrink: 0;
     }
 
     .info-icon:hover {
@@ -1114,7 +1116,9 @@
     </section>
     <section id="createSection" class="section hidden">
       <header>
-        <h2 id="createHeader" style="display: inline-flex; align-items: center;">Create Your Message
+        <h2 id="createHeader"
+          style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap;">
+          <span>Create Your Message</span>
           <span class="info-icon-wrapper" onclick="event.stopPropagation();">
             <span class="info-icon">i</span>
             <div class="info-tooltip">
