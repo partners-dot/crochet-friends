@@ -891,7 +891,8 @@
           <button class="template-btn" onclick="event.stopPropagation(); useTemplate(this)">📝 Use Template</button>
         </div>
       </div>
-      <button type="button" class="btn btn-primary" onclick="goToStep('create')">🎬 Create Your Video</button>
+      <button type="button" class="btn btn-primary" onclick="trackCreateVideoClick(); goToStep('create')">🎬 Create Your
+        Video</button>
       <button type="button" class="btn-back" onclick="goToStep('welcome')">← Back</button>
       <a href="#" id="buyerReviewLink" class="soft-review-link" onclick="trackReviewClick('buyer')">⭐ Help us grow -
         leave a review on Amazon!</a>
@@ -942,7 +943,8 @@
           <button class="template-btn" onclick="event.stopPropagation(); useTemplate(this)">📝 Use Template</button>
         </div>
       </div>
-      <button type="button" class="btn btn-primary" onclick="goToStep('create')">🎬 Create Thank You Video</button>
+      <button type="button" class="btn btn-primary" onclick="trackCreateVideoClick(); goToStep('create')">🎬 Create
+        Thank You Video</button>
       <button type="button" class="btn-back" onclick="goToStep('welcome')">← Back</button>
       <a href="#" id="receiverReviewLink" class="soft-review-link" onclick="trackReviewClick('receiver')">⭐ Love your
         gift? Help us with a review!</a>
@@ -1066,6 +1068,9 @@
     let selectedProduct = 'potato';
     let videoUnmuted = false;
     let exampleSoundOn = false;
+    let pageLoadTime = Date.now();
+    let welcomeVideoWatchStart = null;
+    let exampleVideosWatched = 0;
     const urlParams = new URLSearchParams(window.location.search);
     const productFromUrl = urlParams.get('product');
     const amazonReviewUrls = {
@@ -1099,7 +1104,7 @@
       });
       currentStep = step;
       // PostHog: Track step navigation
-      if (window.posthog) posthog.capture('step_viewed', { step_name: step, product: selectedProduct, user_type: userType });
+      if (window.posthog) posthog.capture('Page - ' + step.charAt(0).toUpperCase() + step.slice(1) + ' Viewed', { step_name: step, product: selectedProduct, user_type: userType });
       switch (step) {
         case 'welcome': document.getElementById('welcomeSection').classList.remove('hidden'); break;
         // case 'branch': removed
@@ -1113,8 +1118,17 @@
     }
     function selectBranch(type) {
       userType = type;
-      // PostHog: Track user type selection
-      if (window.posthog) posthog.capture('user_type_selected', { user_type: type });
+      // PostHog: Track welcome video watch time when leaving
+      if (welcomeVideoWatchStart) {
+        const watchDuration = Math.round((Date.now() - welcomeVideoWatchStart) / 1000);
+        if (window.posthog) posthog.capture('Welcome Video - Watch Duration', { watch_duration_seconds: watchDuration });
+      }
+      // PostHog: Track time from page load to selection
+      const timeToSelect = Math.round((Date.now() - pageLoadTime) / 1000);
+      if (window.posthog) posthog.capture('User Selected - ' + (type === 'buyer' ? 'Giving This Gift (Right)' : 'Received This Gift (Left)'), {
+        user_type: type,
+        seconds_to_select: timeToSelect
+      });
       goToStep(type);
     }
     function populateThankYouContent() {
@@ -1149,13 +1163,13 @@
       // PostHog: Identify user by email and track email entered
       if (window.posthog) {
         posthog.identify(email);
-        posthog.capture('email_entered', { email: email, user_type: userType, product: selectedProduct });
+        posthog.capture('Email Submitted', { email: email, user_type: userType, product: selectedProduct });
       }
       try {
         const res = await fetch('/api/user', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, userType, product: selectedProduct }) });
         const data = await res.json();
         if (!data.allowed) {
-          if (window.posthog) posthog.capture('rate_limited', { email: email });
+          if (window.posthog) posthog.capture('User Rate Limited', { email: email });
           document.getElementById('rateLimitWarning').classList.remove('hidden');
           document.getElementById('continueToCreateBtn').disabled = true;
           return;
@@ -1175,7 +1189,7 @@
         p.classList.add('selected');
         selectedProduct = p.dataset.product;
         // PostHog: Track product selection
-        if (window.posthog) posthog.capture('product_selected', { product: selectedProduct, user_type: userType });
+        if (window.posthog) posthog.capture('Character Selected - ' + selectedProduct.charAt(0).toUpperCase() + selectedProduct.slice(1), { product: selectedProduct, user_type: userType });
         updateReviewLinks();
       }));
       form.addEventListener('submit', handleVideoGeneration);
@@ -1186,7 +1200,7 @@
       const templateText = container.dataset.template;
       if (!templateText) return;
       // PostHog: Track template usage
-      if (window.posthog) posthog.capture('template_used', { template_preview: templateText.substring(0, 50), user_type: userType });
+      if (window.posthog) posthog.capture('Message Template Used', { template_preview: templateText.substring(0, 50), user_type: userType });
       pendingTemplate = templateText;
       goToStep('create');
     }
@@ -1209,7 +1223,7 @@
       }
       pendingMessage = text;
       // PostHog: Track message submitted
-      if (window.posthog) posthog.capture('message_submitted', { message_length: text.length, product: selectedProduct, user_type: userType });
+      if (window.posthog) posthog.capture('Message Written', { message_length: text.length, product: selectedProduct, user_type: userType });
       goToStep('email');
     }
     async function startVideoGeneration() {
@@ -1218,7 +1232,7 @@
       // Show thank you page and start generation in background
       goToStep('thankyou');
       // PostHog: Track video generation started
-      if (window.posthog) posthog.capture('video_generation_started', { product: selectedProduct, user_type: userType, message_length: text.length });
+      if (window.posthog) posthog.capture('Video Creation Started', { product: selectedProduct, user_type: userType, message_length: text.length });
       try {
         const startRes = await fetch('/api/generate-video', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: text, character: selectedProduct, email: userEmail, userType: userType }) });
         const startData = await startRes.json();
@@ -1265,7 +1279,7 @@
         window.videoFilename = `crochet-${selectedProduct}-message.mp4`;
         document.getElementById('downloadBtn').onclick = function () {
           // PostHog: Track download
-          if (window.posthog) posthog.capture('video_downloaded', { product: selectedProduct, user_type: userType });
+          if (window.posthog) posthog.capture('Video Downloaded', { product: selectedProduct, user_type: userType });
           const link = document.createElement('a');
           link.href = window.videoData;
           link.download = window.videoFilename;
@@ -1316,8 +1330,16 @@
     function toggleExamplePlay(btn) {
       const container = btn.closest('.video-example');
       const video = container.querySelector('video');
+      const videoIndex = video.dataset.index || '0';
       const allVideos = document.querySelectorAll('.video-example video');
       if (video.paused) {
+        // PostHog: Track example video played
+        exampleVideosWatched++;
+        if (window.posthog) posthog.capture('Example Video - Played', {
+          video_number: parseInt(videoIndex) + 1,
+          total_videos_watched: exampleVideosWatched,
+          user_type: userType
+        });
         allVideos.forEach(v => {
           if (v !== video) {
             v.pause();
@@ -1343,7 +1365,10 @@
     function toggleExampleMute(btn) {
       const container = btn.closest('.video-example');
       const video = container.querySelector('video');
+      const videoIndex = video.dataset.index || '0';
       if (video.muted) {
+        // PostHog: Track sound enabled on example video
+        if (window.posthog) posthog.capture('Example Video - Sound Enabled', { video_number: parseInt(videoIndex) + 1 });
         video.muted = false;
         exampleSoundOn = true;
         btn.textContent = '🔊';
@@ -1361,17 +1386,32 @@
       if (window.posthog) posthog.capture(eventType, props);
     }
     function trackReviewClick(source) {
-      trackEvent('review_clicked', { source: source });
+      trackEvent('Amazon Review Link Clicked', { source: source });
+    }
+    function trackCreateVideoClick() {
+      if (window.posthog) posthog.capture('Create Video Button Clicked (No Template)', {
+        user_type: userType,
+        example_videos_watched: exampleVideosWatched
+      });
     }
     function unmuteWelcome() {
       const video = document.getElementById('welcomeVideo');
       const overlay = document.getElementById('welcomeSoundOverlay');
       const controls = document.getElementById('videoControls');
       if (!videoUnmuted) {
+        // PostHog: Track tap for sound with time elapsed
+        const timeToTap = Math.round((Date.now() - pageLoadTime) / 1000);
+        if (window.posthog) posthog.capture('Welcome Video - Tapped For Sound', { seconds_to_tap: timeToTap });
+        welcomeVideoWatchStart = Date.now();
         if (video) {
           video.muted = false;
           video.volume = 1.0;
           video.currentTime = 0;
+          // Track when video ends or user leaves
+          video.onended = function () {
+            const watchDuration = Math.round((Date.now() - welcomeVideoWatchStart) / 1000);
+            if (window.posthog) posthog.capture('Welcome Video - Finished Watching', { watch_duration_seconds: watchDuration });
+          };
         }
         if (overlay) overlay.style.display = 'none';
         if (controls) controls.classList.add('visible');

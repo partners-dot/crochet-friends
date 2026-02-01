@@ -351,7 +351,7 @@
                 if (data && data.videoUrl) {
                     // Show different content based on who made the video
                     // PostHog: Track share page view
-                    if (window.posthog) posthog.capture('share_page_viewed', { user_type: data.userType, product: data.product });
+                    if (window.posthog) posthog.capture('Video Share Page Opened', { user_type: data.userType, product: data.product });
                     if (data.userType === 'buyer') {
                         // Buyer made the video -> Receiver is viewing it
                         renderBuyerContent(data.videoUrl);
@@ -371,7 +371,7 @@
 
         async function shareVideo() {
             // PostHog: Track share clicked
-            if (window.posthog) posthog.capture('share_clicked', { page: 'video_share' });
+            if (window.posthog) posthog.capture('Share Button Clicked', { page: 'video_share' });
             const shareData = {
                 title: 'A Special Thank You Video',
                 text: 'Watch this heartfelt video message! 💝',
