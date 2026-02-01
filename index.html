@@ -746,6 +746,127 @@
       color: var(--accent-neon);
     }
 
+    /* Info Icon Tooltip */
+    .info-icon-wrapper {
+      display: inline-flex;
+      align-items: center;
+      position: relative;
+      margin-left: 0.5rem;
+    }
+
+    .info-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1.5px solid var(--accent-neon);
+      color: var(--accent-neon);
+      font-size: 12px;
+      font-weight: 700;
+      font-style: italic;
+      font-family: Georgia, serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .info-icon:hover {
+      background: var(--accent-neon);
+      color: var(--bg-primary);
+      transform: scale(1.1);
+    }
+
+    .info-tooltip {
+      position: absolute;
+      top: calc(100% + 10px);
+      left: 50%;
+      transform: translateX(-50%);
+      width: 300px;
+      background: linear-gradient(135deg, rgba(30, 30, 70, 0.98) 0%, rgba(20, 20, 50, 0.98) 100%);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 1.25rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+
+    .info-tooltip::before {
+      content: '';
+      position: absolute;
+      top: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-left: 8px solid transparent;
+      border-right: 8px solid transparent;
+      border-bottom: 8px solid var(--glass-border);
+    }
+
+    .info-icon-wrapper:hover .info-tooltip,
+    .info-tooltip.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .info-tooltip h4 {
+      color: var(--accent-neon);
+      font-size: 1rem;
+      margin: 0 0 0.75rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .info-tooltip ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .info-tooltip li {
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      line-height: 1.5;
+      padding: 0.4rem 0;
+      padding-left: 1.5rem;
+      position: relative;
+    }
+
+    .info-tooltip li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: var(--success);
+    }
+
+    .info-tooltip .tip-note {
+      margin-top: 0.75rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--glass-border);
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+      font-style: italic;
+    }
+
+    @media (max-width: 480px) {
+      .info-tooltip {
+        width: 260px;
+        left: auto;
+        right: -10px;
+        transform: none;
+      }
+
+      .info-tooltip::before {
+        left: auto;
+        right: 20px;
+        transform: none;
+      }
+    }
+
     .loading-container {
       background: var(--card-bg);
       backdrop-filter: blur(16px);
@@ -993,7 +1114,22 @@
     </section>
     <section id="createSection" class="section hidden">
       <header>
-        <h2 id="createHeader">Create Your Message</h2>
+        <h2 id="createHeader" style="display: inline-flex; align-items: center;">Create Your Message
+          <span class="info-icon-wrapper" onclick="event.stopPropagation();">
+            <span class="info-icon">i</span>
+            <div class="info-tooltip">
+              <h4>🎬 How It Works</h4>
+              <ul>
+                <li>Write a personal message (up to 120 characters)</li>
+                <li>Choose which crochet character will speak</li>
+                <li>We'll create an AI-generated video of your character saying your words!</li>
+                <li>You'll receive the video via email in 2-3 minutes</li>
+              </ul>
+              <div class="tip-note">💡 This isn't a pre-made video — it's created uniquely for your message using AI
+                technology!</div>
+            </div>
+          </span>
+        </h2>
       </header>
       <form id="form">
         <div class="card">
