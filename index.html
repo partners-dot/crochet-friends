@@ -769,15 +769,15 @@
 
     .info-tooltip {
       position: absolute;
-      top: calc(100% + 10px);
+      top: calc(100% + 8px);
       left: 50%;
       transform: translateX(-50%);
-      width: 300px;
+      width: 260px;
       background: linear-gradient(135deg, rgba(30, 30, 70, 0.98) 0%, rgba(20, 20, 50, 0.98) 100%);
       border: 1px solid var(--glass-border);
-      border-radius: 16px;
-      padding: 1.25rem;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      border-radius: 12px;
+      padding: 0.9rem;
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
       opacity: 0;
       visibility: hidden;
       transition: all 0.3s ease;
@@ -843,7 +843,7 @@
 
     @media (max-width: 480px) {
       .info-tooltip {
-        width: 280px;
+        width: 240px;
         left: 0;
         right: auto;
         transform: none;
