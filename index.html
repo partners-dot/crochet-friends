@@ -1437,7 +1437,13 @@
     function reset() { document.getElementById('errorSection').classList.add('hidden'); goToStep('create'); }
     function selectProductInUI(product) { const products = document.querySelectorAll('.product'); products.forEach(p => { p.classList.remove('selected'); if (p.dataset.product === product) p.classList.add('selected'); }); }
     function updateReviewLinks() { const url = amazonReviewUrls[selectedProduct] || amazonReviewUrls.default; document.querySelectorAll('#softReviewLink, #buyerReviewLink, #receiverReviewLink, #strongReviewLink').forEach(link => link.href = url); }
-    function updateCreateHeader() { const header = document.getElementById('createHeader'); if (userType === 'receiver') header.textContent = 'Create Your Thank You Message'; else header.textContent = 'Create Your Greeting Message'; }
+    function updateCreateHeader() {
+      const headerText = document.querySelector('#createHeader > span:first-child');
+      if (headerText) {
+        if (userType === 'receiver') headerText.textContent = 'Create Your Thank You Message';
+        else headerText.textContent = 'Create Your Greeting Message';
+      }
+    }
     function playExampleVideos(containerId) {
       const container = document.getElementById(containerId);
       if (container) {
