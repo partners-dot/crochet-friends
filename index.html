@@ -1274,11 +1274,25 @@
 
     // Detect product from URL parameters
     function detectProductFromUrl() {
-      // Check for SKU via klavio_search parameter (from QR codes)
+      // Check for SKU via klavio_search parameter in current URL
       const sku = urlParams.get('klavio_search');
       if (sku && SKU_MAP[sku]) {
         return { product: SKU_MAP[sku], source: 'qr' };
       }
+
+      // Check for SKU in referrer URL (when coming from Klaviyo prize page)
+      if (document.referrer) {
+        try {
+          const referrerUrl = new URL(document.referrer);
+          const referrerSku = referrerUrl.searchParams.get('klavio_search');
+          if (referrerSku && SKU_MAP[referrerSku]) {
+            return { product: SKU_MAP[referrerSku], source: 'klaviyo' };
+          }
+        } catch (e) {
+          // Invalid referrer URL, ignore
+        }
+      }
+
       // Fall back to direct product param (legacy support)
       const product = urlParams.get('product');
       if (product && ['potato', 'cupcake', 'yoda'].includes(product)) {
