@@ -1449,8 +1449,21 @@
       const container = document.getElementById(containerId);
       if (container) {
         const videos = container.querySelectorAll('video');
+        // Check if user enabled sound on welcome video
+        const userEnabledSound = sessionStorage.getItem('soundEnabled') === 'true';
         videos.forEach((v, i) => {
           if (i === 0) {
+            // First video: auto-unmute if user enabled sound on welcome video
+            if (userEnabledSound) {
+              v.muted = false;
+              exampleSoundOn = true;
+              // Update the mute button to show sound is on
+              const exampleContainer = v.closest('.video-example');
+              if (exampleContainer) {
+                const muteBtn = exampleContainer.querySelectorAll('.example-controls button')[1];
+                if (muteBtn) muteBtn.textContent = '🔊';
+              }
+            }
             v.play().catch(() => { });
           } else {
             v.play().then(() => {
@@ -1472,14 +1485,18 @@
       const video = container.querySelector('video');
       const videoIndex = video.dataset.index || '0';
       const allVideos = document.querySelectorAll('.video-example video');
-      if (video.paused) {
+      // First click on example: always play with sound
+      // Subsequent clicks on same video: toggle play/pause
+      if (video.paused || video.muted) {
         // PostHog: Track example video played
-        exampleVideosWatched++;
-        if (window.posthog) posthog.capture('Example Video - Played', {
-          video_number: parseInt(videoIndex) + 1,
-          total_videos_watched: exampleVideosWatched,
-          user_type: userType
-        });
+        if (video.paused) {
+          exampleVideosWatched++;
+          if (window.posthog) posthog.capture('Example Video - Played', {
+            video_number: parseInt(videoIndex) + 1,
+            total_videos_watched: exampleVideosWatched,
+            user_type: userType
+          });
+        }
         allVideos.forEach(v => {
           if (v !== video) {
             v.pause();
@@ -1492,8 +1509,10 @@
           }
         });
         video.play();
-        video.muted = false;
+        video.muted = false;  // Always enable sound on click
         exampleSoundOn = true;
+        // Remember sound preference for future examples
+        sessionStorage.setItem('soundEnabled', 'true');
         btn.textContent = '⏸️';
         const muteBtn = container.querySelectorAll('.example-controls button')[1];
         if (muteBtn) muteBtn.textContent = '🔊';
@@ -1543,6 +1562,8 @@
         const timeToTap = Math.round((Date.now() - pageLoadTime) / 1000);
         if (window.posthog) posthog.capture('Welcome Video - Tapped For Sound', { seconds_to_tap: timeToTap });
         welcomeVideoWatchStart = Date.now();
+        // Remember that user enabled sound so examples can auto-play with sound
+        sessionStorage.setItem('soundEnabled', 'true');
         if (video) {
           video.muted = false;
           video.volume = 1.0;
