@@ -933,7 +933,7 @@
       </header>
       <div class="welcome-video-container" onclick="unmuteWelcome()">
         <video id="welcomeVideo" playsinline muted autoplay loop>
-          <source src="videos/welcome.mp4" type="video/mp4">
+          <source src="videos/welcome-potato.mp4" type="video/mp4">
         </video>
         <div id="welcomeSoundOverlay" class="sound-overlay">🔊 Tap for sound</div>
         <div id="videoControls" class="video-controls">
@@ -968,7 +968,7 @@
         <div class="video-example" onclick="handleExampleClick(this)"
           data-template="Happy Birthday, NAME! Other treats disappear, but I'm here to stay sweet for life. Hope you had a great birthday.">
           <video playsinline muted loop preload="metadata" data-index="0">
-            <source src="videos/example-buyer-1.mp4" type="video/mp4">
+            <source src="videos/example-buyer-cupcake-1.mp4" type="video/mp4">
           </video>
           <div class="example-controls">
             <button onclick="event.stopPropagation(); toggleExamplePlay(this)">⏸️</button>
@@ -980,7 +980,7 @@
         <div class="video-example" onclick="handleExampleClick(this)"
           data-template="Hey NAME. Clear a VIP spot on your shelf! I'm cute, zero calories, and I'm on my way!">
           <video playsinline muted loop preload="metadata" data-index="1">
-            <source src="videos/example-buyer-2.mp4" type="video/mp4">
+            <source src="videos/example-buyer-cupcake-2.mp4" type="video/mp4">
           </video>
           <div class="example-controls">
             <button onclick="event.stopPropagation(); toggleExamplePlay(this)">▶️</button>
@@ -992,7 +992,7 @@
         <div class="video-example" onclick="handleExampleClick(this)"
           data-template="Hey NAME! Since you kill every plant you touch... good news! I don't need water. You can't kill me!">
           <video playsinline muted loop preload="metadata" data-index="2">
-            <source src="videos/example-buyer-3.mp4" type="video/mp4">
+            <source src="videos/example-buyer-cupcake-3.mp4" type="video/mp4">
           </video>
           <div class="example-controls">
             <button onclick="event.stopPropagation(); toggleExamplePlay(this)">▶️</button>
@@ -1020,7 +1020,7 @@
         <div class="video-example" onclick="handleExampleClick(this)"
           data-template="Thank you, NAME! I tried to take a bite... tastes like yarn, but looks adorable! I love it!">
           <video playsinline muted loop preload="metadata" data-index="0">
-            <source src="videos/example-receiver-1.mp4" type="video/mp4">
+            <source src="videos/example-receiver-cupcake-1.mp4" type="video/mp4">
           </video>
           <div class="example-controls">
             <button onclick="event.stopPropagation(); toggleExamplePlay(this)">⏸️</button>
@@ -1032,7 +1032,7 @@
         <div class="video-example" onclick="handleExampleClick(this)"
           data-template="Thank you, NAME! This little guy has already made himself at home on my desk. Best surprise ever!">
           <video playsinline muted loop preload="metadata" data-index="1">
-            <source src="videos/example-receiver-2.mp4" type="video/mp4">
+            <source src="videos/example-receiver-cupcake-2.mp4" type="video/mp4">
           </video>
           <div class="example-controls">
             <button onclick="event.stopPropagation(); toggleExamplePlay(this)">▶️</button>
@@ -1044,7 +1044,7 @@
         <div class="video-example" onclick="handleExampleClick(this)"
           data-template="Thank you for the cupcake, NAME! Nice try ruining my diet... but this one has zero calories. I win!">
           <video playsinline muted loop preload="metadata" data-index="2">
-            <source src="videos/example-receiver-3.mp4" type="video/mp4">
+            <source src="videos/example-receiver-cupcake-3.mp4" type="video/mp4">
           </video>
           <div class="example-controls">
             <button onclick="event.stopPropagation(); toggleExamplePlay(this)">▶️</button>
@@ -1205,28 +1205,177 @@
     let pageLoadTime = Date.now();
     let welcomeVideoWatchStart = null;
     let exampleVideosWatched = 0;
+    let productSource = 'website'; // 'qr', 'direct', or 'website'
+    let detectedProduct = null; // Product from URL (SKU or direct)
+
+    // SKU to Product Mapping - add new SKUs here when you release new products
+    // Used with klavio_search parameter: ?klavio_search=PTT-GREEN1
+    const SKU_MAP = {
+      'PTT-FRIENDFUN': 'potato',
+      'PTT-CPCK1': 'cupcake',
+      'PTT-GREEN1': 'yoda'
+    };
+
+    // Product-specific video configuration
+    const PRODUCT_CONFIG = {
+      potato: {
+        welcomeVideo: 'videos/welcome-potato.mp4',
+        buyerExamples: [
+          { src: 'videos/example-buyer-potato-1.mp4', template: "Happy Birthday, NAME! Other treats disappear, but I'm here to stay sweet for life. Hope you had a great birthday.", caption: 'Birthday Greeting' },
+          { src: 'videos/example-buyer-potato-2.mp4', template: "Hey NAME. Clear a VIP spot on your shelf! I'm cute, zero calories, and I'm on my way!", caption: 'Teaser Message' },
+          { src: 'videos/example-buyer-potato-3.mp4', template: "Hey NAME! Since you kill every plant you touch... good news! I don't need water. You can't kill me!", caption: 'Personal Joke' }
+        ],
+        receiverExamples: [
+          { src: 'videos/example-receiver-potato-1.mp4', template: "Thank you, NAME! I tried to take a bite... tastes like yarn, but looks adorable! I love it!", caption: 'Funny Thanks' },
+          { src: 'videos/example-receiver-potato-2.mp4', template: "Thank you, NAME! This little guy has already made himself at home on my desk. Best surprise ever!", caption: 'Sweet Gratitude' },
+          { src: 'videos/example-receiver-potato-3.mp4', template: "Thank you for the potato, NAME! Nice try ruining my diet... but this one has zero calories. I win!", caption: 'Personal Joke' }
+        ]
+      },
+      cupcake: {
+        welcomeVideo: 'videos/welcome-cupcake.mp4',
+        buyerExamples: [
+          { src: 'videos/example-buyer-cupcake-1.mp4', template: "Happy Birthday, NAME! Other treats disappear, but I'm here to stay sweet for life. Hope you had a great birthday.", caption: 'Birthday Greeting' },
+          { src: 'videos/example-buyer-cupcake-2.mp4', template: "Hey NAME. Clear a VIP spot on your shelf! I'm cute, zero calories, and I'm on my way!", caption: 'Teaser Message' },
+          { src: 'videos/example-buyer-cupcake-3.mp4', template: "Hey NAME! Since you kill every plant you touch... good news! I don't need water. You can't kill me!", caption: 'Personal Joke' }
+        ],
+        receiverExamples: [
+          { src: 'videos/example-receiver-cupcake-1.mp4', template: "Thank you, NAME! I tried to take a bite... tastes like yarn, but looks adorable! I love it!", caption: 'Funny Thanks' },
+          { src: 'videos/example-receiver-cupcake-2.mp4', template: "Thank you, NAME! This little guy has already made himself at home on my desk. Best surprise ever!", caption: 'Sweet Gratitude' },
+          { src: 'videos/example-receiver-cupcake-3.mp4', template: "Thank you for the cupcake, NAME! Nice try ruining my diet... but this one has zero calories. I win!", caption: 'Personal Joke' }
+        ]
+      },
+      yoda: {
+        welcomeVideo: 'videos/welcome-yoda.mp4',
+        buyerExamples: [
+          { src: 'videos/example-buyer-yoda-1.mp4', template: "Happy Birthday, NAME! Other treats disappear, but I'm here to stay sweet for life. Hope you had a great birthday.", caption: 'Birthday Greeting' },
+          { src: 'videos/example-buyer-yoda-2.mp4', template: "Hey NAME. Clear a VIP spot on your shelf! I'm cute, zero calories, and I'm on my way!", caption: 'Teaser Message' },
+          { src: 'videos/example-buyer-yoda-3.mp4', template: "Hey NAME! Since you kill every plant you touch... good news! I don't need water. You can't kill me!", caption: 'Personal Joke' }
+        ],
+        receiverExamples: [
+          { src: 'videos/example-receiver-yoda-1.mp4', template: "Thank you, NAME! I tried to take a bite... tastes like yarn, but looks adorable! I love it!", caption: 'Funny Thanks' },
+          { src: 'videos/example-receiver-yoda-2.mp4', template: "Thank you, NAME! This little guy has already made himself at home on my desk. Best surprise ever!", caption: 'Sweet Gratitude' },
+          { src: 'videos/example-receiver-yoda-3.mp4', template: "Thank you for the yoda, NAME! Nice try ruining my diet... but this one has zero calories. I win!", caption: 'Personal Joke' }
+        ]
+      },
+      general: {
+        welcomeVideo: 'videos/welcome-potato.mp4',
+        buyerExamples: null,
+        receiverExamples: null
+      }
+    };
+
     const urlParams = new URLSearchParams(window.location.search);
-    const productFromUrl = urlParams.get('product');
     const amazonReviewUrls = {
       potato: 'https://www.amazon.com/review/create-review/?ie=UTF8&channel=glance-detail&asin=B0DVR6VBRR',
       cupcake: 'https://www.amazon.com/review/create-review/?ie=UTF8&channel=glance-detail&asin=B0DVGVHSZV',
       yoda: 'https://www.amazon.com/review/create-review/?ie=UTF8&channel=glance-detail&asin=B0DVGKZZS4',
       default: 'https://www.amazon.com/review/create-review/?ie=UTF8&channel=glance-detail&asin=B0DVR6VBRR'
     };
+
+    // Detect product from URL parameters
+    function detectProductFromUrl() {
+      // Check for SKU via klavio_search parameter (from QR codes)
+      const sku = urlParams.get('klavio_search');
+      if (sku && SKU_MAP[sku]) {
+        return { product: SKU_MAP[sku], source: 'qr' };
+      }
+      // Fall back to direct product param (legacy support)
+      const product = urlParams.get('product');
+      if (product && ['potato', 'cupcake', 'yoda'].includes(product)) {
+        return { product, source: 'direct' };
+      }
+      return { product: 'general', source: 'website' };
+    }
+
+    // Update welcome video source based on detected product
+    function updateWelcomeVideo(product) {
+      const config = PRODUCT_CONFIG[product] || PRODUCT_CONFIG.general;
+      const welcomeVideo = document.getElementById('welcomeVideo');
+      if (welcomeVideo && config.welcomeVideo) {
+        const source = welcomeVideo.querySelector('source');
+        if (source) {
+          // Store original source for fallback
+          const originalSrc = source.src;
+          source.src = config.welcomeVideo;
+          welcomeVideo.load();
+          // Add error handler to fallback to general video if product-specific doesn't exist
+          welcomeVideo.onerror = function () {
+            console.log('Product-specific welcome video not found, using general');
+            source.src = PRODUCT_CONFIG.general.welcomeVideo;
+            welcomeVideo.load();
+          };
+        }
+      }
+    }
+
+
+    // Update example videos based on detected product
+    function updateExampleVideos(product) {
+      const config = PRODUCT_CONFIG[product];
+      if (!config || !config.buyerExamples) return;
+      const buyerContainer = document.getElementById('buyerExamples');
+      if (buyerContainer && config.buyerExamples) {
+        updateExampleContainer(buyerContainer, config.buyerExamples);
+      }
+      const receiverContainer = document.getElementById('receiverExamples');
+      if (receiverContainer && config.receiverExamples) {
+        updateExampleContainer(receiverContainer, config.receiverExamples);
+      }
+    }
+
+    function updateExampleContainer(container, examples) {
+      const videoExamples = container.querySelectorAll('.video-example');
+      examples.forEach((example, index) => {
+        if (videoExamples[index]) {
+          const videoEl = videoExamples[index];
+          const video = videoEl.querySelector('video');
+          const source = video.querySelector('source');
+          const caption = videoEl.querySelector('.caption');
+          // Store original source for fallback
+          const originalSrc = source ? source.src : null;
+          if (source) source.src = example.src;
+          videoEl.dataset.template = example.template;
+          if (caption) caption.textContent = example.caption;
+          if (video) {
+            video.load();
+            // Fallback to original/default video if product-specific doesn't exist
+            video.onerror = function () {
+              console.log('Product-specific example video not found, keeping default');
+              if (originalSrc && source) {
+                source.src = originalSrc;
+                video.load();
+              }
+            };
+          }
+        }
+      });
+    }
+
+
     document.addEventListener('DOMContentLoaded', () => {
       checkAndResumeGeneration();
-      if (productFromUrl && ['potato', 'cupcake', 'yoda'].includes(productFromUrl)) {
-        selectedProduct = productFromUrl;
-        selectProductInUI(productFromUrl);
+      const detected = detectProductFromUrl();
+      detectedProduct = detected.product;
+      productSource = detected.source;
+      if (detectedProduct && detectedProduct !== 'general') {
+        selectedProduct = detectedProduct;
+        selectProductInUI(detectedProduct);
+        updateWelcomeVideo(detectedProduct);
+        updateExampleVideos(detectedProduct);
       }
       updateReviewLinks();
       const welcomeVideo = document.getElementById('welcomeVideo');
       if (welcomeVideo) welcomeVideo.play().catch(() => { });
       trackEvent('page_view');
-      // PostHog page view with initial properties
-      if (window.posthog) posthog.capture('$pageview', { page: 'main', product_from_url: productFromUrl });
+      if (window.posthog) posthog.capture('$pageview', {
+        page: 'main',
+        product_from_url: detectedProduct,
+        product_source: productSource,
+        sku: urlParams.get('klavio_search')
+      });
       setupFormHandlers();
     });
+
     function goToStep(step) {
       document.querySelectorAll('.section, #loadingSection').forEach(s => s.classList.add('hidden'));
       const welcomeVideo = document.getElementById('welcomeVideo');
