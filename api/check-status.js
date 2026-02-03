@@ -137,7 +137,7 @@ export default async function handler(req, res) {
                         if (session && session.email && !session.email_sent) {
                             const BASE_URL = 'https://video.gotyoualittlesomething.com';
                             // Use operation ID to keep email small - video.html will fetch from DB
-                            const videoPageUrl = `${BASE_URL}/video.html?id=${encodeURIComponent(operationId)}`;
+                            const videoPageUrl = `${BASE_URL}/video-preview.html?id=${encodeURIComponent(operationId)}`;
 
                             const emailHtml = `
 <!DOCTYPE html>
