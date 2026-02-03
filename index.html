@@ -964,10 +964,10 @@
       <header>
         <div class="subtitle">Step 1</div>
         <h2>Make It Personal! 🎉</h2>
-        <p class="section-description">Create a video where your crochet friend speaks your words. Use a template or
-          write your own!</p>
+        <p class="section-description">Bring your crochet friend to life! Create a custom gift video - pick a fun
+          template or type your own script.</p>
       </header>
-      <p class="examples-label">✨ See what you can create</p>
+      <p class="examples-label">✨ choose your vibe</p>
       <div class="video-examples" id="buyerExamples">
         <div class="video-example" onclick="handleExampleClick(this)"
           data-template="Happy Birthday, NAME! Other treats disappear, but I'm here to stay sweet for life. Hope you had a great birthday.">
@@ -980,8 +980,7 @@
           </div>
           <div class="caption">Birthday Greeting</div>
           <button class="template-btn"
-            onclick="event.stopPropagation(); useTemplate(this)"><span></span>📝</span><span>Use
-              Template</span></button>
+            onclick="event.stopPropagation(); useTemplate(this)"><span>📝</span><span>Customize Template</span></button>
         </div>
         <div class="video-example" onclick="handleExampleClick(this)"
           data-template="Hey NAME. Clear a VIP spot on your shelf! I'm cute, zero calories, and I'm on my way!">
@@ -993,8 +992,8 @@
             <button onclick="event.stopPropagation(); toggleExampleMute(this)">🔇</button>
           </div>
           <div class="caption">Teaser Message</div>
-          <button class="template-btn" onclick="event.stopPropagation(); useTemplate(this)"><span>📝</span><span>Use
-              Template</span></button>
+          <button class="template-btn"
+            onclick="event.stopPropagation(); useTemplate(this)"><span>📝</span><span>Customize Template</span></button>
         </div>
         <div class="video-example" onclick="handleExampleClick(this)"
           data-template="Hey NAME! Since you kill every plant you touch... good news! I don't need water. You can't kill me!">
@@ -1006,12 +1005,13 @@
             <button onclick="event.stopPropagation(); toggleExampleMute(this)">🔇</button>
           </div>
           <div class="caption">Personal Joke</div>
-          <button class="template-btn" onclick="event.stopPropagation(); useTemplate(this)"><span>📝</span><span>Use
-              Template</span></button>
+          <button class="template-btn"
+            onclick="event.stopPropagation(); useTemplate(this)"><span>📝</span><span>Customize Template</span></button>
         </div>
       </div>
-      <button type="button" class="btn btn-primary" onclick="trackCreateVideoClick(); goToStep('create')">🎬 Create Your
-        Video</button>
+      <p style="text-align: center; color: rgba(255,255,255,0.6); font-size: 0.9em; margin: 0.25rem 0 0.5rem;">or</p>
+      <button type="button" class="btn btn-primary" onclick="trackCreateVideoClick(); goToStep('create')">Create
+        from Scratch</button>
       <button type="button" class="btn-back" onclick="goToStep('welcome')">← Back</button>
     </section>
     <section id="receiverSection" class="section hidden">
@@ -1231,9 +1231,9 @@
       potato: {
         welcomeVideo: 'videos/welcome-potato.mp4',
         buyerExamples: [
-          { src: 'videos/example-buyer-potato-1.mp4', template: "Happy Birthday, NAME! Other treats disappear, but I'm here to stay sweet for life. Hope you had a great birthday.", caption: 'Birthday Greeting' },
-          { src: 'videos/example-buyer-potato-2.mp4', template: "Hey NAME. Clear a VIP spot on your shelf! I'm cute, zero calories, and I'm on my way!", caption: 'Teaser Message' },
-          { src: 'videos/example-buyer-potato-3.mp4', template: "Hey NAME! Since you kill every plant you touch... good news! I don't need water. You can't kill me!", caption: 'Personal Joke' }
+          { src: 'videos/example-buyer-potato-1.mp4', template: "Happy Birthday, NAME! Other treats disappear, but I'm here to stay sweet for life. Hope you had a great birthday.", caption: 'Birthday' },
+          { src: 'videos/example-buyer-potato-2.mp4', template: "Hey NAME. Clear a VIP spot on your shelf! I'm cute, zero calories, and I'm on my way!", caption: 'Teaser' },
+          { src: 'videos/example-buyer-potato-3.mp4', template: "Hey NAME! Since you kill every plant you touch... good news! I don't need water. You can't kill me!", caption: 'Sassy' }
         ],
         receiverExamples: [
           { src: 'videos/example-receiver-potato-1.mp4', template: "Thank you, NAME! I tried to take a bite... tastes like yarn, but looks adorable! I love it!", caption: 'Funny' },
@@ -1244,27 +1244,27 @@
       cupcake: {
         welcomeVideo: 'videos/welcome-cupcake.mp4',
         buyerExamples: [
-          { src: 'videos/example-buyer-cupcake-1.mp4', template: "Happy Birthday, NAME! Other treats disappear, but I'm here to stay sweet for life. Hope you had a great birthday.", caption: 'Birthday Greeting' },
-          { src: 'videos/example-buyer-cupcake-2.mp4', template: "Hey NAME. Clear a VIP spot on your shelf! I'm cute, zero calories, and I'm on my way!", caption: 'Teaser Message' },
-          { src: 'videos/example-buyer-cupcake-3.mp4', template: "Hey NAME! Since you kill every plant you touch... good news! I don't need water. You can't kill me!", caption: 'Personal Joke' }
+          { src: 'videos/example-buyer-cupcake-1.mp4', template: "Happy Birthday, NAME! Other treats disappear, but I'm here to stay sweet for life. Hope you had a great birthday.", caption: 'Birthday' },
+          { src: 'videos/example-buyer-cupcake-2.mp4', template: "Hey NAME. Clear a VIP spot on your shelf! I'm cute, zero calories, and I'm on my way!", caption: 'Teaser' },
+          { src: 'videos/example-buyer-cupcake-3.mp4', template: "Hey NAME! Since you kill every plant you touch... good news! I don't need water. You can't kill me!", caption: 'Sassy' }
         ],
         receiverExamples: [
-          { src: 'videos/example-receiver-cupcake-1.mp4', template: "Thank you, NAME! I tried to take a bite... tastes like yarn, but looks adorable! I love it!", caption: 'Funny Thanks' },
-          { src: 'videos/example-receiver-cupcake-2.mp4', template: "Thank you, NAME! This little guy has already made himself at home on my desk. Best surprise ever!", caption: 'Sweet Gratitude' },
-          { src: 'videos/example-receiver-cupcake-3.mp4', template: "Thank you for the cupcake, NAME! Nice try ruining my diet... but this one has zero calories. I win!", caption: 'Personal Joke' }
+          { src: 'videos/example-receiver-cupcake-1.mp4', template: "Thank you, NAME! I tried to take a bite... tastes like yarn, but looks adorable! I love it!", caption: 'Funny' },
+          { src: 'videos/example-receiver-cupcake-2.mp4', template: "Thank you, NAME! This little guy has already made himself at home on my desk. Best surprise ever!", caption: 'Sweet' },
+          { src: 'videos/example-receiver-cupcake-3.mp4', template: "Thank you for the cupcake, NAME! Nice try ruining my diet... but this one has zero calories. I win!", caption: 'Sassy' }
         ]
       },
       yoda: {
         welcomeVideo: 'videos/welcome-yoda.mp4',
         buyerExamples: [
-          { src: 'videos/example-buyer-yoda-1.mp4', template: "Happy Birthday, NAME! Other treats disappear, but I'm here to stay sweet for life. Hope you had a great birthday.", caption: 'Birthday Greeting' },
-          { src: 'videos/example-buyer-yoda-2.mp4', template: "Hey NAME. Clear a VIP spot on your shelf! I'm cute, zero calories, and I'm on my way!", caption: 'Teaser Message' },
-          { src: 'videos/example-buyer-yoda-3.mp4', template: "Hey NAME! Since you kill every plant you touch... good news! I don't need water. You can't kill me!", caption: 'Personal Joke' }
+          { src: 'videos/example-buyer-yoda-1.mp4', template: "Happy Birthday, NAME! Other treats disappear, but I'm here to stay sweet for life. Hope you had a great birthday.", caption: 'Birthday' },
+          { src: 'videos/example-buyer-yoda-2.mp4', template: "Hey NAME. Clear a VIP spot on your shelf! I'm cute, zero calories, and I'm on my way!", caption: 'Teaser' },
+          { src: 'videos/example-buyer-yoda-3.mp4', template: "Hey NAME! Since you kill every plant you touch... good news! I don't need water. You can't kill me!", caption: 'Sassy' }
         ],
         receiverExamples: [
-          { src: 'videos/example-receiver-yoda-1.mp4', template: "Thank you, NAME! I tried to take a bite... tastes like yarn, but looks adorable! I love it!", caption: 'Funny Thanks' },
-          { src: 'videos/example-receiver-yoda-2.mp4', template: "Thank you, NAME! This little guy has already made himself at home on my desk. Best surprise ever!", caption: 'Sweet Gratitude' },
-          { src: 'videos/example-receiver-yoda-3.mp4', template: "Thank you for the yoda, NAME! Nice try ruining my diet... but this one has zero calories. I win!", caption: 'Personal Joke' }
+          { src: 'videos/example-receiver-yoda-1.mp4', template: "Thank you, NAME! I tried to take a bite... tastes like yarn, but looks adorable! I love it!", caption: 'Funny' },
+          { src: 'videos/example-receiver-yoda-2.mp4', template: "Thank you, NAME! This little guy has already made himself at home on my desk. Best surprise ever!", caption: 'Sweet' },
+          { src: 'videos/example-receiver-yoda-3.mp4', template: "Thank you for the yoda, NAME! Nice try ruining my diet... but this one has zero calories. I win!", caption: 'Sassy' }
         ]
       },
       general: {
