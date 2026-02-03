@@ -1011,11 +1011,11 @@
     <section id="receiverSection" class="section hidden">
       <header>
         <div class="subtitle">Step 1</div>
-        <h2>Say Thank You! 💝</h2>
-        <p class="section-description">Create a video where your crochet friend speaks your words. Use a template or
-          write your own!</p>
+        <h2>Send a Special Thank You Video! 💝</h2>
+        <p class="section-description">Bring your crochet friend to life! Create a custom thank you video - pick a fun
+          template or type your own script./p>
       </header>
-      <p class="examples-label">✨ See what you can create</p>
+      <p class="examples-label">✨ choose your vibe</p>
       <div class="video-examples" id="receiverExamples">
         <div class="video-example" onclick="handleExampleClick(this)"
           data-template="Thank you, NAME! I tried to take a bite... tastes like yarn, but looks adorable! I love it!">
@@ -1027,7 +1027,8 @@
             <button onclick="event.stopPropagation(); toggleExampleMute(this)">🔇</button>
           </div>
           <div class="caption">Funny Thanks</div>
-          <button class="template-btn" onclick="event.stopPropagation(); useTemplate(this)">📝 Use Template</button>
+          <button class="template-btn" onclick="event.stopPropagation(); useTemplate(this)">📝 Customize
+            Template</button>
         </div>
         <div class="video-example" onclick="handleExampleClick(this)"
           data-template="Thank you, NAME! This little guy has already made himself at home on my desk. Best surprise ever!">
@@ -1039,7 +1040,8 @@
             <button onclick="event.stopPropagation(); toggleExampleMute(this)">🔇</button>
           </div>
           <div class="caption">Sweet Gratitude</div>
-          <button class="template-btn" onclick="event.stopPropagation(); useTemplate(this)">📝 Use Template</button>
+          <button class="template-btn" onclick="event.stopPropagation(); useTemplate(this)">📝 Customize
+            Template</button>
         </div>
         <div class="video-example" onclick="handleExampleClick(this)"
           data-template="Thank you for the cupcake, NAME! Nice try ruining my diet... but this one has zero calories. I win!">
@@ -1051,11 +1053,12 @@
             <button onclick="event.stopPropagation(); toggleExampleMute(this)">🔇</button>
           </div>
           <div class="caption">Personal Joke</div>
-          <button class="template-btn" onclick="event.stopPropagation(); useTemplate(this)">📝 Use Template</button>
+          <button class="template-btn" onclick="event.stopPropagation(); useTemplate(this)">📝 Customize
+            Template</button>
         </div>
       </div>
-      <button type="button" class="btn btn-primary" onclick="trackCreateVideoClick(); goToStep('create')">🎬 Create
-        Thank You Video</button>
+      <button type="button" class="btn btn-primary" onclick="trackCreateVideoClick(); goToStep('create')">🎬 or Create
+        from Scratch</button>
       <button type="button" class="btn-back" onclick="goToStep('welcome')">← Back</button>
       <a href="#" id="receiverReviewLink" class="soft-review-link" onclick="trackReviewClick('receiver')">⭐ Love your
         gift? Help us with a review!</a>
@@ -1226,9 +1229,9 @@
           { src: 'videos/example-buyer-potato-3.mp4', template: "Hey NAME! Since you kill every plant you touch... good news! I don't need water. You can't kill me!", caption: 'Personal Joke' }
         ],
         receiverExamples: [
-          { src: 'videos/example-receiver-potato-1.mp4', template: "Thank you, NAME! I tried to take a bite... tastes like yarn, but looks adorable! I love it!", caption: 'Funny Thanks' },
-          { src: 'videos/example-receiver-potato-2.mp4', template: "Thank you, NAME! This little guy has already made himself at home on my desk. Best surprise ever!", caption: 'Sweet Gratitude' },
-          { src: 'videos/example-receiver-potato-3.mp4', template: "Thank you for the potato, NAME! Nice try ruining my diet... but this one has zero calories. I win!", caption: 'Personal Joke' }
+          { src: 'videos/example-receiver-potato-1.mp4', template: "Thank you, NAME! I tried to take a bite... tastes like yarn, but looks adorable! I love it!", caption: 'Funny' },
+          { src: 'videos/example-receiver-potato-2.mp4', template: "Thank you, NAME! This little guy has already made himself at home on my desk. Best surprise ever!", caption: 'Sweet' },
+          { src: 'videos/example-receiver-potato-3.mp4', template: "Thank you for the potato, NAME! Nice try ruining my diet... but this one has zero calories. I win!", caption: 'Sassy' }
         ]
       },
       cupcake: {
