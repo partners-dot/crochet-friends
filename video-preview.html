@@ -112,6 +112,25 @@
             box-shadow: 0 12px 35px rgba(255, 209, 102, 0.4);
         }
 
+        .btn-cta {
+            padding: 1.15rem 2.5rem;
+            font-size: 1.2rem;
+            font-weight: 700;
+            animation: subtle-glow 2.5s ease-in-out infinite;
+        }
+
+        @keyframes subtle-glow {
+
+            0%,
+            100% {
+                box-shadow: 0 8px 25px rgba(255, 209, 102, 0.4);
+            }
+
+            50% {
+                box-shadow: 0 8px 35px rgba(255, 209, 102, 0.6), 0 0 20px rgba(255, 209, 102, 0.3);
+            }
+        }
+
         .divider {
             margin: 2rem 0;
             border: none;
@@ -266,7 +285,7 @@
                 </div>
                 
                 <div class="buttons">
-                    <button onclick="shareVideo()" class="btn btn-primary">
+                    <button onclick="shareVideo()" class="btn btn-primary btn-cta">
                         📤 Send My Gift Message
                     </button>
                 </div>
@@ -301,7 +320,7 @@
                 </div>
                 
                 <div class="buttons">
-                    <button onclick="shareVideo()" class="btn btn-primary">
+                    <button onclick="shareVideo()" class="btn btn-primary btn-cta">
                         Send My Thank You
                     </button>
                 </div>
