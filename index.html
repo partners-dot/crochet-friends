@@ -138,7 +138,7 @@
       display: flex;
       gap: 16px;
       overflow-x: auto;
-      padding: 10px 4px 25px;
+      padding: 10px 4px 10px;
       scroll-snap-type: x mandatory;
       -webkit-overflow-scrolling: touch;
       margin: 0 -1rem 0.5rem;
@@ -443,7 +443,9 @@
     }
 
     .template-btn {
-      display: block;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.3rem;
       width: 100%;
       margin-top: 0.5rem;
       padding: 0.5rem 0.75rem;
@@ -455,6 +457,7 @@
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s;
+      text-align: left;
     }
 
     .template-btn:hover {
@@ -975,7 +978,7 @@
             <button onclick="event.stopPropagation(); toggleExampleMute(this)">🔇</button>
           </div>
           <div class="caption">Birthday Greeting</div>
-          <button class="template-btn" onclick="event.stopPropagation(); useTemplate(this)">📝 Use Template</button>
+          <button class="template-btn" onclick="event.stopPropagation(); useTemplate(this)"><span></span>📝</span><span>Use Template</span></button>
         </div>
         <div class="video-example" onclick="handleExampleClick(this)"
           data-template="Hey NAME. Clear a VIP spot on your shelf! I'm cute, zero calories, and I'm on my way!">
@@ -987,7 +990,7 @@
             <button onclick="event.stopPropagation(); toggleExampleMute(this)">🔇</button>
           </div>
           <div class="caption">Teaser Message</div>
-          <button class="template-btn" onclick="event.stopPropagation(); useTemplate(this)">📝 Use Template</button>
+          <button class="template-btn" onclick="event.stopPropagation(); useTemplate(this)"><span>📝</span><span>Use Template</span></button>
         </div>
         <div class="video-example" onclick="handleExampleClick(this)"
           data-template="Hey NAME! Since you kill every plant you touch... good news! I don't need water. You can't kill me!">
@@ -999,7 +1002,7 @@
             <button onclick="event.stopPropagation(); toggleExampleMute(this)">🔇</button>
           </div>
           <div class="caption">Personal Joke</div>
-          <button class="template-btn" onclick="event.stopPropagation(); useTemplate(this)">📝 Use Template</button>
+          <button class="template-btn" onclick="event.stopPropagation(); useTemplate(this)"><span>📝</span><span>Use Template</span></button>
         </div>
       </div>
       <button type="button" class="btn btn-primary" onclick="trackCreateVideoClick(); goToStep('create')">🎬 Create Your
@@ -1025,8 +1028,7 @@
             <button onclick="event.stopPropagation(); toggleExampleMute(this)">🔇</button>
           </div>
           <div class="caption">Funny</div>
-          <button class="template-btn" onclick="event.stopPropagation(); useTemplate(this)">📝 Customize
-            Template</button>
+          <button class="template-btn" onclick="event.stopPropagation(); useTemplate(this)"><span>📝</span><span>Customize Template</span></button>
         </div>
         <div class="video-example" onclick="handleExampleClick(this)"
           data-template="Thank you, NAME! This little guy has already made himself at home on my desk. Best surprise ever!">
@@ -1038,8 +1040,7 @@
             <button onclick="event.stopPropagation(); toggleExampleMute(this)">🔇</button>
           </div>
           <div class="caption">Sweet</div>
-          <button class="template-btn" onclick="event.stopPropagation(); useTemplate(this)">📝 Customize
-            Template</button>
+          <button class="template-btn" onclick="event.stopPropagation(); useTemplate(this)"><span>📝</span><span>Customize Template</span></button>
         </div>
         <div class="video-example" onclick="handleExampleClick(this)"
           data-template="Thank you for the cupcake, NAME! Nice try ruining my diet... but this one has zero calories. I win!">
@@ -1051,8 +1052,7 @@
             <button onclick="event.stopPropagation(); toggleExampleMute(this)">🔇</button>
           </div>
           <div class="caption">Sassy</div>
-          <button class="template-btn" onclick="event.stopPropagation(); useTemplate(this)">📝 Customize
-            Template</button>
+          <button class="template-btn" onclick="event.stopPropagation(); useTemplate(this)"><span>📝</span><span>Customize Template</span></button>
         </div>
       </div>
       <p style="text-align: center; color: rgba(255,255,255,0.6); font-size: 0.9em; margin: 1rem 0 0.5rem;">or</p>
