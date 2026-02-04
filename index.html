@@ -1417,18 +1417,16 @@
           // Auto-detect thumbnail: derive path from video src (videos/*.mp4 → images/*.jpg)
           if (video) {
             const thumbnailPath = example.src.replace('videos/', 'images/').replace('.mp4', '.jpg');
-            // Test if thumbnail exists by preloading
+            // Set poster optimistically FIRST (before video.load)
+            video.poster = thumbnailPath;
+            // Then test if thumbnail exists - if not, remove the poster
             const testImg = new Image();
-            testImg.onload = function () {
-              video.poster = thumbnailPath;
-            };
             testImg.onerror = function () {
-              // Thumbnail doesn't exist, no poster (current behavior)
+              // Thumbnail doesn't exist, remove poster
               video.removeAttribute('poster');
             };
             testImg.src = thumbnailPath;
           }
-
           if (video) {
             video.load();
             // Fallback to original/default video if product-specific doesn't exist
