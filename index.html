@@ -977,6 +977,9 @@
         <h2>Add a Digital Surprise! 🎉</h2>
         <p class="section-description">Bring your crochet friend to life! Create a video to build the hype before it
           arrives, or attach a virtual greeting card to the gift.</p>
+        <p id="buyerCharacterNote" class="character-choice-note hidden"
+          style="text-align: center; color: var(--accent-neon); font-size: 0.85em; margin-top: 0.5rem;">🎨 You'll choose
+          your character in the next step!</p>
       </header>
       <p class="examples-label">✨ choose your occasion</p>
       <div class="video-examples" id="buyerExamples">
@@ -1031,6 +1034,9 @@
         <h2>Send a Special Thank You Video! 💝</h2>
         <p class="section-description">Bring your crochet friend to life! Create a custom thank you video - pick a fun
           template or type your own script.</p>
+        <p id="receiverCharacterNote" class="character-choice-note hidden"
+          style="text-align: center; color: var(--accent-neon); font-size: 0.85em; margin-top: 0.5rem;">🎨 You'll choose
+          your character in the next step!</p>
       </header>
       <p class="examples-label">✨ choose your vibe</p>
       <div class="video-examples" id="receiverExamples">
@@ -1466,6 +1472,11 @@
       } else {
         // For general landing page (no SKU), still update example videos with mixed examples
         updateExampleVideos('general');
+        // Show character choice notes since we're showing mixed examples
+        const buyerNote = document.getElementById('buyerCharacterNote');
+        const receiverNote = document.getElementById('receiverCharacterNote');
+        if (buyerNote) buyerNote.classList.remove('hidden');
+        if (receiverNote) receiverNote.classList.remove('hidden');
       }
       updateReviewLinks();
       const welcomeVideo = document.getElementById('welcomeVideo');
