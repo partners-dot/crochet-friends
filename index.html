@@ -534,21 +534,32 @@
     }
 
     .products {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      display: flex;
       gap: 0.8rem;
-      margin-top: 1rem;
+      overflow-x: auto;
+      padding: 10px 4px 10px;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      margin: 0 -1rem 0.5rem;
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+
+    .products::-webkit-scrollbar {
+      display: none;
     }
 
     .product {
+      flex: 0 0 100px;
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid var(--glass-border);
       border-radius: 16px;
-      padding: 1rem 0.5rem;
+      padding: 0.8rem 0.5rem;
       text-align: center;
       cursor: pointer;
       position: relative;
       transition: all 0.3s;
+      scroll-snap-align: center;
     }
 
     .product:hover {
@@ -1366,6 +1377,22 @@
           if (source) source.src = example.src;
           videoEl.dataset.template = example.template;
           if (caption) caption.textContent = example.caption;
+
+          // Auto-detect thumbnail: derive path from video src (videos/*.mp4 → images/*.jpg)
+          if (video) {
+            const thumbnailPath = example.src.replace('videos/', 'images/').replace('.mp4', '.jpg');
+            // Test if thumbnail exists by preloading
+            const testImg = new Image();
+            testImg.onload = function () {
+              video.poster = thumbnailPath;
+            };
+            testImg.onerror = function () {
+              // Thumbnail doesn't exist, no poster (current behavior)
+              video.removeAttribute('poster');
+            };
+            testImg.src = thumbnailPath;
+          }
+
           if (video) {
             video.load();
             // Fallback to original/default video if product-specific doesn't exist
