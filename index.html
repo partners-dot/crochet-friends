@@ -1688,7 +1688,8 @@
         document.getElementById('loadingSection').classList.add('hidden');
         localStorage.removeItem('videoGeneration');
         stopLoadingAnimation();
-        goToStep('result');
+        // Redirect to video preview page (same as email link)
+        window.location.href = `/video-preview.html?id=${encodeURIComponent(operationId)}`;
       } catch (err) {
         console.error(err);
         localStorage.removeItem('videoGeneration');
