@@ -1718,12 +1718,16 @@
             }
             v.play().catch(() => { });
           } else {
-            v.play().then(() => {
-              setTimeout(() => {
-                v.pause();
-                v.currentTime = 0;
-              }, 50);
-            }).catch(() => { });
+            // Only do the play/pause trick for videos without a thumbnail poster
+            // Videos with thumbnails don't need this since the poster shows the preview
+            if (!v.poster) {
+              v.play().then(() => {
+                setTimeout(() => {
+                  v.pause();
+                  v.currentTime = 0;
+                }, 50);
+              }).catch(() => { });
+            }
           }
         });
       }
