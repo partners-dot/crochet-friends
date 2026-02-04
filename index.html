@@ -1149,16 +1149,22 @@
         <div class="card">
           <label>SELECT CHARACTER</label>
           <div class="products" id="products">
-            <div class="product selected" data-product="potato"><img src="images/potato.jpg" alt="Potato"
-                class="product-img" onerror="this.outerHTML='<div class=product-emoji>🥔</div>'">
+            <div class="product selected" data-product="potato" data-buyer-img="images/potato-buyer.jpg"
+              data-receiver-img="images/potato-receiver.jpg">
+              <img src="images/potato-buyer.jpg" alt="Potato" class="product-img"
+                onerror="this.outerHTML='<div class=product-emoji>🥔</div>'">
               <div class="product-name">Potato</div>
             </div>
-            <div class="product" data-product="cupcake"><img src="images/cupcake.jpg" alt="Cupcake" class="product-img"
+            <div class="product" data-product="cupcake" data-buyer-img="images/cupcake-buyer.jpg"
+              data-receiver-img="images/cupcake-receiver.jpg">
+              <img src="images/cupcake-buyer.jpg" alt="Cupcake" class="product-img"
                 onerror="this.outerHTML='<div class=product-emoji>🧁</div>'">
               <div class="product-name">Cupcake</div>
             </div>
-            <div class="product" data-product="nursePotato"><img src="images/nursePotato.jpg" alt="Nurse Potato"
-                class="product-img" onerror="this.outerHTML='<div class=product-emoji>👩‍⚕️</div>'">
+            <div class="product" data-product="nursePotato" data-buyer-img="images/nursePotato-buyer.jpg"
+              data-receiver-img="images/nursePotato-receiver.jpg">
+              <img src="images/nursePotato-buyer.jpg" alt="Nurse Potato" class="product-img"
+                onerror="this.outerHTML='<div class=product-emoji>👩‍⚕️</div>'">
               <div class="product-name">Nurse Potato</div>
             </div>
           </div>
@@ -1436,7 +1442,19 @@
         user_type: type,
         seconds_to_select: timeToSelect
       });
+      updateProductImages(type);
       goToStep(type);
+    }
+    // Update product thumbnails based on user type (buyer/receiver)
+    function updateProductImages(type) {
+      const products = document.querySelectorAll('.product');
+      products.forEach(p => {
+        const img = p.querySelector('.product-img');
+        if (img) {
+          const imgSrc = type === 'receiver' ? p.dataset.receiverImg : p.dataset.buyerImg;
+          if (imgSrc) img.src = imgSrc;
+        }
+      });
     }
     function populateThankYouContent() {
       const headline = document.getElementById('thankYouHeadline');
