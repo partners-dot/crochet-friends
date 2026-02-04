@@ -1469,6 +1469,12 @@
         selectProductInUI(detectedProduct);
         updateWelcomeVideo(detectedProduct);
         updateExampleVideos(detectedProduct);
+        // Move detected product to first position in carousel
+        const productsContainer = document.querySelector('.products');
+        const detectedEl = productsContainer?.querySelector(`[data-product="${detectedProduct}"]`);
+        if (detectedEl && productsContainer.firstElementChild !== detectedEl) {
+          productsContainer.insertBefore(detectedEl, productsContainer.firstElementChild);
+        }
       } else {
         // For general landing page (no SKU), still update example videos with mixed examples
         updateExampleVideos('general');
