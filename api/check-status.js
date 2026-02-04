@@ -61,12 +61,36 @@ export default async function handler(req, res) {
         console.log('Poll response for operation:', operationId);
         console.log('Poll data:', JSON.stringify(pollData, null, 2));
 
+        // Helper function to save error to database
+        async function saveErrorToDb(errorReason, errorCode, errorDetails) {
+            if (supabase) {
+                try {
+                    await supabase
+                        .from('video_sessions')
+                        .update({
+                            status: 'failed',
+                            error_reason: errorReason,
+                            error_code: errorCode,
+                            error_details: errorDetails
+                        })
+                        .eq('operation_id', operationId);
+                    console.log('Error saved to database:', errorCode, errorReason);
+                } catch (dbErr) {
+                    console.error('Failed to save error to DB:', dbErr);
+                }
+            }
+        }
+
         // Check for error state before done check
         if (pollData.error && !pollData.done) {
+            const errorMsg = pollData.error.message || pollData.error.code || 'Generation failed';
+            const errorCode = pollData.error.code || 'API_ERROR';
             console.error('Poll returned error:', JSON.stringify(pollData.error, null, 2));
+            await saveErrorToDb(errorMsg, errorCode, pollData.error);
             return res.status(200).json({
                 status: 'error',
-                error: pollData.error.message || pollData.error.code || 'Generation failed',
+                error: errorMsg,
+                errorCode: errorCode,
                 details: pollData.error
             });
         }
@@ -75,20 +99,27 @@ export default async function handler(req, res) {
         if (pollData.metadata) {
             const state = pollData.metadata.state;
             if (state === 'FAILED' || state === 'CANCELLED' || state === 'BLOCKED') {
+                const errorMsg = pollData.metadata.failureReason || 'Video generation ' + state.toLowerCase();
                 console.error('Generation state:', state, JSON.stringify(pollData.metadata, null, 2));
+                await saveErrorToDb(errorMsg, state, pollData.metadata);
                 return res.status(200).json({
                     status: 'error',
-                    error: pollData.metadata.failureReason || 'Video generation ' + state.toLowerCase()
+                    error: errorMsg,
+                    errorCode: state
                 });
             }
         }
 
         if (pollData.done) {
             if (pollData.error) {
+                const errorMsg = pollData.error.message || pollData.error.code || 'Generation failed';
+                const errorCode = pollData.error.code || 'GENERATION_ERROR';
                 console.error('Generation completed with error:', JSON.stringify(pollData.error, null, 2));
+                await saveErrorToDb(errorMsg, errorCode, pollData.error);
                 return res.status(200).json({
                     status: 'error',
-                    error: pollData.error.message || pollData.error.code || 'Generation failed',
+                    error: errorMsg,
+                    errorCode: errorCode,
                     details: pollData.error
                 });
             }
@@ -213,9 +244,11 @@ export default async function handler(req, res) {
                 });
             } else {
                 console.error('No video in response:', JSON.stringify(result, null, 2));
+                await saveErrorToDb('No video in response', 'NO_VIDEO_OUTPUT', result);
                 return res.status(200).json({
                     status: 'error',
-                    error: 'No video in response'
+                    error: 'No video in response',
+                    errorCode: 'NO_VIDEO_OUTPUT'
                 });
             }
         }

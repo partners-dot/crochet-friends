@@ -49,11 +49,28 @@ export default async function handler(req, res) {
             throw selectError;
         }
         if (existingUser) {
-            // Existing user - check rate limit
-            const videosCreated = existingUser.videos_created || 0;
-            const allowed = videosCreated < MAX_VIDEOS_PER_USER;
-            const videosRemaining = Math.max(0, MAX_VIDEOS_PER_USER - videosCreated);
-            console.log('[User API] Existing user:', email, 'videos_created:', videosCreated, 'allowed:', allowed);
+            // Existing user - count only SUCCESSFUL videos from video_sessions
+            const { count, error: countError } = await supabase
+                .from('video_sessions')
+                .select('*', { count: 'exact', head: true })
+                .eq('email', email.toLowerCase())
+                .eq('status', 'complete');
+
+            if (countError) {
+                console.error('[User API] Error counting videos:', countError);
+                // Fall back to old method if count fails
+                const videosCreated = existingUser.videos_created || 0;
+                return res.status(200).json({
+                    allowed: videosCreated < MAX_VIDEOS_PER_USER,
+                    videosRemaining: Math.max(0, MAX_VIDEOS_PER_USER - videosCreated),
+                    isNewUser: false
+                });
+            }
+
+            const successfulVideos = count || 0;
+            const allowed = successfulVideos < MAX_VIDEOS_PER_USER;
+            const videosRemaining = Math.max(0, MAX_VIDEOS_PER_USER - successfulVideos);
+            console.log('[User API] Existing user:', email, 'successful_videos:', successfulVideos, 'allowed:', allowed);
             return res.status(200).json({
                 allowed,
                 videosRemaining,
