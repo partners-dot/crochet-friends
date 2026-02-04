@@ -1922,9 +1922,11 @@
       if (video.muted) {
         video.muted = false;
         btn.textContent = '🔊';
+        sessionStorage.setItem('soundEnabled', 'true');
       } else {
         video.muted = true;
         btn.textContent = '🔇';
+        sessionStorage.setItem('soundEnabled', 'false');
       }
     }
     function checkAndResumeGeneration() {
