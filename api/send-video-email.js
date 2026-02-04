@@ -14,19 +14,19 @@ export default async function handler(req, res) {
 
     try {
         const { email, videoUrl, product, userType } = req.body;
-        
+
         if (!email || !videoUrl) {
             return res.status(400).json({ error: 'Email and videoUrl required' });
         }
 
         const BASE_URL = 'https://crochet-friends1.vercel.app';
         const videoPageUrl = `${BASE_URL}/video.html?v=${encodeURIComponent(videoUrl)}`;
-        
+
         // Character images for email
         const characterImages = {
             potato: `${BASE_URL}/images/potato.jpg`,
             cupcake: `${BASE_URL}/images/cupcake.jpg`,
-            yoda: `${BASE_URL}/images/yoda.jpg`
+            nursePotato: `${BASE_URL}/images/nursePotato.jpg`
         };
         const characterImage = characterImages[product] || characterImages.potato;
 

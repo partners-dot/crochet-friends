@@ -41,25 +41,31 @@ export default async function handler(req, res) {
         // Character configuration - maps character names to their image and prompt descriptions
         const BASE_URL = 'https://crochet-friends1.vercel.app';
         const selectedCharacter = character || 'potato'; // Default to potato if not specified
+        const selectedUserType = userType || 'buyer'; // Default to buyer if not specified
 
+        // Character config with buyer/receiver specific images
         const characterConfig = {
             potato: {
-                image: `${BASE_URL}/images/potato.jpg`,
+                buyerImage: `${BASE_URL}/images/potato-buyer.jpg`,
+                receiverImage: `${BASE_URL}/images/potato-receiver.jpg`,
                 description: 'crocheted potato doll'
             },
             cupcake: {
-                image: `${BASE_URL}/images/cupcake.jpg`,
+                buyerImage: `${BASE_URL}/images/cupcake-buyer.jpg`,
+                receiverImage: `${BASE_URL}/images/cupcake-receiver.jpg`,
                 description: 'crocheted cupcake doll with pink frosting and a cherry on top'
             },
-            yoda: {
-                image: `${BASE_URL}/images/yoda.jpg`,
-                description: 'crocheted green alien doll with big pointy ears'
+            nursePotato: {
+                buyerImage: `${BASE_URL}/images/nursePotato-buyer.jpg`,
+                receiverImage: `${BASE_URL}/images/nursePotato-receiver.jpg`,
+                description: 'crocheted nurse potato doll with a nurse cap'
             }
         };
 
         // Get character config or fallback to potato
         const charConfig = characterConfig[selectedCharacter] || characterConfig.potato;
-        const IMAGE_URL = charConfig.image;
+        // Select image based on user type
+        const IMAGE_URL = selectedUserType === 'receiver' ? charConfig.receiverImage : charConfig.buyerImage;
 
         // Fetch and encode image as base64
         const imageResponse = await fetch(IMAGE_URL);

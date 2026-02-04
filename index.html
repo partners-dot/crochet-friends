@@ -1157,9 +1157,9 @@
                 onerror="this.outerHTML='<div class=product-emoji>🧁</div>'">
               <div class="product-name">Cupcake</div>
             </div>
-            <div class="product" data-product="yoda"><img src="images/yoda.jpg" alt="Yoda" class="product-img"
-                onerror="this.outerHTML='<div class=product-emoji>👽</div>'">
-              <div class="product-name">Yoda</div>
+            <div class="product" data-product="nursePotato"><img src="images/nursePotato.jpg" alt="Nurse Potato"
+                class="product-img" onerror="this.outerHTML='<div class=product-emoji>👩‍⚕️</div>'">
+              <div class="product-name">Nurse Potato</div>
             </div>
           </div>
         </div>
@@ -1223,7 +1223,7 @@
     const SKU_MAP = {
       'PTT-FRIENDFUN': 'potato',
       'PTT-CPCK1': 'cupcake',
-      'PTT-GREEN1': 'yoda'
+      'PTT-NURSE': 'nursePotato'
     };
 
     // Product-specific video configuration
@@ -1254,17 +1254,17 @@
           { src: 'videos/example-receiver-cupcake-3.mp4', template: "Thank you for the cupcake, NAME! Nice try ruining my diet... but this one has zero calories. I win!", caption: 'Sassy' }
         ]
       },
-      yoda: {
-        welcomeVideo: 'videos/welcome-yoda.mp4',
+      nursePotato: {
+        welcomeVideo: 'videos/welcome-nursePotato.mp4',
         buyerExamples: [
-          { src: 'videos/example-buyer-yoda-1.mp4', template: "Happy Birthday, NAME! Other treats disappear, but I'm here to stay sweet for life. Hope you had a great birthday.", caption: 'The Greeting' },
-          { src: 'videos/example-buyer-yoda-2.mp4', template: "Hey NAME. Clear a VIP spot on your shelf! I'm cute, zero calories, and I'm on my way!", caption: 'The Teaser' },
-          { src: 'videos/example-buyer-yoda-3.mp4', template: "Hey NAME! Since you kill every plant you touch... good news! I don't need water. You can't kill me!", caption: 'Just Because' }
+          { src: 'videos/example-buyer-nursePotato-1.mp4', template: "Happy Birthday, NAME! Other treats disappear, but I'm here to stay sweet for life. Hope you had a great birthday.", caption: 'The Greeting' },
+          { src: 'videos/example-buyer-nursePotato-2.mp4', template: "Hey NAME. Clear a VIP spot on your shelf! I'm cute, zero calories, and I'm on my way!", caption: 'The Teaser' },
+          { src: 'videos/example-buyer-nursePotato-3.mp4', template: "Hey NAME! Since you kill every plant you touch... good news! I don't need water. You can't kill me!", caption: 'Just Because' }
         ],
         receiverExamples: [
-          { src: 'videos/example-receiver-yoda-1.mp4', template: "Thank you, NAME! I tried to take a bite... tastes like yarn, but looks adorable! I love it!", caption: 'Funny' },
-          { src: 'videos/example-receiver-yoda-2.mp4', template: "Thank you, NAME! This little guy has already made himself at home on my desk. Best surprise ever!", caption: 'Sweet' },
-          { src: 'videos/example-receiver-yoda-3.mp4', template: "Thank you for the yoda, NAME! Nice try ruining my diet... but this one has zero calories. I win!", caption: 'Sassy' }
+          { src: 'videos/example-receiver-nursePotato-1.mp4', template: "Thank you, NAME! I tried to take a bite... tastes like yarn, but looks adorable! I love it!", caption: 'Funny' },
+          { src: 'videos/example-receiver-nursePotato-2.mp4', template: "Thank you, NAME! This little guy has already made himself at home on my desk. Best surprise ever!", caption: 'Sweet' },
+          { src: 'videos/example-receiver-nursePotato-3.mp4', template: "Thank you for the cupcake, NAME! Nice try ruining my diet... but this one has zero calories. I win!", caption: 'Sassy' }
         ]
       },
       general: {
@@ -1278,7 +1278,7 @@
     const amazonReviewUrls = {
       potato: 'https://www.amazon.com/review/create-review/?ie=UTF8&channel=glance-detail&asin=B0DVR6VBRR',
       cupcake: 'https://www.amazon.com/review/create-review/?ie=UTF8&channel=glance-detail&asin=B0DVGVHSZV',
-      yoda: 'https://www.amazon.com/review/create-review/?ie=UTF8&channel=glance-detail&asin=B0DVGKZZS4',
+      nursePotato: 'https://www.amazon.com/review/create-review/?ie=UTF8&channel=glance-detail&asin=B0DFMXPQKH',
       default: 'https://www.amazon.com/review/create-review/?ie=UTF8&channel=glance-detail&asin=B0DVR6VBRR'
     };
 
@@ -1305,7 +1305,7 @@
 
       // Fall back to direct product param (legacy support)
       const product = urlParams.get('product');
-      if (product && ['potato', 'cupcake', 'yoda'].includes(product)) {
+      if (product && ['potato', 'cupcake', 'nursePotato'].includes(product)) {
         return { product, source: 'direct' };
       }
       return { product: 'general', source: 'website' };
