@@ -198,6 +198,10 @@
       text-align: center;
     }
 
+    .video-example .receiver-caption {
+      font-size: 1rem;
+    }
+
     .example-controls {
       position: absolute;
       bottom: 105px;
@@ -1057,7 +1061,7 @@
             <button onclick="event.stopPropagation(); toggleExamplePlay(this)">⏸️</button>
             <button onclick="event.stopPropagation(); toggleExampleMute(this)">🔇</button>
           </div>
-          <div class="caption">Funny</div>
+          <div class="caption receiver-caption">For the laughs</div>
           <button class="template-btn"
             onclick="event.stopPropagation(); useTemplate(this)"><span>📝</span><span>Customize Template</span></button>
         </div>
@@ -1070,7 +1074,7 @@
             <button onclick="event.stopPropagation(); toggleExamplePlay(this)">▶️</button>
             <button onclick="event.stopPropagation(); toggleExampleMute(this)">🔇</button>
           </div>
-          <div class="caption">Sweet</div>
+          <div class="caption receiver-caption">From the heart</div>
           <button class="template-btn"
             onclick="event.stopPropagation(); useTemplate(this)"><span>📝</span><span>Customize Template</span></button>
         </div>
@@ -1083,7 +1087,7 @@
             <button onclick="event.stopPropagation(); toggleExamplePlay(this)">▶️</button>
             <button onclick="event.stopPropagation(); toggleExampleMute(this)">🔇</button>
           </div>
-          <div class="caption">Sassy</div>
+          <div class="caption receiver-caption">With attitude</div>
           <button class="template-btn"
             onclick="event.stopPropagation(); useTemplate(this)"><span>📝</span><span>Customize Template</span></button>
         </div>
@@ -1305,9 +1309,9 @@
           { src: 'videos/example-buyer-potato-3.mp4', template: "Hey NAME! Since you kill every plant you touch... good news! I don't need water. You can't kill me!", caption: 'Send a week\\nor a month later' }
         ],
         receiverExamples: [
-          { src: 'videos/example-receiver-potato-1.mp4', template: "Thank you, NAME! I tried to take a bite... tastes like yarn, but looks adorable! I love it!", caption: 'Funny' },
-          { src: 'videos/example-receiver-potato-2.mp4', template: "Thank you, NAME! This little guy has already made himself at home on my desk. Best surprise ever!", caption: 'Sweet' },
-          { src: 'videos/example-receiver-potato-3.mp4', template: "Thank you for the potato, NAME! Nice try ruining my diet... but this one has zero calories. I win!", caption: 'Sassy' }
+          { src: 'videos/example-receiver-potato-1.mp4', template: "Thank you, NAME! I tried to take a bite... tastes like yarn, but looks adorable! I love it!", caption: 'For the laughs' },
+          { src: 'videos/example-receiver-potato-2.mp4', template: "Thank you, NAME! This little guy has already made himself at home on my desk. Best surprise ever!", caption: 'From the heart' },
+          { src: 'videos/example-receiver-potato-3.mp4', template: "Thank you for the potato, NAME! Nice try ruining my diet... but this one has zero calories. I win!", caption: 'With attitude' }
         ]
       },
       cupcake: {
@@ -1318,9 +1322,9 @@
           { src: 'videos/example-buyer-cupcake-3.mp4', template: "Hey NAME! Since you kill every plant you touch... good news! I don't need water. You can't kill me!", caption: 'Send a week\\nor a month later' }
         ],
         receiverExamples: [
-          { src: 'videos/example-receiver-cupcake-1.mp4', template: "Thank you, NAME! I tried to take a bite... tastes like yarn, but looks adorable! I love it!", caption: 'Funny' },
-          { src: 'videos/example-receiver-cupcake-2.mp4', template: "Thank you, NAME! This little guy has already made himself at home on my desk. Best surprise ever!", caption: 'Sweet' },
-          { src: 'videos/example-receiver-cupcake-3.mp4', template: "Thank you for the cupcake, NAME! Nice try ruining my diet... but this one has zero calories. I win!", caption: 'Sassy' }
+          { src: 'videos/example-receiver-cupcake-1.mp4', template: "Thank you, NAME! I tried to take a bite... tastes like yarn, but looks adorable! I love it!", caption: 'For the laughs' },
+          { src: 'videos/example-receiver-cupcake-2.mp4', template: "Thank you, NAME! This little guy has already made himself at home on my desk. Best surprise ever!", caption: 'From the heart' },
+          { src: 'videos/example-receiver-cupcake-3.mp4', template: "Thank you for the cupcake, NAME! Nice try ruining my diet... but this one has zero calories. I win!", caption: 'With attitude' }
         ]
       },
       nursePotato: {
@@ -1331,9 +1335,9 @@
           { src: 'videos/example-buyer-nursePotato-3.mp4', template: "Hey NAME! Since you kill every plant you touch... good news! I don't need water. You can't kill me!", caption: 'Send a week\\nor a month later' }
         ],
         receiverExamples: [
-          { src: 'videos/example-receiver-nursePotato-1.mp4', template: "Thank you, NAME! I tried to take a bite... tastes like yarn, but looks adorable! I love it!", caption: 'Funny' },
-          { src: 'videos/example-receiver-nursePotato-2.mp4', template: "Thank you, NAME! This little guy has already made himself at home on my desk. Best surprise ever!", caption: 'Sweet' },
-          { src: 'videos/example-receiver-nursePotato-3.mp4', template: "Thank you for the cupcake, NAME! Nice try ruining my diet... but this one has zero calories. I win!", caption: 'Sassy' }
+          { src: 'videos/example-receiver-nursePotato-1.mp4', template: "Thank you, NAME! I tried to take a bite... tastes like yarn, but looks adorable! I love it!", caption: 'For the laughs' },
+          { src: 'videos/example-receiver-nursePotato-2.mp4', template: "Thank you, NAME! This little guy has already made himself at home on my desk. Best surprise ever!", caption: 'From the heart' },
+          { src: 'videos/example-receiver-nursePotato-3.mp4', template: "Thank you for the cupcake, NAME! Nice try ruining my diet... but this one has zero calories. I win!", caption: 'With attitude' }
         ]
       },
       general: {
@@ -1344,9 +1348,9 @@
           { src: 'videos/example-buyer-nursePotato-3.mp4', template: "Hey NAME! Since you kill every plant you touch... good news! I don't need water. You can't kill me!", caption: 'Send a week\\nor a month later' }
         ],
         receiverExamples: [
-          { src: 'videos/example-receiver-potato-1.mp4', template: "Thank you, NAME! I tried to take a bite... tastes like yarn, but looks adorable! I love it!", caption: 'Funny' },
-          { src: 'videos/example-receiver-nursePotato-2.mp4', template: "Thank you, NAME! This little guy has already made himself at home on my desk. Best surprise ever!", caption: 'Sweet' },
-          { src: 'videos/example-receiver-cupcake-3.mp4', template: "Thank you for the gift, NAME! Nice try ruining my diet... but this one has zero calories. I win!", caption: 'Sassy' }
+          { src: 'videos/example-receiver-potato-1.mp4', template: "Thank you, NAME! I tried to take a bite... tastes like yarn, but looks adorable! I love it!", caption: 'For the laughs' },
+          { src: 'videos/example-receiver-nursePotato-2.mp4', template: "Thank you, NAME! This little guy has already made himself at home on my desk. Best surprise ever!", caption: 'From the heart' },
+          { src: 'videos/example-receiver-cupcake-3.mp4', template: "Thank you for the gift, NAME! Nice try ruining my diet... but this one has zero calories. I win!", caption: 'With attitude' }
         ]
       }
     };
