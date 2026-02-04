@@ -1253,8 +1253,10 @@
       </div>
     </section>
     <section id="errorSection" class="card error hidden">
-      <p id="errorText">Oops! Something went wrong. Please try again.</p>
-      <button type="button" class="btn btn-secondary" onclick="reset()">Try Again</button>
+      <div style="font-size: 48px; margin-bottom: 16px;">😔</div>
+      <p id="errorText" style="white-space: pre-line; line-height: 1.6; margin-bottom: 1.5rem;">Oops! Something went
+        wrong. Please try again.</p>
+      <button type="button" class="btn btn-primary" onclick="reset()">🔄 Try Again</button>
     </section>
   </div>
   <script>
@@ -1642,10 +1644,20 @@
             if (!statusRes.ok) { consecutiveFailures++; if (consecutiveFailures >= 3) throw new Error(statusData.details || statusData.error || 'Video generation failed'); continue; }
             consecutiveFailures = 0;
             if (statusData.status === 'done') videoUrl = statusData.videoUrl;
-            else if (statusData.status === 'error') throw new Error(statusData.error || 'Video generation failed');
+            else if (statusData.status === 'error') {
+              const errorCode = statusData.errorCode || 'UNKNOWN';
+              const errorMsg = statusData.error || 'Video generation failed';
+              const err = new Error(errorMsg);
+              err.code = errorCode;
+              throw err;
+            }
           } catch (fetchErr) { consecutiveFailures++; if (consecutiveFailures >= 3) throw fetchErr; }
         }
-        if (!videoUrl) throw new Error('Video generation timed out after 5 minutes');
+        if (!videoUrl) {
+          const err = new Error('Video generation timed out after 5 minutes');
+          err.code = 'TIMEOUT';
+          throw err;
+        }
 
         // Save video URL to database from frontend (backup save)
         try {
@@ -1681,7 +1693,34 @@
         console.error(err);
         localStorage.removeItem('videoGeneration');
         stopLoadingAnimation();
-        document.getElementById('errorText').textContent = err.message || 'Something went wrong. Please try again.';
+
+        // Generate user-friendly error message based on error code
+        let userMessage = '';
+        const errorCode = err.code || 'UNKNOWN';
+
+        switch (errorCode) {
+          case 'BLOCKED':
+          case 'FAILED':
+            userMessage = '😕 We couldn\'t generate this video due to content restrictions. Try selecting a different character or modifying your message.';
+            break;
+          case 'TIMEOUT':
+            userMessage = '⏱️ Video generation is taking longer than expected. Please try again in a moment.';
+            break;
+          case 'CANCELLED':
+            userMessage = '❌ Video generation was cancelled. Please try again.';
+            break;
+          case 'API_ERROR':
+          case 'GENERATION_ERROR':
+            userMessage = '🔧 Our video service is experiencing issues. Please try again in a few minutes.';
+            break;
+          default:
+            userMessage = err.message || 'Something went wrong. Please try again.';
+        }
+
+        // Add reassurance that it doesn't count against their limit
+        userMessage += '\n\n✅ Don\'t worry - this attempt doesn\'t count against your free videos!';
+
+        document.getElementById('errorText').textContent = userMessage;
         document.getElementById('loadingSection').classList.add('hidden');
         document.getElementById('errorSection').classList.remove('hidden');
       }
