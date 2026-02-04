@@ -59,6 +59,36 @@ export default async function handler(req, res) {
                 buyerImage: `${BASE_URL}/images/nursePotato-buyer.jpg`,
                 receiverImage: `${BASE_URL}/images/nursePotato-receiver.jpg`,
                 description: 'crocheted nurse potato doll with a nurse cap'
+            },
+            bossLady: {
+                buyerImage: `${BASE_URL}/images/bossLady-buyer.jpg`,
+                receiverImage: `${BASE_URL}/images/bossLady-receiver.jpg`,
+                description: 'crocheted boss lady potato doll with glasses and briefcase'
+            },
+            cat: {
+                buyerImage: `${BASE_URL}/images/cat-buyer.jpg`,
+                receiverImage: `${BASE_URL}/images/cat-receiver.jpg`,
+                description: 'crocheted cat doll'
+            },
+            dadJokes: {
+                buyerImage: `${BASE_URL}/images/dadJokes-buyer.jpg`,
+                receiverImage: `${BASE_URL}/images/dadJokes-receiver.jpg`,
+                description: 'crocheted dad jokes potato doll'
+            },
+            dog: {
+                buyerImage: `${BASE_URL}/images/dog-buyer.jpg`,
+                receiverImage: `${BASE_URL}/images/dog-receiver.jpg`,
+                description: 'crocheted dog doll'
+            },
+            pup: {
+                buyerImage: `${BASE_URL}/images/pup-buyer.jpg`,
+                receiverImage: `${BASE_URL}/images/pup-receiver.jpg`,
+                description: 'crocheted puppy doll'
+            },
+            yoda: {
+                buyerImage: `${BASE_URL}/images/yoda-buyer.jpg`,
+                receiverImage: `${BASE_URL}/images/yoda-receiver.jpg`,
+                description: 'crocheted green alien doll with big pointy ears'
             }
         };
 

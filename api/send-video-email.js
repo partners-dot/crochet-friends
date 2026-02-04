@@ -24,9 +24,15 @@ export default async function handler(req, res) {
 
         // Character images for email
         const characterImages = {
-            potato: `${BASE_URL}/images/potato.jpg`,
-            cupcake: `${BASE_URL}/images/cupcake.jpg`,
-            nursePotato: `${BASE_URL}/images/nursePotato.jpg`
+            potato: `${BASE_URL}/images/potato-buyer.jpg`,
+            cupcake: `${BASE_URL}/images/cupcake-buyer.jpg`,
+            nursePotato: `${BASE_URL}/images/nursePotato-buyer.jpg`,
+            bossLady: `${BASE_URL}/images/bossLady-buyer.jpg`,
+            cat: `${BASE_URL}/images/cat-buyer.jpg`,
+            dadJokes: `${BASE_URL}/images/dadJokes-buyer.jpg`,
+            dog: `${BASE_URL}/images/dog-buyer.jpg`,
+            pup: `${BASE_URL}/images/pup-buyer.jpg`,
+            yoda: `${BASE_URL}/images/yoda-buyer.jpg`
         };
         const characterImage = characterImages[product] || characterImages.potato;
 
