@@ -1463,6 +1463,9 @@
         selectProductInUI(detectedProduct);
         updateWelcomeVideo(detectedProduct);
         updateExampleVideos(detectedProduct);
+      } else {
+        // For general landing page (no SKU), still update example videos with mixed examples
+        updateExampleVideos('general');
       }
       updateReviewLinks();
       const welcomeVideo = document.getElementById('welcomeVideo');
