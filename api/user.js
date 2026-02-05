@@ -8,6 +8,15 @@ const supabase = supabaseUrl && supabaseKey
     ? createClient(supabaseUrl, supabaseKey)
     : null;
 const MAX_VIDEOS_PER_USER = 2;
+
+// Emails that bypass the rate limit (unlimited videos)
+const VIP_EMAILS = [
+    'ori@mtlbrands.com',
+    'partners@gotyoualittlesomething.com',
+    'gilad@mtlbrands.com',
+    'guy@mtlbrands.com',
+];
+
 export default async function handler(req, res) {
     // DEBUG: Log environment variables (remove after debugging)
     console.log('[User API] SUPABASE_URL exists:', !!process.env.SUPABASE_URL);
@@ -28,6 +37,18 @@ export default async function handler(req, res) {
         if (!email || !email.includes('@')) {
             return res.status(400).json({ error: 'Valid email required' });
         }
+
+        // Check if email is in VIP list (bypass rate limit)
+        if (VIP_EMAILS.includes(email.toLowerCase())) {
+            console.log('[User API] VIP email detected, bypassing limit:', email);
+            return res.status(200).json({
+                allowed: true,
+                videosRemaining: 999,
+                isNewUser: false,
+                isVIP: true
+            });
+        }
+
         // If Supabase is not configured, allow with graceful fallback
         if (!supabase) {
             console.log('[User API] Supabase not configured, allowing request');
