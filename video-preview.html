@@ -382,10 +382,18 @@
 
             if (videoData && videoData.videoUrl) {
                 // PostHog: Track preview page view
-                if (window.posthog) posthog.capture('Video Preview Page Opened', {
-                    user_type: videoData.userType,
-                    product: videoData.product
-                });
+                if (window.posthog) {
+                    posthog.capture('Video Preview Page Opened', {
+                        user_type: videoData.userType,
+                        product: videoData.product
+                    });
+                    // Set session properties for consistent tracking across pages
+                    posthog.register({
+                        'product_source': 'email_link',
+                        'device_type': /Mobile|Android|iPhone/.test(navigator.userAgent) ? 'mobile' : 'desktop'
+                    });
+                    posthog.register_for_session({ 'current_step': 'video_preview' });
+                }
 
                 if (videoData.userType === 'buyer') {
                     renderBuyerPreview(videoData.videoUrl);

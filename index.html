@@ -1291,6 +1291,12 @@
     let productSource = 'website'; // 'qr', 'direct', or 'website'
     let detectedProduct = null; // Product from URL (SKU or direct)
 
+    // Analytics tracking variables
+    let stepEnterTime = Date.now();
+    let messageInputFocused = false;
+    let emailInputFocused = false;
+    let lastMessageLength = 0;
+
     // SKU to Product Mapping - add new SKUs here when you release new products
     // Used with klavio_search parameter: ?klavio_search=PTT-GREEN1
     const SKU_MAP = {
@@ -1500,16 +1506,41 @@
       const welcomeVideo = document.getElementById('welcomeVideo');
       if (welcomeVideo) welcomeVideo.play().catch(() => { });
       trackEvent('page_view');
-      if (window.posthog) posthog.capture('$pageview', {
-        page: 'main',
-        product_from_url: detectedProduct,
-        product_source: productSource,
-        sku: urlParams.get('klavio_search')
-      });
+      if (window.posthog) {
+        posthog.capture('$pageview', {
+          page: 'main',
+          product_from_url: detectedProduct,
+          product_source: productSource,
+          sku: urlParams.get('klavio_search')
+        });
+        // Set session properties for better segmentation
+        posthog.register({
+          'initial_product': detectedProduct,
+          'product_source': productSource,
+          'referrer': document.referrer || 'direct',
+          'device_type': /Mobile|Android|iPhone/.test(navigator.userAgent) ? 'mobile' : 'desktop'
+        });
+        // Set current step as person property for real-time tracking
+        posthog.register_for_session({ 'current_step': 'welcome' });
+      }
       setupFormHandlers();
+      setupAnalyticsObservers();
     });
 
     function goToStep(step) {
+      // Analytics: Track time spent on previous step before navigating
+      if (currentStep && stepEnterTime && window.posthog) {
+        const timeOnStep = Math.round((Date.now() - stepEnterTime) / 1000);
+        posthog.capture('Step - Time Spent', {
+          step_name: currentStep,
+          seconds_on_step: timeOnStep,
+          next_step: step,
+          user_type: userType,
+          product: selectedProduct
+        });
+      }
+      stepEnterTime = Date.now();
+
       document.querySelectorAll('.section, #loadingSection').forEach(s => s.classList.add('hidden'));
       const welcomeVideo = document.getElementById('welcomeVideo');
       if (welcomeVideo) { welcomeVideo.pause(); welcomeVideo.muted = true; }
@@ -1519,8 +1550,11 @@
         v.closest('.video-example').classList.remove('playing');
       });
       currentStep = step;
-      // PostHog: Track step navigation
-      if (window.posthog) posthog.capture('Page - ' + step.charAt(0).toUpperCase() + step.slice(1) + ' Viewed', { step_name: step, product: selectedProduct, user_type: userType });
+      // PostHog: Track step navigation and update current step property
+      if (window.posthog) {
+        posthog.capture('Page - ' + step.charAt(0).toUpperCase() + step.slice(1) + ' Viewed', { step_name: step, product: selectedProduct, user_type: userType });
+        posthog.register_for_session({ 'current_step': step });
+      }
       switch (step) {
         case 'welcome': document.getElementById('welcomeSection').classList.remove('hidden'); break;
         // case 'branch': removed
@@ -1586,7 +1620,16 @@
     async function validateEmail() {
       const emailInput = document.getElementById('email');
       const email = emailInput.value.trim();
-      if (!email || !email.includes('@')) { alert('Please enter a valid email address'); return; }
+      if (!email || !email.includes('@')) {
+        // Analytics: Track validation error
+        if (window.posthog) posthog.capture('Email Validation - Failed', {
+          reason: !email ? 'empty' : 'invalid_format',
+          user_type: userType,
+          product: selectedProduct
+        });
+        alert('Please enter a valid email address');
+        return;
+      }
       userEmail = email;
       // PostHog: Identify user by email and track email entered
       if (window.posthog) {
@@ -1611,7 +1654,52 @@
       const message = document.getElementById('message');
       const charCount = document.getElementById('charCount');
       const products = document.querySelectorAll('.product');
+      const emailInput = document.getElementById('email');
+
       message.addEventListener('input', () => charCount.textContent = message.value.length);
+
+      // Analytics: Track message input engagement
+      message.addEventListener('focus', () => {
+        if (!messageInputFocused) {
+          messageInputFocused = true;
+          if (window.posthog) posthog.capture('Message Input - Focused', {
+            user_type: userType,
+            has_template: message.value.length > 0,
+            product: selectedProduct
+          });
+        }
+      });
+      message.addEventListener('blur', () => {
+        if (message.value.length > 0 && message.value.length !== lastMessageLength) {
+          lastMessageLength = message.value.length;
+          if (window.posthog) posthog.capture('Message Input - Progress', {
+            message_length: message.value.length,
+            user_type: userType,
+            product: selectedProduct
+          });
+        }
+      });
+
+      // Analytics: Track email input engagement
+      emailInput.addEventListener('focus', () => {
+        if (!emailInputFocused) {
+          emailInputFocused = true;
+          if (window.posthog) posthog.capture('Email Input - Focused', {
+            user_type: userType,
+            product: selectedProduct
+          });
+        }
+      });
+      emailInput.addEventListener('blur', function () {
+        if (this.value.length > 0) {
+          if (window.posthog) posthog.capture('Email Input - Typed', {
+            has_at_symbol: this.value.includes('@'),
+            user_type: userType,
+            product: selectedProduct
+          });
+        }
+      });
+
       products.forEach(p => p.addEventListener('click', () => {
         products.forEach(x => x.classList.remove('selected'));
         p.classList.add('selected');
@@ -1646,6 +1734,12 @@
       const text = document.getElementById('message').value.trim();
       if (!text) return;
       if (text.includes('NAME')) {
+        // Analytics: Track validation error for NAME placeholder
+        if (window.posthog) posthog.capture('Message Validation - NAME Not Replaced', {
+          user_type: userType,
+          product: selectedProduct,
+          template_used: pendingTemplate !== null
+        });
         alert('Please replace NAME with your friend\'s name before creating the video!');
         return;
       }
@@ -2057,6 +2151,34 @@
         clearInterval(tipInterval);
         tipInterval = null;
       }
+    }
+
+    // Analytics: Track visibility of key sections
+    function setupAnalyticsObservers() {
+      if (!window.posthog || !window.IntersectionObserver) return;
+
+      const observedSections = new Set();
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting && !observedSections.has(entry.target.id)) {
+            observedSections.add(entry.target.id);
+            posthog.capture('Section - Viewed', {
+              section: entry.target.id,
+              user_type: userType,
+              product: selectedProduct
+            });
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.5 });
+
+      // Observe example video containers
+      const buyerExamples = document.getElementById('buyerExamples');
+      const receiverExamples = document.getElementById('receiverExamples');
+      const products = document.querySelector('.products');
+      if (buyerExamples) observer.observe(buyerExamples);
+      if (receiverExamples) observer.observe(receiverExamples);
+      if (products) observer.observe(products);
     }
   </script>
 </body>
