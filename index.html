@@ -1038,7 +1038,8 @@
       <p style="text-align: center; color: rgba(255,255,255,0.6); font-size: 0.9em; margin: 0.25rem 0 0.5rem;">or</p>
       <button type="button" class="btn btn-primary" onclick="trackCreateVideoClick(); goToStep('create')">Create
         from Scratch</button>
-      <button type="button" class="btn-back" onclick="goToStep('welcome')">← Back</button>
+      <button type="button" class="btn-back" onclick="trackBackClick('buyer', 'welcome'); goToStep('welcome')">←
+        Back</button>
     </section>
     <section id="receiverSection" class="section hidden">
       <header>
@@ -1095,7 +1096,8 @@
       <p style="text-align: center; color: rgba(255,255,255,0.6); font-size: 0.9em; margin: 0.25rem 0 0.5rem;">or</p>
       <button type="button" class="btn btn-primary" onclick="trackCreateVideoClick(); goToStep('create')">Create
         from Scratch</button>
-      <button type="button" class="btn-back" onclick="goToStep('welcome')">← Back</button>
+      <button type="button" class="btn-back" onclick="trackBackClick('receiver', 'welcome'); goToStep('welcome')">←
+        Back</button>
     </section>
     <section id="emailSection" class="section hidden">
       <header>
@@ -1112,7 +1114,8 @@
       </form>
       <button type="button" class="btn btn-primary" id="continueToCreateBtn" onclick="validateEmail()">Continue
         →</button>
-      <button type="button" class="btn btn-secondary" onclick="goToStep('create')">← Edit Your Message</button>
+      <button type="button" class="btn btn-secondary" onclick="trackBackClick('email', 'create'); goToStep('create')">←
+        Edit Your Message</button>
     </section>
     <section id="thankYouSection" class="section hidden thank-you-section">
       <div class="thank-you-emoji">✨</div>
@@ -1236,7 +1239,8 @@
         </div>
         <button type="submit" class="btn btn-primary" id="generateBtn">✨ Create Video</button>
       </form>
-      <button type="button" class="btn-back" onclick="goToStep(userType)">← Back</button>
+      <button type="button" class="btn-back" onclick="trackBackClick('create', userType); goToStep(userType)">←
+        Back</button>
     </section>
     <section id="loadingSection" class="section hidden">
       <div class="loading-container">
@@ -1618,6 +1622,12 @@
       reviewLink.href = amazonReviewUrls[selectedProduct] || amazonReviewUrls.default;
     }
     async function validateEmail() {
+      // PostHog: Track Continue button clicked
+      if (window.posthog) posthog.capture('Continue Button Clicked', {
+        step: 'email',
+        user_type: userType,
+        product: selectedProduct
+      });
       const emailInput = document.getElementById('email');
       const email = emailInput.value.trim();
       if (!email || !email.includes('@')) {
@@ -1731,6 +1741,12 @@
     let pendingMessage = null;
     async function handleVideoGeneration(e) {
       e.preventDefault();
+      // PostHog: Track Create Video button clicked
+      if (window.posthog) posthog.capture('Create Video Button Clicked', {
+        user_type: userType,
+        product: selectedProduct,
+        used_template: pendingTemplate !== null
+      });
       const text = document.getElementById('message').value.trim();
       if (!text) return;
       if (text.includes('NAME')) {
@@ -1978,9 +1994,20 @@
       trackEvent('Amazon Review Link Clicked', { source: source });
     }
     function trackCreateVideoClick() {
-      if (window.posthog) posthog.capture('Create Video Button Clicked (No Template)', {
+      if (window.posthog) posthog.capture('Create from Scratch Button Clicked', {
         user_type: userType,
-        example_videos_watched: exampleVideosWatched
+        example_videos_watched: exampleVideosWatched,
+        product: selectedProduct
+      });
+    }
+
+    // Track back button clicks
+    function trackBackClick(fromStep, toStep) {
+      if (window.posthog) posthog.capture('Back Button Clicked', {
+        from_step: fromStep,
+        to_step: toStep,
+        user_type: userType,
+        product: selectedProduct
       });
     }
     function unmuteWelcome() {

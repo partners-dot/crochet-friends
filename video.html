@@ -269,7 +269,7 @@
                 <div class="review-section">
                     <h3>⭐ Help Us Grow!</h3>
                     <p>Love this experience? A quick review would mean the world to us!</p>
-                    <a href="https://www.amazon.com/review/create-review?asin=B0DK1RF3TZ" target="_blank" class="review-btn">
+                    <a href="https://www.amazon.com/review/create-review?asin=B0DK1RF3TZ" target="_blank" class="review-btn" onclick="trackReviewClick('video_share_receiver')">
                         Leave a Review ⭐
                     </a>
                 </div>
@@ -304,7 +304,7 @@
                 <div class="review-section">
                     <h3>⭐ Help Us Grow!</h3>
                     <p>Love this experience? A quick review would mean the world to us!</p>
-                    <a href="https://www.amazon.com/review/create-review?asin=B0DK1RF3TZ" target="_blank" class="review-btn">
+                    <a href="https://www.amazon.com/review/create-review?asin=B0DK1RF3TZ" target="_blank" class="review-btn" onclick="trackReviewClick('video_share_buyer')">
                         Leave a Review ⭐
                     </a>
                 </div>
@@ -389,14 +389,36 @@
             try {
                 if (navigator.share) {
                     await navigator.share(shareData);
+                    // PostHog: Track successful share
+                    if (window.posthog) posthog.capture('Share Completed', {
+                        page: 'video_share',
+                        method: 'native_share'
+                    });
                 } else {
                     // Fallback: copy link to clipboard
                     await navigator.clipboard.writeText(window.location.href);
+                    // PostHog: Track clipboard copy
+                    if (window.posthog) posthog.capture('Share Completed', {
+                        page: 'video_share',
+                        method: 'clipboard_copy'
+                    });
                     alert('Link copied to clipboard! Share it with someone special 💝');
                 }
             } catch (err) {
                 console.error('Share failed:', err);
+                // PostHog: Track share cancelled
+                if (window.posthog) posthog.capture('Share Cancelled', {
+                    page: 'video_share',
+                    reason: err.name === 'AbortError' ? 'user_cancelled' : 'error'
+                });
             }
+        }
+
+        function trackReviewClick(source) {
+            if (window.posthog) posthog.capture('Review Link Clicked', {
+                page: 'video_share',
+                source: source
+            });
         }
 
         // Initialize
