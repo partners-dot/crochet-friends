@@ -1375,6 +1375,12 @@
 
     // Detect product from URL parameters
     function detectProductFromUrl() {
+      // Check for character param from claim page (from=claim&character=potato)
+      const characterParam = urlParams.get('character');
+      if (characterParam && ['potato', 'cupcake', 'nursePotato', 'bossLady', 'cat', 'dadJokes', 'dog', 'pup', 'yoda'].includes(characterParam)) {
+        return { product: characterParam, source: urlParams.get('from') === 'claim' ? 'claim' : 'direct' };
+      }
+
       // Check for SKU via klavio_search parameter in current URL
       const sku = urlParams.get('klavio_search');
       if (sku && SKU_MAP[sku]) {
@@ -1507,15 +1513,38 @@
         if (receiverNote) receiverNote.classList.remove('hidden');
       }
       updateReviewLinks();
+
+      // === Claim Page Integration ===
+      // When coming from claim.html, auto-set user type, pre-fill email, and skip to create step
+      if (urlParams.get('from') === 'claim') {
+        const branchParam = urlParams.get('branch');
+        const emailParam = urlParams.get('email');
+
+        // Auto-set user type (buyer/receiver)
+        if (branchParam === 'buyer' || branchParam === 'receiver') {
+          userType = branchParam;
+        }
+
+        // Pre-fill email if provided
+        if (emailParam) {
+          userEmail = emailParam;
+          const emailField = document.getElementById('email');
+          if (emailField) emailField.value = emailParam;
+        }
+
+        // Let claim users start at welcome screen (character selection)
+      }
       const welcomeVideo = document.getElementById('welcomeVideo');
       if (welcomeVideo) welcomeVideo.play().catch(() => { });
+
       trackEvent('page_view');
       if (window.posthog) {
         posthog.capture('$pageview', {
           page: 'main',
           product_from_url: detectedProduct,
           product_source: productSource,
-          sku: urlParams.get('klavio_search')
+          sku: urlParams.get('klavio_search'),
+          from_claim: urlParams.get('from') === 'claim'
         });
         // Set session properties for better segmentation
         posthog.register({

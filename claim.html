@@ -1,0 +1,1408 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>You Won a Prize! — Got You a Little Something</title>
+    <meta name="description"
+        content="Claim your exclusive discount and create a personalized video from your crocheted friend!">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- PostHog Analytics -->
+    <script>
+        !function (t, e) { var o, n, p, r; e.__SV || (window.posthog = e, e._i = [], e.init = function (i, s, a) { function g(t, e) { var o = e.split("."); 2 == o.length && (t = t[o[0]], e = o[1]), t[e] = function () { t.push([e].concat(Array.prototype.slice.call(arguments, 0))) } } (p = t.createElement("script")).type = "text/javascript", p.async = !0, p.src = s.api_host.replace(".i.posthog.com", "-assets.i.posthog.com") + "/static/array.js", (r = t.getElementsByTagName("script")[0]).parentNode.insertBefore(p, r); var u = e; for (void 0 !== a ? u = e[a] = [] : a = "posthog", u.people = u.people || [], u.toString = function (t) { var e = "posthog"; return "posthog" !== a && (e += "." + a), t || (e += " (stub)"), e }, u.people.toString = function () { return u.toString(1) + ".people (stub)" }, o = "init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey getNextSurveyStep identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug getPageViewId".split(" "), n = 0; n < o.length; n++)g(u, o[n]); e._i.push([i, s, a]) }, e.__SV = 1) }(document, window.posthog || []);
+        posthog.init('phc_MEOvdUouUxVndyqyYho5gY524mTnPOfsEGWaLN5Xny8', {
+            api_host: 'https://us.i.posthog.com',
+            person_profiles: 'identified_only',
+            capture_pageview: false,
+            capture_pageleave: true
+        });
+    </script>
+
+    <style>
+        /* =============================================
+       DESIGN SYSTEM — 10x UI/UX Optimization
+       
+       CUSTOMER CONTEXT:
+       - Scanned a QR code on physical product packaging
+       - Mobile-first (95%+ on phone)
+       - Warm, playful brand — handmade crochet gifts
+       - Goal: Email capture → Video creation → Amazon review
+       
+       HIERARCHY DECISIONS:
+       - Hero title: MASSIVE (brand moment, emotional hook)
+       - Social proof: Small pill (builds trust without distraction)
+       - CTA text: Large, bold (action-driving)
+       - Body copy: Medium, readable (supporting text)
+       - Muted/legal: Small (trust signals, urgency, hints)
+       
+       COLOR DECISIONS:
+       - Navy (#050A30) base — sophisticated, premium
+       - Gold (#FFD166) primary accent — reward, prize, celebration
+       - Teal (#4ECDC4) video CTA — fresh, action, distinct from gold
+       - Orange (#FF9900) Amazon — brand recognition, secondary action
+       - Warm red (#FF6B6B → #f87171) urgency — time pressure
+       ============================================= */
+
+        :root {
+            /* Backgrounds */
+            --bg-deep: #050A30;
+            --bg-surface: rgba(255, 255, 255, 0.05);
+            --bg-surface-hover: rgba(255, 255, 255, 0.10);
+            --bg-surface-active: rgba(255, 255, 255, 0.14);
+            --glass-border: rgba(255, 255, 255, 0.10);
+            --glass-border-active: rgba(255, 255, 255, 0.22);
+
+            /* Text — clear hierarchy */
+            --text-primary: #FFFFFF;
+            --text-secondary: rgba(255, 255, 255, 0.68);
+            --text-muted: rgba(255, 255, 255, 0.42);
+
+            /* Brand accents */
+            --gold: #FFD166;
+            --gold-bright: #FFE08A;
+            --gold-glow: 0 0 28px rgba(255, 209, 102, 0.28);
+            --teal: #4ECDC4;
+            --teal-bright: #6BEAD5;
+            --amazon: #FF9900;
+            --urgency: #f87171;
+            --success: #4ade80;
+            --error: #f87171;
+
+            /* Radii */
+            --r-sm: 12px;
+            --r-md: 20px;
+            --r-lg: 28px;
+            --r-pill: 50px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            font-family: 'Outfit', -apple-system, system-ui, sans-serif;
+            background: radial-gradient(ellipse at top center, #0D1654 0%, var(--bg-deep) 65%);
+            min-height: 100vh;
+            min-height: 100dvh;
+            color: var(--text-primary);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Page wrapper - centers content vertically on tall screens */
+        .page-wrap {
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1.25rem;
+        }
+
+        .container {
+            max-width: 420px;
+            width: 100%;
+        }
+
+        /* =============================================
+       TYPOGRAPHY — Size hierarchy is everything
+       ============================================= */
+
+        /* Kicker — THE primary hook, grabs attention */
+        .kicker {
+            font-size: clamp(1.8rem, 7vw, 2.5rem);
+            background: linear-gradient(135deg, #FFD166 0%, #FFEB99 40%, #FFD166 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 6px;
+            line-height: 1.15;
+            filter: drop-shadow(0 2px 8px rgba(255, 209, 102, 0.3));
+        }
+
+        /* Hero title — brand name, warm accent (not the headline) */
+        .hero-title {
+            font-size: clamp(1.35rem, 5vw, 1.65rem);
+            font-weight: 600;
+            color: var(--gold);
+            line-height: 1.15;
+            text-align: center;
+            letter-spacing: 0.5px;
+            margin-bottom: 1.25rem;
+            opacity: 0.9;
+        }
+
+        /* Section title — step headers */
+        .section-title {
+            font-size: clamp(1.55rem, 6.5vw, 2rem);
+            font-weight: 700;
+            color: var(--text-primary);
+            text-align: center;
+            line-height: 1.15;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Body text — supporting, readable */
+        .body-text {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            max-width: 92%;
+            margin: 0 auto;
+        }
+
+        /* =============================================
+       PRODUCT SHOWCASE — Star of the show
+       ============================================= */
+        .product-showcase {
+            text-align: center;
+            margin: 1.25rem 0 0.5rem;
+        }
+
+        .product-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--gold);
+            box-shadow: var(--gold-glow), 0 10px 35px rgba(0, 0, 0, 0.35);
+            display: block;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.08);
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .product-label {
+            margin-top: 0.6rem;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--gold-bright);
+            letter-spacing: 0.3px;
+            animation: fadeIn 1s ease-out;
+        }
+
+        /* =============================================
+       VIDEO PREVIEW — Teaser to drive engagement
+       ============================================= */
+        .video-preview-wrap {
+            margin: 1.25rem 0;
+            text-align: center;
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .video-preview {
+            width: 100%;
+            max-width: 280px;
+            border-radius: var(--r-md);
+            border: 2px solid rgba(255, 209, 102, 0.25);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            display: block;
+            margin: 0 auto;
+        }
+
+        .video-preview-label {
+            margin-top: 0.6rem;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            font-style: italic;
+        }
+
+        /* Video Controls — matches index.html pattern */
+        .claim-sound-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(5, 10, 48, 0.8);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            cursor: pointer;
+            z-index: 10;
+            font-weight: 600;
+            font-size: 0.95rem;
+            border: 1px solid var(--gold);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.2s;
+            display: none;
+        }
+
+        .claim-sound-overlay.visible {
+            display: block;
+        }
+
+        .claim-sound-overlay:hover {
+            background: rgba(5, 10, 48, 0.95);
+            transform: translate(-50%, -50%) scale(1.05);
+        }
+
+        .claim-video-controls {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none;
+            gap: 5px;
+            background: rgba(5, 10, 48, 0.8);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            padding: 4px 10px;
+            border-radius: 14px;
+            z-index: 10;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .claim-video-controls.visible {
+            display: flex;
+            align-items: center;
+        }
+
+        .claim-video-controls button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 0.75rem;
+            cursor: pointer;
+            padding: 2px 4px;
+        }
+
+
+        /* =============================================
+       CHOICE CARDS — Buyer vs Receiver
+       Big tap targets, clear visual hierarchy
+       ============================================= */
+        .prompt-text {
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        .choices {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .choice-card {
+            background: var(--bg-surface);
+            border: 2px solid var(--glass-border);
+            border-radius: var(--r-md);
+            padding: 1.5rem 0.75rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        .choice-card:active {
+            transform: scale(0.96);
+        }
+
+        .choice-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--glass-border-active);
+            background: var(--bg-surface-hover);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+        }
+
+        .choice-card.selected {
+            border-color: var(--gold);
+            background: linear-gradient(135deg, rgba(255, 209, 102, 0.16) 0%, rgba(255, 159, 67, 0.10) 100%);
+            box-shadow: 0 0 22px rgba(255, 209, 102, 0.14);
+        }
+
+        .choice-card .emoji {
+            font-size: 2.4rem;
+        }
+
+        .choice-card .label {
+            font-weight: 700;
+            font-size: 0.88rem;
+            color: var(--text-primary);
+            line-height: 1.3;
+        }
+
+        .choice-card .sub-label {
+            font-size: 0.73rem;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        /* =============================================
+       FORM — Single email input for maximum conversion
+       ============================================= */
+        .form-card {
+            background: var(--bg-surface);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: var(--r-lg);
+            padding: 1.75rem 1.5rem;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.7rem;
+            font-size: 0.88rem;
+            letter-spacing: 0.3px;
+        }
+
+        .email-input {
+            width: 100%;
+            padding: 1.1rem 1.2rem;
+            border-radius: var(--r-sm);
+            border: 2px solid var(--glass-border);
+            background: rgba(0, 0, 0, 0.22);
+            color: white;
+            font-family: inherit;
+            font-size: 1.05rem;
+            transition: all 0.3s;
+            outline: none;
+        }
+
+        .email-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .email-input:focus {
+            border-color: var(--gold);
+            background: rgba(0, 0, 0, 0.35);
+            box-shadow: 0 0 0 3px rgba(255, 209, 102, 0.10);
+        }
+
+        .email-input.input-error {
+            border-color: var(--error);
+            box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.10);
+        }
+
+        .error-text {
+            color: var(--error);
+            font-size: 0.82rem;
+            margin-top: 0.5rem;
+            font-weight: 500;
+        }
+
+        /* =============================================
+       PRIMARY BUTTON — Big, bold, unmissable
+       The single most important element on
+       the email step — must demand attention.
+       ============================================= */
+        .btn-primary {
+            width: 100%;
+            padding: 1.15rem;
+            border: none;
+            border-radius: var(--r-md);
+            font-size: 1.15rem;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            background: linear-gradient(135deg, #FFD166 0%, #FABC2A 100%);
+            color: #050A30;
+            box-shadow: 0 8px 25px rgba(255, 209, 102, 0.22);
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 14px 40px rgba(255, 209, 102, 0.35);
+            filter: brightness(1.05);
+        }
+
+        .btn-primary:active {
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            filter: none;
+            animation: none;
+        }
+
+        /* Gentle pulse to draw attention */
+        @keyframes pulse-glow {
+
+            0%,
+            100% {
+                box-shadow: 0 8px 25px rgba(255, 209, 102, 0.22);
+            }
+
+            50% {
+                box-shadow: 0 8px 35px rgba(255, 209, 102, 0.42);
+            }
+        }
+
+        .btn-primary.pulse {
+            animation: pulse-glow 2.5s ease-in-out infinite;
+        }
+
+        /* =============================================
+       TRUST BAR — removes friction micro-copy
+       ============================================= */
+        .trust-bar {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 0.85rem;
+            padding: 0.6rem 0;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .trust-bar span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            opacity: 0.75;
+        }
+
+        /* =============================================
+       BACK BUTTON
+       ============================================= */
+        .btn-back {
+            display: block;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            font-family: inherit;
+            margin: 0.75rem auto 0;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .btn-back:hover {
+            color: var(--text-secondary);
+        }
+
+
+        /* =============================================
+       PRODUCT RECAP — Reinforce what product
+       ============================================= */
+        .product-recap {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+            padding: 0.85rem 1rem;
+            background: var(--bg-surface);
+            border-radius: var(--r-md);
+            border: 1px solid var(--glass-border);
+        }
+
+        .product-recap img {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--gold);
+            flex-shrink: 0;
+        }
+
+        .product-recap .recap-info .name {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.92rem;
+        }
+
+        .product-recap .recap-info .type {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            margin-top: 2px;
+        }
+
+        /* =============================================
+       CTA CARDS — Video + Review
+       Video = hero CTA (teal, prominent)
+       Review = secondary (amazon orange, softer)
+       ============================================= */
+        .cta-card {
+            border-radius: var(--r-lg);
+            padding: 1.5rem;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .cta-card h3 {
+            font-size: 1.15rem;
+            margin-bottom: 0.4rem;
+            font-weight: 700;
+        }
+
+        .cta-card p {
+            color: var(--text-secondary);
+            font-size: 0.88rem;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+
+        /* Review CTA — secondary, softer visual weight */
+        .cta-review {
+            background: linear-gradient(135deg, rgba(255, 153, 0, 0.10) 0%, rgba(255, 102, 0, 0.05) 100%);
+            border: 1.5px solid rgba(255, 153, 0, 0.35);
+        }
+
+        .cta-review h3 {
+            color: var(--amazon);
+        }
+
+        .btn-amazon {
+            display: inline-block;
+            background: linear-gradient(135deg, #FF9900 0%, #FF7700 100%);
+            color: #FFF;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--r-sm);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+            box-shadow: 0 6px 20px rgba(255, 153, 0, 0.2);
+        }
+
+        .btn-amazon:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 153, 0, 0.35);
+        }
+
+        .btn-amazon:visited {
+            color: #FFF;
+        }
+
+        /* =============================================
+       SHARE ROW
+       ============================================= */
+        .share-row {
+            text-align: center;
+            margin-top: 1.25rem;
+            padding: 0.75rem 0;
+        }
+
+        .share-row p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.6rem;
+        }
+
+        .share-icons {
+            display: flex;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+
+        .share-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 1px solid var(--glass-border);
+            background: var(--bg-surface);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.15rem;
+            cursor: pointer;
+            transition: all 0.25s;
+            text-decoration: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .share-btn:hover {
+            background: var(--bg-surface-hover);
+            border-color: var(--gold);
+            transform: translateY(-2px);
+        }
+
+        /* =============================================
+       SPINNER
+       ============================================= */
+        .spinner-inline {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 3px solid rgba(5, 10, 48, 0.2);
+            border-top-color: #050A30;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        /* =============================================
+       CONFETTI
+       ============================================= */
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .confetti {
+            position: absolute;
+            border-radius: 2px;
+            animation: confetti-fall 3s ease-out forwards;
+        }
+
+        /* =============================================
+       BRAND FOOTER — subtle brand presence
+       ============================================= */
+        .brand-footer {
+            text-align: center;
+            padding: 1.25rem 0 0.5rem;
+            margin-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .brand-footer .brand-name {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            opacity: 0.65;
+        }
+
+        .brand-footer .brand-tagline {
+            font-size: 0.62rem;
+            color: rgba(255, 255, 255, 0.18);
+            margin-top: 2px;
+            letter-spacing: 0.5px;
+        }
+
+        /* =============================================
+       TRANSITION SCREEN — 2s redirect to video app
+       ============================================= */
+        .transition-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 55vh;
+            text-align: center;
+            position: relative;
+        }
+
+        .trans-phase {
+            transition: opacity 0.5s ease;
+            position: absolute;
+            width: 100%;
+            padding: 0 1rem;
+        }
+
+        .trans-icon {
+            font-size: 3rem;
+            margin-bottom: 0.75rem;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .trans-title {
+            font-size: clamp(1.3rem, 5vw, 1.65rem);
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            line-height: 1.25;
+        }
+
+        .trans-sub {
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            opacity: 0.8;
+        }
+
+        .trans-progress {
+            width: 180px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 1rem auto 0;
+        }
+
+        .trans-progress-bar {
+            width: 0;
+            height: 100%;
+            background: linear-gradient(90deg, var(--teal), var(--teal-bright));
+            border-radius: 4px;
+            animation: progress-fill 2s ease-in-out forwards;
+        }
+
+        @keyframes progress-fill {
+            0% {
+                width: 0;
+            }
+
+            100% {
+                width: 100%;
+            }
+        }
+
+        /* =============================================
+       UTILITY
+       ============================================= */
+        .hidden {
+            display: none !important;
+        }
+
+        .section {
+            animation: slideUp 0.55s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .mb-sm {
+            margin-bottom: 0.5rem;
+        }
+
+        .mb-md {
+            margin-bottom: 1rem;
+        }
+
+        .mb-lg {
+            margin-bottom: 1.5rem;
+        }
+
+        /* =============================================
+       ANIMATIONS
+       ============================================= */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(22px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+
+        @keyframes revealCode {
+            0% {
+                opacity: 0;
+                transform: scale(0.85);
+                filter: blur(8px);
+            }
+
+            55% {
+                opacity: 1;
+                transform: scale(1.03);
+                filter: blur(0);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Discount popup — appears with confetti */
+        .discount-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            z-index: 9999;
+            text-align: center;
+            pointer-events: none;
+            animation: discountPop 2.5s ease-out forwards;
+        }
+
+        .discount-popup-inner {
+            background: linear-gradient(145deg, #FFD166 0%, #FFBA42 100%);
+            color: #050A30;
+            padding: 2rem 3rem;
+            border-radius: 24px;
+            box-shadow:
+                0 0 60px rgba(255, 209, 102, 0.4),
+                0 25px 50px rgba(0, 0, 0, 0.35);
+            border: 1.5px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .discount-popup-amount {
+            font-size: 4rem;
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: -2px;
+        }
+
+        .discount-popup-label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-top: 0.3rem;
+            opacity: 0.7;
+        }
+
+        @keyframes discountPop {
+            0% {
+                transform: translate(-50%, -50%) scale(0);
+                opacity: 0;
+            }
+
+            15% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+
+            70% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translate(-50%, -55%) scale(0.95);
+                opacity: 0;
+            }
+        }
+
+        /* Cinematic blur reveal */
+        .page-blurred {
+            filter: blur(6px);
+            transition: filter 1.2s ease-out;
+        }
+
+        .page-revealed {
+            filter: blur(0);
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-10px) rotate(0deg);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page-wrap">
+        <div class="container">
+
+            <!-- ====================================
+           SINGLE SCREEN: Hero + Video Preview + Email
+           
+           PSYCHOLOGY: 
+           Customer just scanned a QR code on their product.
+           ONE screen = maximum conversion. No extra steps.
+           Video preview creates "I want that" curiosity.
+           Email is the only gate to the prize.
+           Buyer/receiver is optional — we ask later in
+           the video flow where it actually matters.
+           ==================================== -->
+            <section id="welcomeSection" class="section page-blurred">
+                <div class="kicker">🎉 You Won a Prize! 🎉</div>
+
+                <!-- Product image + name (populated by API) -->
+                <div class="product-showcase">
+                    <img id="productImage" class="product-image hidden" alt="Your product">
+                    <div id="productNameDisplay" class="product-label hidden"></div>
+                </div>
+
+                <div class="video-preview-wrap" id="videoPreviewWrap" onclick="unmuteClaimVideo()">
+                    <video id="videoPreview" class="video-preview" autoplay muted loop playsinline>
+                        <source id="videoPreviewSrc" src="videos/claim-preview.mp4" type="video/mp4">
+                    </video>
+                    <div id="claimSoundOverlay" class="claim-sound-overlay">🔊 Tap for sound</div>
+                    <div id="claimVideoControls" class="claim-video-controls">
+                        <button onclick="event.stopPropagation(); toggleClaimPlay();" id="claimPlayPauseBtn">⏸️</button>
+                        <button onclick="event.stopPropagation(); toggleClaimMute();" id="claimMuteBtn">🔊</button>
+                    </div>
+                </div>
+
+                <!-- Description — lead with concrete reward, tease video -->
+                <p class="body-text mb-lg">
+                    Get <strong style="color: var(--gold);">30% off</strong> your next order
+                    and make your crocheted friend come alive in a personalized video.
+                </p>
+
+                <!-- Email form — ONE field, maximum conversion -->
+                <div class="form-card">
+                    <label class="form-label" for="claimEmail">Email Address</label>
+                    <input type="email" id="claimEmail" class="email-input" placeholder="you@example.com" required
+                        autocomplete="email" inputmode="email">
+                    <div id="emailError" class="error-text hidden"></div>
+                </div>
+
+                <button type="button" class="btn-primary pulse" id="claimBtn" onclick="submitEmail()">
+                    Unlock My Prize
+                </button>
+
+                <div class="trust-bar">
+                    <span>No spam, ever</span>
+                    <span>Code sent by email</span>
+                    <span>Unsubscribe anytime</span>
+                </div>
+
+                <!-- Brand footer -->
+                <div class="brand-footer">
+                    <div class="brand-name">Got You a Little Something</div>
+                    <div class="brand-tagline">Handmade with love</div>
+                </div>
+            </section>
+
+            <!-- ====================================
+           STEP 3: Prize Reveal + CTAs
+           
+           PSYCHOLOGY:
+           Confetti + bouncing emoji creates celebration dopamine hit.
+           Discount code is FIRST (immediate value delivery).
+           Video CTA is SECOND (primary engagement — before review).
+           Review CTA is THIRD (secondary ask — after they feel rewarded).
+           Share is LAST (lowest friction, social amplification).
+           
+           CTA ORDER: Discount → Video → Review → Share
+            ==================================== -->
+            <section id="prizeSection" class="section hidden">
+                <div class="transition-screen">
+                    <!-- Phase 1: Code confirmation -->
+                    <div id="transPhase1" class="trans-phase">
+                        <div class="trans-icon">✉️</div>
+                        <h2 class="trans-title">Your 30% off code is on its way!</h2>
+                        <p class="trans-sub">Check your inbox in a few minutes.</p>
+                    </div>
+
+                    <!-- Phase 2: Video tease -->
+                    <div id="transPhase2" class="trans-phase" style="opacity: 0;">
+                        <div class="trans-icon" style="font-size: 2.5rem;">✨</div>
+                        <h2 class="trans-title" style="color: var(--teal-bright);">Now let's bring your friend to
+                            life...</h2>
+                        <div class="trans-progress">
+                            <div class="trans-progress-bar"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // STATE
+        // ============================================
+        const state = {
+            userType: null,
+            sku: null,
+            discountCode: null,
+            email: null,
+            product: null
+        };
+
+        // ============================================
+        // INIT — Read URL params, fetch product data
+        // ============================================
+        async function init() {
+            const params = new URLSearchParams(window.location.search);
+            state.sku = params.get('sku') || params.get('SKU') || null;
+            state.discountCode = params.get('code') || params.get('CODE') || null;
+
+            // Track page view
+            if (typeof posthog !== 'undefined') {
+                posthog.capture('claim_page_view', {
+                    sku: state.sku,
+                    has_discount: !!state.discountCode
+                });
+            }
+
+            // Fetch product info from Supabase via API
+            if (state.sku) {
+                try {
+                    const res = await fetch(`/api/product-lookup?sku=${encodeURIComponent(state.sku)}`);
+                    if (res.ok) {
+                        state.product = await res.json();
+
+                        // Show product image
+                        const imgEl = document.getElementById('productImage');
+                        if (state.product.characterImage) {
+                            imgEl.src = state.product.characterImage;
+                            imgEl.alt = state.product.productName || 'Your product';
+                            imgEl.classList.remove('hidden');
+                        }
+
+                        // Show product name
+                        if (state.product.productName) {
+                            const nameEl = document.getElementById('productNameDisplay');
+                            nameEl.textContent = state.product.productName;
+                            nameEl.classList.remove('hidden');
+                        }
+
+                        // Set video preview to match product character
+                        if (state.product.character) {
+                            const videoMap = {
+                                'cupcake': 'videos/welcome-cupcake.mp4',
+                                'nursePotato': 'videos/welcome-nursePotato.mp4',
+                                'potato': 'videos/welcome-potato.mp4'
+                            };
+                            const videoSrc = videoMap[state.product.character] || 'videos/welcome-potato.mp4';
+                            const videoEl = document.getElementById('videoPreview');
+                            const srcEl = document.getElementById('videoPreviewSrc');
+                            srcEl.src = videoSrc;
+                            videoEl.load();
+                            videoEl.play().catch(() => { });
+                        }
+                    } else {
+                        console.warn('[Claim] Product not found for SKU:', state.sku);
+                    }
+                } catch (err) {
+                    console.error('[Claim] Product lookup failed:', err);
+                }
+            }
+        }
+
+        // ============================================
+        // NAVIGATION
+        // ============================================
+        function goToStep(step) {
+            document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+            const section = document.getElementById(step + 'Section');
+            if (section) {
+                section.classList.remove('hidden');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+
+        // ============================================
+        // STEP 2: Email Submission
+        // ============================================
+        async function submitEmail() {
+            const emailInput = document.getElementById('claimEmail');
+            const errorDiv = document.getElementById('emailError');
+            const btn = document.getElementById('claimBtn');
+            const email = emailInput.value.trim().toLowerCase();
+
+            // Validate
+            if (!email || !email.includes('@') || !email.includes('.')) {
+                emailInput.classList.add('input-error');
+                errorDiv.textContent = 'Please enter a valid email address';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+
+            emailInput.classList.remove('input-error');
+            errorDiv.classList.add('hidden');
+            state.email = email;
+
+            // Loading state
+            btn.disabled = true;
+            btn.classList.remove('pulse');
+            btn.innerHTML = '<span class="spinner-inline"></span>Sending...';
+
+            try {
+                // Subscribe to Klaviyo
+                const response = await fetch('/api/klaviyo-subscribe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email,
+                        firstName: null,
+                        userType: state.userType,
+                        sku: state.sku,
+                        discountCode: state.discountCode
+                    })
+                });
+
+                const data = await response.json();
+                if (!response.ok) {
+                    console.error('Klaviyo subscribe error:', data);
+                    // Still show prize — don't block the user
+                }
+
+                // Track
+                if (typeof posthog !== 'undefined') {
+                    posthog.identify(email, {
+                        user_type: state.userType,
+                        sku: state.sku
+                    });
+                    posthog.capture('claim_email_submitted', {
+                        user_type: state.userType,
+                        sku: state.sku,
+                        klaviyo_success: response.ok
+                    });
+                }
+
+                showPrize();
+            } catch (err) {
+                console.error('Submit error:', err);
+                showPrize(); // Graceful degradation
+            }
+        }
+
+        // ============================================
+        // STEP 3: Show Prize
+        // ============================================
+        function showPrize() {
+            const product = state.product;
+
+            // Build video app URL
+            const videoParams = new URLSearchParams();
+            if (state.sku) videoParams.set('sku', state.sku);
+            if (product && product.character) videoParams.set('character', product.character);
+            if (state.email) videoParams.set('email', state.email);
+            videoParams.set('from', 'claim');
+            const videoUrl = 'index.html?' + videoParams.toString();
+
+            // Show transition screen
+            goToStep('prize');
+            launchConfetti();
+
+            // Phase 1 → Phase 2 after 1.2s
+            setTimeout(() => {
+                const p1 = document.getElementById('transPhase1');
+                const p2 = document.getElementById('transPhase2');
+                if (p1) p1.style.opacity = '0';
+                if (p2) p2.style.opacity = '1';
+            }, 1200);
+
+            // Redirect to video app after 3s total
+            setTimeout(() => {
+                trackVideoClick();
+                window.location.href = videoUrl;
+            }, 3200);
+        }
+
+
+        // ============================================
+        // VIDEO CONTROLS
+        // ============================================
+        let claimVideoUnmuted = false;
+
+        function autoUnmuteVideo() {
+            const video = document.getElementById('videoPreview');
+            const controls = document.getElementById('claimVideoControls');
+            const overlay = document.getElementById('claimSoundOverlay');
+            if (!video) return;
+            video.muted = false;
+            video.volume = 1.0;
+            video.currentTime = 0;
+            video.play().then(() => {
+                // Unmuted autoplay succeeded — show controls, no overlay needed
+                claimVideoUnmuted = true;
+                if (controls) controls.classList.add('visible');
+            }).catch(() => {
+                // Browser blocked unmuted autoplay — show "Tap for sound" overlay
+                video.muted = true;
+                video.play().catch(() => { });
+                if (overlay) overlay.classList.add('visible');
+            });
+        }
+
+        function unmuteClaimVideo() {
+            const video = document.getElementById('videoPreview');
+            const overlay = document.getElementById('claimSoundOverlay');
+            const controls = document.getElementById('claimVideoControls');
+            if (!claimVideoUnmuted) {
+                if (video) {
+                    video.muted = false;
+                    video.volume = 1.0;
+                    video.currentTime = 0;
+                }
+                if (overlay) overlay.classList.remove('visible');
+                if (controls) controls.classList.add('visible');
+                claimVideoUnmuted = true;
+                return;
+            }
+            toggleClaimPlay();
+        }
+
+        function toggleClaimPlay() {
+            const video = document.getElementById('videoPreview');
+            const btn = document.getElementById('claimPlayPauseBtn');
+            if (video.paused) {
+                video.play();
+                btn.textContent = '⏸️';
+            } else {
+                video.pause();
+                btn.textContent = '▶️';
+            }
+        }
+
+        function toggleClaimMute() {
+            const video = document.getElementById('videoPreview');
+            const btn = document.getElementById('claimMuteBtn');
+            if (video.muted) {
+                video.muted = false;
+                btn.textContent = '🔊';
+            } else {
+                video.muted = true;
+                btn.textContent = '🔇';
+            }
+        }
+
+        // ============================================
+        // CONFETTI
+        // ============================================
+        function launchConfetti() {
+            const container = document.createElement('div');
+            container.className = 'confetti-container';
+            document.body.appendChild(container);
+
+            const colors = ['#FFD166', '#FF6B6B', '#4ECDC4', '#45B7D1', '#FF9900', '#A78BFA', '#FFE08A'];
+
+            for (let i = 0; i < 180; i++) {
+                const piece = document.createElement('div');
+                piece.className = 'confetti';
+                piece.style.left = Math.random() * 100 + '%';
+                piece.style.top = -10 + 'px';
+                piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                piece.style.animationDelay = Math.random() * 1.5 + 's';
+                piece.style.animationDuration = (2.5 + Math.random() * 2) + 's';
+                piece.style.width = (5 + Math.random() * 8) + 'px';
+                piece.style.height = (5 + Math.random() * 8) + 'px';
+                container.appendChild(piece);
+            }
+
+            setTimeout(() => container.remove(), 5500);
+        }
+
+        // ============================================
+        // TRACKING
+        // ============================================
+        function trackVideoClick() {
+            if (typeof posthog !== 'undefined') {
+                posthog.capture('claim_video_cta_clicked', {
+                    user_type: state.userType,
+                    sku: state.sku
+                });
+            }
+        }
+
+        function trackReviewClick() {
+            if (typeof posthog !== 'undefined') {
+                posthog.capture('claim_review_clicked', {
+                    user_type: state.userType,
+                    sku: state.sku
+                });
+            }
+        }
+
+        // ============================================
+        // SHARE
+        // ============================================
+        function shareLink(platform) {
+            const shopUrl = 'https://www.amazon.com/stores/Got+You+a+Little+Something/page/F21F1CB8-B742-4108-B3DA-C7E3E4F9CFCB';
+            const text = 'Check out these adorable handmade crochet gifts! 🧶💝';
+
+            if (platform === 'whatsapp') {
+                window.open(`https://wa.me/?text=${encodeURIComponent(text + ' ' + shopUrl)}`, '_blank');
+            } else if (platform === 'sms') {
+                window.open(`sms:?body=${encodeURIComponent(text + ' ' + shopUrl)}`, '_blank');
+            } else if (platform === 'copy') {
+                navigator.clipboard.writeText(shopUrl).then(() => {
+                    const btn = event.currentTarget;
+                    btn.textContent = '✅';
+                    setTimeout(() => { btn.textContent = '🔗'; }, 1500);
+                });
+            }
+
+            if (typeof posthog !== 'undefined') {
+                posthog.capture('claim_share_clicked', { platform, sku: state.sku });
+            }
+        }
+
+        // ============================================
+        // INIT
+        // ============================================
+        init();
+
+        // Confetti + discount popup on page load
+        launchConfetti();
+        // Show the 30% OFF popup
+        const popup = document.createElement('div');
+        popup.className = 'discount-popup';
+        popup.innerHTML = '<div class="discount-popup-inner"><div class="discount-popup-amount">30% OFF</div><div class="discount-popup-label">Your Next Order</div></div>';
+        document.body.appendChild(popup);
+        setTimeout(() => popup.remove(), 3000);
+
+        // Reveal content as popup fades
+        setTimeout(() => {
+            const section = document.getElementById('welcomeSection');
+            if (section) {
+                section.classList.add('page-revealed');
+                setTimeout(() => section.classList.remove('page-blurred', 'page-revealed'), 1200);
+            }
+        }, 1800);
+
+        // Auto-unmute video after 500ms
+        setTimeout(autoUnmuteVideo, 500);
+    </script>
+</body>
+
+</html>
