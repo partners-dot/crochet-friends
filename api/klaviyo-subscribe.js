@@ -1,5 +1,7 @@
 // API endpoint: /api/klaviyo-subscribe
-// Subscribes a profile to a Klaviyo list with custom properties
+// Two-step process:
+// 1. Create/update profile with custom properties (Profiles API)
+// 2. Subscribe profile to list (Subscription API)
 // Used by the claim.html landing page after email capture
 
 const KLAVIYO_API_KEY = process.env.KLAVIO_ACCESS_KEY_ID;
@@ -28,79 +30,101 @@ export default async function handler(req, res) {
             return res.status(500).json({ error: 'Klaviyo not configured' });
         }
 
-        // Build profile attributes with custom properties
-        // "klavioProduct" matches the existing Shopify form property name
-        const profileAttributes = {
-            email: email.toLowerCase(),
-            properties: {
-                klavioProduct: sku || null,
-                signup_source: 'Scratch Card Landing Page',
-                user_type: userType || null,
-                discount_code: discountCode || null,
-            },
-            subscriptions: {
-                email: {
-                    marketing: {
-                        consent: 'SUBSCRIBED'
-                    }
-                }
-            }
+        const headers = {
+            'Authorization': `Klaviyo-API-Key ${KLAVIYO_API_KEY}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'revision': KLAVIYO_REVISION
         };
 
-        // Add first/last name if provided
-        if (firstName) profileAttributes.first_name = firstName;
-        if (lastName) profileAttributes.last_name = lastName;
-
-        // Build the request payload
-        const payload = {
+        // ── STEP 1: Create or update profile with custom properties ──
+        const profilePayload = {
             data: {
-                type: 'profile-subscription-bulk-create-job',
+                type: 'profile',
                 attributes: {
-                    profiles: {
-                        data: [
-                            {
-                                type: 'profile',
-                                attributes: profileAttributes
-                            }
-                        ]
+                    email: email.toLowerCase(),
+                    properties: {
+                        klavioProduct: sku || null,
+                        signup_source: 'Scratch Card Landing Page',
+                        user_type: userType || null,
+                        discount_code: discountCode || null,
                     }
                 }
             }
         };
 
-        // Add list relationship if list ID is configured
+        if (firstName) profilePayload.data.attributes.first_name = firstName;
+        if (lastName) profilePayload.data.attributes.last_name = lastName;
+
+        console.log('[Klaviyo Subscribe] Step 1 - Creating profile:', email);
+
+        const profileRes = await fetch(`${KLAVIYO_API_BASE}/profile-import/`, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(profilePayload)
+        });
+
+        if (!profileRes.ok) {
+            const errorText = await profileRes.text();
+            console.error('[Klaviyo Subscribe] Profile create error:', profileRes.status, errorText);
+            // Continue to subscription even if profile update fails
+        } else {
+            console.log('[Klaviyo Subscribe] Step 1 - Profile created/updated for:', email);
+        }
+
+        // ── STEP 2: Subscribe to list ──
         if (KLAVIYO_LIST_ID) {
-            payload.data.relationships = {
-                list: {
-                    data: {
-                        type: 'list',
-                        id: KLAVIYO_LIST_ID
+            const subscribePayload = {
+                data: {
+                    type: 'profile-subscription-bulk-create-job',
+                    attributes: {
+                        profiles: {
+                            data: [
+                                {
+                                    type: 'profile',
+                                    attributes: {
+                                        email: email.toLowerCase(),
+                                        subscriptions: {
+                                            email: {
+                                                marketing: {
+                                                    consent: 'SUBSCRIBED'
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    relationships: {
+                        list: {
+                            data: {
+                                type: 'list',
+                                id: KLAVIYO_LIST_ID
+                            }
+                        }
                     }
                 }
             };
-        }
 
-        console.log('[Klaviyo Subscribe] Subscribing:', email, 'sku:', sku, 'userType:', userType);
+            console.log('[Klaviyo Subscribe] Step 2 - Subscribing to list:', KLAVIYO_LIST_ID);
 
-        // Call Klaviyo Subscribe API
-        const response = await fetch(`${KLAVIYO_API_BASE}/profile-subscription-bulk-create-jobs/`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Klaviyo-API-Key ${KLAVIYO_API_KEY}`,
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'revision': KLAVIYO_REVISION
-            },
-            body: JSON.stringify(payload)
-        });
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('[Klaviyo Subscribe] API error:', response.status, errorText);
-            return res.status(response.status).json({
-                error: 'Klaviyo API error',
-                details: errorText
+            const subRes = await fetch(`${KLAVIYO_API_BASE}/profile-subscription-bulk-create-jobs/`, {
+                method: 'POST',
+                headers,
+                body: JSON.stringify(subscribePayload)
             });
+
+            if (!subRes.ok) {
+                const errorText = await subRes.text();
+                console.error('[Klaviyo Subscribe] Subscribe error:', subRes.status, errorText);
+                return res.status(subRes.status).json({
+                    error: 'Klaviyo subscribe error',
+                    details: errorText
+                });
+            }
+
+            console.log('[Klaviyo Subscribe] Step 2 - Subscribed:', email);
         }
 
         console.log('[Klaviyo Subscribe] Success for:', email);
