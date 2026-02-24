@@ -49,7 +49,7 @@ export default async function handler(req, res) {
             .from('video_sessions')
             .update({ video_url: videoUrl, status: 'complete' })
             .eq('operation_id', operationId)
-            .select();
+            .select('id, operation_id, video_url, email, product');
 
         console.log('[SAVE-VIDEO] Update result - error:', updateError, 'data:', updateData?.length, 'rows affected');
 
@@ -64,6 +64,35 @@ export default async function handler(req, res) {
         }
 
         console.log('[SAVE-VIDEO] Success! Updated', updateData.length, 'row(s)');
+
+        // Fire "Video Created" event to Klaviyo for the welcome flow
+        const savedSession = updateData[0];
+        if (savedSession?.email) {
+            try {
+                const BASE_URL = process.env.VERCEL_URL
+                    ? `https://${process.env.VERCEL_URL}`
+                    : 'https://crochet-friends1.vercel.app';
+
+                const eventRes = await fetch(`${BASE_URL}/api/klaviyo-event`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: savedSession.email,
+                        eventName: 'Video Created',
+                        properties: {
+                            video_url: videoUrl,
+                            product: savedSession.product || null,
+                            operation_id: operationId
+                        }
+                    })
+                });
+                console.log('[SAVE-VIDEO] Klaviyo event result:', eventRes.status);
+            } catch (klaviyoErr) {
+                // Don't block the response if Klaviyo fails
+                console.error('[SAVE-VIDEO] Klaviyo event error (non-blocking):', klaviyoErr.message);
+            }
+        }
+
         return res.status(200).json({ success: true, rowsUpdated: updateData.length });
 
     } catch (err) {
