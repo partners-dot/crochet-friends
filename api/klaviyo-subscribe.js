@@ -34,7 +34,7 @@ export default async function handler(req, res) {
             email: email.toLowerCase(),
             properties: {
                 klavioProduct: sku || null,
-                $source: 'Scratch Card Landing Page',
+                signup_source: 'Scratch Card Landing Page',
                 user_type: userType || null,
                 discount_code: discountCode || null,
             },
