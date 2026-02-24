@@ -4,9 +4,9 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-// master_products lives in the ROS Supabase project
+// master_products lives in the ROS Supabase project (may need service role for RLS)
 const supabaseUrl = process.env.ROS_SUPABASE_URL || process.env.SUPABASE_URL;
-const supabaseKey = process.env.ROS_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
+const supabaseKey = process.env.ROS_SUPABASE_SERVICE_ROLE_KEY || process.env.ROS_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
 const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
 
 // Maps product_type from master_products → video app character name
