@@ -49,7 +49,7 @@ export default async function handler(req, res) {
             .from('video_sessions')
             .update({ video_url: videoUrl, status: 'complete' })
             .eq('operation_id', operationId)
-            .select('id, operation_id, video_url, email, product');
+            .select('id, operation_id, email, product');
 
         console.log('[SAVE-VIDEO] Update result - error:', updateError, 'data:', updateData?.length, 'rows affected');
 
@@ -78,7 +78,6 @@ export default async function handler(req, res) {
                             properties: {
                                 video_created: true,
                                 video_created_at: new Date().toISOString(),
-                                video_url: videoUrl,
                                 video_product: savedSession.product || null
                             }
                         }
