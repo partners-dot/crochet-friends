@@ -376,6 +376,16 @@
                 user_type: videoData?.userType,
                 product: videoData?.product
             });
+
+            // Track in Klaviyo via our API (sender only — they have an email)
+            const operationId = getOperationId();
+            if (operationId) {
+                fetch('/api/track', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ operationId, action: 'review_clicked' })
+                }).catch(() => {});
+            }
         }
 
         async function initPage() {

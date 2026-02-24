@@ -137,6 +137,40 @@ export default async function handler(req, res) {
         }
 
         console.log('Email sent successfully:', data);
+
+        // Update Klaviyo profile with video_shared property
+        const KLAVIYO_API_KEY = process.env.KLAVIO_ACCESS_KEY_ID;
+        if (KLAVIYO_API_KEY) {
+            try {
+                const profilePayload = {
+                    data: {
+                        type: 'profile',
+                        attributes: {
+                            email: email.toLowerCase(),
+                            properties: {
+                                video_shared: true,
+                                video_shared_at: new Date().toISOString()
+                            }
+                        }
+                    }
+                };
+
+                const profileRes = await fetch('https://a.klaviyo.com/api/profile-import/', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Klaviyo-API-Key ${KLAVIYO_API_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'revision': '2024-10-15'
+                    },
+                    body: JSON.stringify(profilePayload)
+                });
+                console.log('[Send Video] Klaviyo video_shared update:', profileRes.status);
+            } catch (klaviyoErr) {
+                console.error('[Send Video] Klaviyo update error (non-blocking):', klaviyoErr.message);
+            }
+        }
+
         return res.status(200).json({ success: true, messageId: data.id });
 
     } catch (error) {
