@@ -67,30 +67,56 @@ export default async function handler(req, res) {
 
         // Fire "Video Created" event to Klaviyo for the welcome flow
         const savedSession = updateData[0];
-        if (savedSession?.email) {
+        const KLAVIYO_API_KEY = process.env.KLAVIO_ACCESS_KEY_ID;
+        if (savedSession?.email && KLAVIYO_API_KEY) {
             try {
-                const BASE_URL = process.env.VERCEL_URL
-                    ? `https://${process.env.VERCEL_URL}`
-                    : 'https://crochet-friends1.vercel.app';
-
-                const eventRes = await fetch(`${BASE_URL}/api/klaviyo-event`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        email: savedSession.email,
-                        eventName: 'Video Created',
-                        properties: {
-                            video_url: videoUrl,
-                            product: savedSession.product || null,
-                            operation_id: operationId
+                const eventPayload = {
+                    data: {
+                        type: 'event',
+                        attributes: {
+                            metric: {
+                                data: {
+                                    type: 'metric',
+                                    attributes: { name: 'Video Created' }
+                                }
+                            },
+                            profile: {
+                                data: {
+                                    type: 'profile',
+                                    attributes: { email: savedSession.email.toLowerCase() }
+                                }
+                            },
+                            properties: {
+                                video_url: videoUrl,
+                                product: savedSession.product || null,
+                                operation_id: operationId
+                            },
+                            time: new Date().toISOString()
                         }
-                    })
+                    }
+                };
+
+                const eventRes = await fetch('https://a.klaviyo.com/api/events/', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Klaviyo-API-Key ${KLAVIYO_API_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'revision': '2024-10-15'
+                    },
+                    body: JSON.stringify(eventPayload)
                 });
-                console.log('[SAVE-VIDEO] Klaviyo event result:', eventRes.status);
+                console.log('[SAVE-VIDEO] Klaviyo "Video Created" event result:', eventRes.status);
+                if (!eventRes.ok) {
+                    const errText = await eventRes.text();
+                    console.error('[SAVE-VIDEO] Klaviyo event error:', errText);
+                }
             } catch (klaviyoErr) {
                 // Don't block the response if Klaviyo fails
                 console.error('[SAVE-VIDEO] Klaviyo event error (non-blocking):', klaviyoErr.message);
             }
+        } else {
+            console.log('[SAVE-VIDEO] Skipping Klaviyo event - email:', savedSession?.email, 'apiKey:', !!KLAVIYO_API_KEY);
         }
 
         return res.status(200).json({ success: true, rowsUpdated: updateData.length });
