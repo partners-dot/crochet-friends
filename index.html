@@ -1801,7 +1801,7 @@
       // PostHog: Track video generation started
       if (window.posthog) posthog.capture('Video Creation Started', { product: selectedProduct, user_type: userType, message_length: text.length });
       try {
-        const startRes = await fetch('/api/generate-video', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: text, character: selectedProduct, email: userEmail, userType: userType }) });
+        const startRes = await fetch('/api/generate-video', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: text, character: selectedProduct, email: userEmail, userType: userType, sku: urlParams.get('sku') || urlParams.get('klavio_search') || null }) });
         const startData = await startRes.json();
         if (!startRes.ok) throw new Error(startData.error || 'Failed to start generation');
         const operationId = startData.operationId;

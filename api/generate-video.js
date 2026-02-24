@@ -20,7 +20,7 @@ export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
     try {
-        const { message, character, email, userType } = req.body;
+        const { message, character, email, userType, sku } = req.body;
         if (!message) return res.status(400).json({ error: 'Message required' });
 
         // Parse Google Credentials from env var
@@ -151,7 +151,8 @@ export default async function handler(req, res) {
                 user_type: userType || null,
                 message: message,
                 operation_id: operationName,
-                status: 'pending'
+                status: 'pending',
+                sku: sku || null
             }]);
 
             if (sessionError) {

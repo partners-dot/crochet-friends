@@ -305,7 +305,7 @@
                 <div class="review-section">
                     <h3>⭐ Made You Smile?</h3>
                     <p>We would really appreciate a quick review - it only takes 30 seconds. Thank You! ❤️</p>
-                    <a href="https://www.amazon.com/review/create-review?asin=B0DK1RF3TZ" target="_blank" class="review-btn" onclick="trackReviewClick('video_preview_buyer')">
+                    <a href="#" target="_blank" class="review-btn" id="reviewLinkBuyer" onclick="trackReviewClick('video_preview_buyer')">
                         Leave a Review ⭐
                     </a>
                 </div>
@@ -340,7 +340,7 @@
                 <div class="review-section">
                     <h3>⭐ Made You Smile?</h3>
                     <p>We would really appreciate a quick review - it only takes 30 seconds. Thank You! ❤️</p>
-                    <a href="https://www.amazon.com/review/create-review?asin=B0DK1RF3TZ" target="_blank" class="review-btn" onclick="trackReviewClick('video_preview_receiver')">
+                    <a href="#" target="_blank" class="review-btn" id="reviewLinkReceiver" onclick="trackReviewClick('video_preview_receiver')">
                         Leave a Review ⭐
                     </a>
                 </div>
@@ -406,7 +406,6 @@
                         user_type: videoData.userType,
                         product: videoData.product
                     });
-                    // Set session properties for consistent tracking across pages
                     posthog.register({
                         'product_source': 'email_link',
                         'device_type': /Mobile|Android|iPhone/.test(navigator.userAgent) ? 'mobile' : 'desktop'
@@ -419,6 +418,22 @@
                 } else {
                     renderReceiverPreview(videoData.videoUrl);
                 }
+
+                // Fetch dynamic ASIN for review link
+                const DEFAULT_REVIEW_URL = 'https://www.amazon.com/review/create-review?asin=B0DK1RF3TZ';
+                let reviewUrl = DEFAULT_REVIEW_URL;
+                if (videoData.sku) {
+                    try {
+                        const lookupRes = await fetch(`/api/product-lookup?sku=${encodeURIComponent(videoData.sku)}`);
+                        if (lookupRes.ok) {
+                            const lookupData = await lookupRes.json();
+                            if (lookupData.amazonReviewUrl) reviewUrl = lookupData.amazonReviewUrl;
+                        }
+                    } catch (e) { console.log('Product lookup failed, using default ASIN'); }
+                }
+                // Update all review links on the page
+                document.querySelectorAll('.review-btn').forEach(link => link.href = reviewUrl);
+
             } else {
                 renderError('Video not found or not ready');
             }
