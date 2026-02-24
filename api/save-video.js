@@ -65,38 +65,27 @@ export default async function handler(req, res) {
 
         console.log('[SAVE-VIDEO] Success! Updated', updateData.length, 'row(s)');
 
-        // Fire "Video Created" event to Klaviyo for the welcome flow
+        // Update Klaviyo profile with video_created property for the welcome flow
         const savedSession = updateData[0];
         const KLAVIYO_API_KEY = process.env.KLAVIO_ACCESS_KEY_ID;
         if (savedSession?.email && KLAVIYO_API_KEY) {
             try {
-                const eventPayload = {
+                const profilePayload = {
                     data: {
-                        type: 'event',
+                        type: 'profile',
                         attributes: {
-                            metric: {
-                                data: {
-                                    type: 'metric',
-                                    attributes: { name: 'Video Created' }
-                                }
-                            },
-                            profile: {
-                                data: {
-                                    type: 'profile',
-                                    attributes: { email: savedSession.email.toLowerCase() }
-                                }
-                            },
+                            email: savedSession.email.toLowerCase(),
                             properties: {
+                                video_created: true,
+                                video_created_at: new Date().toISOString(),
                                 video_url: videoUrl,
-                                product: savedSession.product || null,
-                                operation_id: operationId
-                            },
-                            time: new Date().toISOString()
+                                video_product: savedSession.product || null
+                            }
                         }
                     }
                 };
 
-                const eventRes = await fetch('https://a.klaviyo.com/api/events/', {
+                const profileRes = await fetch('https://a.klaviyo.com/api/profile-import/', {
                     method: 'POST',
                     headers: {
                         'Authorization': `Klaviyo-API-Key ${KLAVIYO_API_KEY}`,
@@ -104,19 +93,18 @@ export default async function handler(req, res) {
                         'Accept': 'application/json',
                         'revision': '2024-10-15'
                     },
-                    body: JSON.stringify(eventPayload)
+                    body: JSON.stringify(profilePayload)
                 });
-                console.log('[SAVE-VIDEO] Klaviyo "Video Created" event result:', eventRes.status);
-                if (!eventRes.ok) {
-                    const errText = await eventRes.text();
-                    console.error('[SAVE-VIDEO] Klaviyo event error:', errText);
+                console.log('[SAVE-VIDEO] Klaviyo profile update result:', profileRes.status);
+                if (!profileRes.ok) {
+                    const errText = await profileRes.text();
+                    console.error('[SAVE-VIDEO] Klaviyo profile update error:', errText);
                 }
             } catch (klaviyoErr) {
-                // Don't block the response if Klaviyo fails
-                console.error('[SAVE-VIDEO] Klaviyo event error (non-blocking):', klaviyoErr.message);
+                console.error('[SAVE-VIDEO] Klaviyo update error (non-blocking):', klaviyoErr.message);
             }
         } else {
-            console.log('[SAVE-VIDEO] Skipping Klaviyo event - email:', savedSession?.email, 'apiKey:', !!KLAVIYO_API_KEY);
+            console.log('[SAVE-VIDEO] Skipping Klaviyo update - email:', savedSession?.email, 'apiKey:', !!KLAVIYO_API_KEY);
         }
 
         return res.status(200).json({ success: true, rowsUpdated: updateData.length });
