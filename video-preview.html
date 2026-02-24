@@ -384,7 +384,7 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ operationId, action: 'review_clicked' })
-                }).catch(() => {});
+                }).catch(() => { });
             }
         }
 
@@ -432,6 +432,16 @@
                 page: 'video_preview',
                 user_type: videoData?.userType
             });
+
+            // Track video_shared in Klaviyo via our API
+            const operationId = getOperationId();
+            if (operationId) {
+                fetch('/api/track', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ operationId, action: 'video_shared' })
+                }).catch(() => { });
+            }
 
             const shareData = {
                 title: videoData?.userType === 'receiver'

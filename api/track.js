@@ -39,16 +39,16 @@ export default async function handler(req, res) {
     }
 
     // Update Klaviyo profile with the action
-    if (KLAVIYO_API_KEY && action === 'review_clicked') {
+    if (KLAVIYO_API_KEY && (action === 'review_clicked' || action === 'video_shared')) {
+      const properties = action === 'review_clicked'
+        ? { review_clicked: true, review_clicked_at: new Date().toISOString() }
+        : { video_shared: true, video_shared_at: new Date().toISOString() };
       const profilePayload = {
         data: {
           type: 'profile',
           attributes: {
             email: session.email.toLowerCase(),
-            properties: {
-              review_clicked: true,
-              review_clicked_at: new Date().toISOString()
-            }
+            properties
           }
         }
       };
