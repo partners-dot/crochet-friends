@@ -4,8 +4,9 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_ANON_KEY;
+// master_products lives in the ROS Supabase project
+const supabaseUrl = process.env.ROS_SUPABASE_URL || process.env.SUPABASE_URL;
+const supabaseKey = process.env.ROS_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
 const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
 
 // Maps product_type from master_products → video app character name
