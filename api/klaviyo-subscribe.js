@@ -4,10 +4,17 @@
 // 2. Subscribe profile to list (Subscription API)
 // Used by the claim.html landing page after email capture
 
+import { createClient } from '@supabase/supabase-js';
+
 const KLAVIYO_API_KEY = process.env.KLAVIO_ACCESS_KEY_ID;
 const KLAVIYO_LIST_ID = process.env.KLAVIYO_LIST_ID; // Existing "Amazon" list
 const KLAVIYO_API_BASE = 'https://a.klaviyo.com/api';
 const KLAVIYO_REVISION = '2024-10-15';
+
+// ROS Supabase for SKU→ASIN lookup from master_products
+const rosSupabaseUrl = process.env.ROS_SUPABASE_URL || process.env.SUPABASE_URL;
+const rosSupabaseKey = process.env.ROS_SUPABASE_SERVICE_ROLE_KEY || process.env.ROS_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
+const rosSupabase = rosSupabaseUrl && rosSupabaseKey ? createClient(rosSupabaseUrl, rosSupabaseKey) : null;
 
 export default async function handler(req, res) {
     // CORS headers
@@ -37,6 +44,24 @@ export default async function handler(req, res) {
             'revision': KLAVIYO_REVISION
         };
 
+        // ── STEP 0: Look up ASIN from SKU (for Amazon review links in emails) ──
+        let asin = null;
+        if (sku && rosSupabase) {
+            try {
+                const { data: product } = await rosSupabase
+                    .from('master_products')
+                    .select('asin')
+                    .eq('sku', sku)
+                    .single();
+                if (product?.asin) {
+                    asin = product.asin;
+                    console.log('[Klaviyo Subscribe] ASIN lookup:', sku, '→', asin);
+                }
+            } catch (e) {
+                console.log('[Klaviyo Subscribe] ASIN lookup failed (non-blocking):', e.message);
+            }
+        }
+
         // ── STEP 1: Create or update profile with custom properties ──
         const profilePayload = {
             data: {
@@ -45,6 +70,7 @@ export default async function handler(req, res) {
                     email: email.toLowerCase(),
                     properties: {
                         klavioProduct: sku || null,
+                        klavioAsin: asin,
                         signup_source: 'Scratch Card Landing Page',
                         user_type: userType || null,
                         discount_code: discountCode || null,

@@ -5,6 +5,11 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_ANON_KEY;
 const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
 
+// ROS Supabase for SKU→ASIN lookup
+const rosSupabaseUrl = process.env.ROS_SUPABASE_URL || process.env.SUPABASE_URL;
+const rosSupabaseKey = process.env.ROS_SUPABASE_SERVICE_ROLE_KEY || process.env.ROS_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
+const rosSupabase = rosSupabaseUrl && rosSupabaseKey ? createClient(rosSupabaseUrl, rosSupabaseKey) : null;
+
 export default async function handler(req, res) {
     // CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -49,7 +54,7 @@ export default async function handler(req, res) {
             .from('video_sessions')
             .update({ video_url: videoUrl, status: 'complete' })
             .eq('operation_id', operationId)
-            .select('id, operation_id, email, product');
+            .select('id, operation_id, email, product, sku');
 
         console.log('[SAVE-VIDEO] Update result - error:', updateError, 'data:', updateData?.length, 'rows affected');
 
@@ -83,6 +88,23 @@ export default async function handler(req, res) {
                         }
                     }
                 };
+
+                // Look up ASIN from SKU as backup for review email links
+                if (savedSession.sku && rosSupabase) {
+                    try {
+                        const { data: product } = await rosSupabase
+                            .from('master_products')
+                            .select('asin')
+                            .eq('sku', savedSession.sku)
+                            .single();
+                        if (product?.asin) {
+                            profilePayload.data.attributes.properties.klavioAsin = product.asin;
+                            console.log('[SAVE-VIDEO] ASIN lookup:', savedSession.sku, '→', product.asin);
+                        }
+                    } catch (e) {
+                        console.log('[SAVE-VIDEO] ASIN lookup failed (non-blocking):', e.message);
+                    }
+                }
 
                 const profileRes = await fetch('https://a.klaviyo.com/api/profile-import/', {
                     method: 'POST',
