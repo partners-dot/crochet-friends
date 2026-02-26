@@ -1532,30 +1532,38 @@
           if (emailField) emailField.value = emailParam;
         }
 
-        // --- Swap welcome section copy for claim users ---
-        const subtitleEl = document.querySelector('#welcomeSection .subtitle');
-        const h1El = document.querySelector('#welcomeSection h1');
+        // --- Restructure welcome section for claim users ---
+        // Layout: compact info (top) → video → big CTA text → buttons
+        const headerEl = document.querySelector('#welcomeSection header');
         const descEl = document.querySelector('#welcomeSection .section-description');
+        const displayEmail = emailParam
+          ? `<strong style="color: var(--accent-neon);">${emailParam}</strong>`
+          : 'your email';
 
-        if (subtitleEl) {
-          subtitleEl.innerHTML = '✅ YOUR 30% OFF CODE IS ON ITS WAY';
-          subtitleEl.style.color = '#4ade80';
-          subtitleEl.style.fontSize = '0.75rem';
-          subtitleEl.style.letterSpacing = '1.5px';
-        }
-
-        if (h1El) {
-          h1El.innerHTML = 'CHECK YOUR<br>INBOX';
-          h1El.style.fontSize = '2.2rem';
-        }
-
-        if (descEl) {
-          const displayEmail = emailParam ? `<strong style="color: var(--accent-neon); font-size: 1rem;">${emailParam}</strong>` : 'your email';
-          descEl.innerHTML = `
-            <span style="display: block; margin-bottom: 6px;">We just sent your code to ${displayEmail}</span>
-            <span style="display: block; font-size: 0.82rem; opacity: 0.6; margin-bottom: 14px;">Not there? Check your spam or junk folder.</span>
-            <span style="display: block; font-size: 0.95rem; opacity: 0.9;">While you wait — bring your friend to life! 👇</span>
+        // Top section: compact status + email + spam note (NOT a big headline)
+        if (headerEl) {
+          headerEl.innerHTML = `
+            <div style="margin-bottom: 4px;">
+              <span style="color: #4ade80; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700;">✅ YOUR 30% OFF CODE IS ON ITS WAY</span>
+            </div>
+            <p style="color: rgba(255,255,255,0.9); font-size: 0.95rem; margin: 0 0 4px; line-height: 1.4;">
+              We sent your code to ${displayEmail}
+            </p>
+            <p style="color: rgba(255,255,255,0.4); font-size: 0.78rem; margin: 0; font-weight: 400;">
+              Not in your inbox? Check your spam folder.
+            </p>
           `;
+          headerEl.style.padding = '0.5rem 0 0.75rem';
+        }
+
+        // Below video: prominent CTA intro leading into buyer/receiver buttons
+        if (descEl) {
+          descEl.innerHTML = `<strong>While you wait</strong> — bring your friend to life! 👇`;
+          descEl.style.fontSize = '1.1rem';
+          descEl.style.fontWeight = '500';
+          descEl.style.color = 'var(--text-primary)';
+          descEl.style.marginTop = '1rem';
+          descEl.style.marginBottom = '1.25rem';
         }
 
         // Let claim users start at welcome screen (character selection)
