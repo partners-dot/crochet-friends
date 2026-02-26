@@ -26,7 +26,7 @@ export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
     try {
-        const { email, firstName, lastName, userType, sku, discountCode } = req.body;
+        const { email, firstName, lastName, userType, sku, discountCode, qrSource } = req.body;
 
         if (!email || !email.includes('@')) {
             return res.status(400).json({ error: 'Valid email required' });
@@ -74,6 +74,7 @@ export default async function handler(req, res) {
                         signup_source: 'Scratch Card Landing Page',
                         user_type: userType || null,
                         discount_code: discountCode || null,
+                        qr_source: qrSource || null,
                     }
                 }
             }

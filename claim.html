@@ -1072,6 +1072,7 @@
             userType: null,
             sku: null,
             discountCode: null,
+            qrSource: null,
             email: null,
             product: null
         };
@@ -1083,6 +1084,7 @@
             const params = new URLSearchParams(window.location.search);
             state.sku = params.get('sku') || params.get('SKU') || null;
             state.discountCode = params.get('code') || params.get('CODE') || null;
+            state.qrSource = params.get('source') || null;
 
             // Track page view
             if (typeof posthog !== 'undefined') {
@@ -1186,7 +1188,8 @@
                         firstName: null,
                         userType: state.userType,
                         sku: state.sku,
-                        discountCode: state.discountCode
+                        discountCode: state.discountCode,
+                        qrSource: state.qrSource
                     })
                 });
 
