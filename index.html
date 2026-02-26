@@ -1540,7 +1540,7 @@
           ? `<strong style="color: var(--accent-neon);">${emailParam}</strong>`
           : 'your email';
 
-        // Top section: compact status + email + spam note (NOT a big headline)
+        // Top section: compact status + email + spam note + big "while you wait" CTA
         if (headerEl) {
           headerEl.innerHTML = `
             <div style="margin-bottom: 4px;">
@@ -1549,21 +1549,18 @@
             <p style="color: rgba(255,255,255,0.9); font-size: 0.95rem; margin: 0 0 4px; line-height: 1.4;">
               We sent your code to ${displayEmail}
             </p>
-            <p style="color: rgba(255,255,255,0.4); font-size: 0.78rem; margin: 0; font-weight: 400;">
+            <p style="color: rgba(255,255,255,0.4); font-size: 0.78rem; margin: 0 0 1.25rem; font-weight: 400;">
               Not in your inbox? Check your spam folder.
             </p>
+            <p style="margin: 0; font-size: 0.85rem; color: rgba(255,255,255,0.55); font-weight: 500; text-transform: uppercase; letter-spacing: 1.5px;">While you wait...</p>
+            <p style="margin: 4px 0 0; font-size: 1.6rem; font-weight: 800; color: var(--accent-neon); line-height: 1.15; text-shadow: 0 0 20px rgba(255, 209, 102, 0.3);">Let's Make Your<br>Crochet Friend Talk!</p>
           `;
           headerEl.style.padding = '0.5rem 0 0.75rem';
         }
 
-        // Below video: prominent CTA intro leading into buyer/receiver buttons
+        // Below video: original simple CTA text
         if (descEl) {
-          descEl.innerHTML = `<strong>While you wait</strong> — bring your friend to life! 👇`;
-          descEl.style.fontSize = '1.1rem';
-          descEl.style.fontWeight = '500';
-          descEl.style.color = 'var(--text-primary)';
-          descEl.style.marginTop = '1rem';
-          descEl.style.marginBottom = '1.25rem';
+          descEl.innerHTML = 'Create Your Own Video 👇';
         }
 
         // Let claim users start at welcome screen (character selection)
