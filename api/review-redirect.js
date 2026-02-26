@@ -11,10 +11,12 @@ export default async function handler(req, res) {
     const targetAsin = asin || defaultAsin;
     const amazonReviewUrl = `https://www.amazon.com/review/create-review/?ie=UTF8&channel=glance-detail&asin=${targetAsin}`;
 
-    // Update Klaviyo profile with review_clicked (non-blocking, don't delay redirect)
+    // Update Klaviyo profile with review_clicked, then redirect.
+    // IMPORTANT: Must await the fetch — Vercel kills serverless functions on res.end(),
+    // so unawaited promises never complete. Using a timeout to keep redirect fast.
     if (email && KLAVIYO_API_KEY) {
         try {
-            fetch('https://a.klaviyo.com/api/profile-import/', {
+            const klaviyoPromise = fetch('https://a.klaviyo.com/api/profile-import/', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Klaviyo-API-Key ${KLAVIYO_API_KEY}`,
@@ -34,17 +36,25 @@ export default async function handler(req, res) {
                         }
                     }
                 })
-            }).then(r => {
-                console.log('[Review Redirect] Klaviyo update:', r.status, 'for:', email);
-            }).catch(err => {
-                console.error('[Review Redirect] Klaviyo error:', err.message);
             });
+
+            // Wait for Klaviyo update, but cap at 3s so redirect isn't slow
+            const timeoutPromise = new Promise(resolve => setTimeout(() => resolve({ status: 'timeout' }), 3000));
+            const result = await Promise.race([klaviyoPromise, timeoutPromise]);
+
+            if (result.status === 'timeout') {
+                console.log('[Review Redirect] Klaviyo update timed out for:', email);
+            } else {
+                console.log('[Review Redirect] Klaviyo update:', result.status, 'for:', email);
+            }
         } catch (e) {
-            console.error('[Review Redirect] Error:', e.message);
+            console.error('[Review Redirect] Klaviyo error:', e.message);
         }
+    } else {
+        console.log('[Review Redirect] Skipping Klaviyo update — email:', !!email, 'apiKey:', !!KLAVIYO_API_KEY);
     }
 
-    // Redirect immediately to Amazon review page (don't wait for Klaviyo)
+    // Redirect to Amazon review page
     res.writeHead(302, { Location: amazonReviewUrl });
     res.end();
 }
