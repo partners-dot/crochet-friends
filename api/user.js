@@ -1,5 +1,6 @@
 // API endpoint: /api/user
 // Handles email registration and rate limiting with Supabase
+// Also updates Klaviyo profile with user_type (buyer/receiver)
 import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_ANON_KEY;
@@ -8,6 +9,48 @@ const supabase = supabaseUrl && supabaseKey
     ? createClient(supabaseUrl, supabaseKey)
     : null;
 const MAX_VIDEOS_PER_USER = 2;
+
+// Klaviyo config — same API key as klaviyo-subscribe.js
+const KLAVIYO_API_KEY = process.env.KLAVIO_ACCESS_KEY_ID;
+const KLAVIYO_API_BASE = 'https://a.klaviyo.com/api';
+const KLAVIYO_REVISION = '2024-10-15';
+
+// Update Klaviyo profile with user_type (buyer/receiver)
+// Non-blocking — fire and forget, don't hold up the response
+async function updateKlaviyoUserType(email, userType) {
+    if (!KLAVIYO_API_KEY || !email || !userType) return;
+
+    try {
+        const res = await fetch(`${KLAVIYO_API_BASE}/profile-import/`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Klaviyo-API-Key ${KLAVIYO_API_KEY}`,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'revision': KLAVIYO_REVISION
+            },
+            body: JSON.stringify({
+                data: {
+                    type: 'profile',
+                    attributes: {
+                        email: email.toLowerCase(),
+                        properties: {
+                            user_type: userType  // 'buyer' or 'receiver'
+                        }
+                    }
+                }
+            })
+        });
+
+        if (res.ok) {
+            console.log(`[User API] Klaviyo profile updated: ${email} → user_type: ${userType}`);
+        } else {
+            console.warn(`[User API] Klaviyo update failed (${res.status}):`, await res.text());
+        }
+    } catch (err) {
+        console.warn('[User API] Klaviyo update error (non-blocking):', err.message);
+    }
+}
 
 // Emails that bypass the rate limit (unlimited videos)
 const VIP_EMAILS = [
@@ -70,6 +113,9 @@ export default async function handler(req, res) {
             throw selectError;
         }
         if (existingUser) {
+            // Update Klaviyo with user_type (fire-and-forget)
+            if (userType) updateKlaviyoUserType(email, userType);
+
             // Existing user - count only SUCCESSFUL videos from video_sessions
             const { count, error: countError } = await supabase
                 .from('video_sessions')
@@ -116,6 +162,10 @@ export default async function handler(req, res) {
                 throw insertError;
             }
             console.log('[User API] New user created:', email);
+
+            // Update Klaviyo with user_type (fire-and-forget)
+            if (userType) updateKlaviyoUserType(email, userType);
+
             return res.status(200).json({
                 allowed: true,
                 videosRemaining: MAX_VIDEOS_PER_USER,
