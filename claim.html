@@ -968,7 +968,7 @@
            the video flow where it actually matters.
            ==================================== -->
             <section id="welcomeSection" class="section page-blurred">
-                <div class="kicker">🎉 You've Got 30% OFF! 🎉</div>
+                <div class="kicker" style="margin-bottom: 16px;">🎉 You've Got 30% OFF! 🎉</div>
 
                 <!-- Product image + name — hidden by design, data used internally -->
                 <div class="product-showcase" style="display:none;">
@@ -981,12 +981,13 @@
                     Enter your email to get your <strong style="color: var(--gold);">30% OFF code</strong>
                     - we'll send it straight to your inbox.
                 </p>
-                <p class="body-text mb-lg" style="font-size: 0.85rem; opacity: 0.75;">
+                <p class="body-text" style="font-size: 0.85rem; opacity: 0.75; margin-bottom: 0;">
                     Plus, make your crocheted friend come alive in a <strong style="color: var(--text-primary);">free
                         personalized video</strong>!
                 </p>
 
-                <div class="video-preview-wrap" id="videoPreviewWrap" onclick="unmuteClaimVideo()">
+                <div class="video-preview-wrap" id="videoPreviewWrap" onclick="unmuteClaimVideo()"
+                    style="margin-top: 0.75rem;">
                     <video id="videoPreview" class="video-preview" autoplay muted loop playsinline>
                         <source id="videoPreviewSrc" src="videos/claim-preview.mp4" type="video/mp4">
                     </video>
