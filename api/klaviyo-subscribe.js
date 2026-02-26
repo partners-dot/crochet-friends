@@ -71,7 +71,7 @@ export default async function handler(req, res) {
                     properties: {
                         klavioProduct: sku || null,
                         klavioAsin: asin,
-                        signup_source: 'Scratch Card Landing Page',
+                        signup_source: 'QR Claim Page',
                         user_type: userType || null,
                         discount_code: discountCode || null,
                         qr_source: qrSource || null,
