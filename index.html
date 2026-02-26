@@ -1532,6 +1532,32 @@
           if (emailField) emailField.value = emailParam;
         }
 
+        // --- Swap welcome section copy for claim users ---
+        const subtitleEl = document.querySelector('#welcomeSection .subtitle');
+        const h1El = document.querySelector('#welcomeSection h1');
+        const descEl = document.querySelector('#welcomeSection .section-description');
+
+        if (subtitleEl) {
+          subtitleEl.innerHTML = '✅ YOUR 30% OFF CODE IS ON ITS WAY';
+          subtitleEl.style.color = '#4ade80';
+          subtitleEl.style.fontSize = '0.75rem';
+          subtitleEl.style.letterSpacing = '1.5px';
+        }
+
+        if (h1El) {
+          h1El.innerHTML = 'CHECK YOUR<br>INBOX';
+          h1El.style.fontSize = '2.2rem';
+        }
+
+        if (descEl) {
+          const displayEmail = emailParam ? `<strong style="color: var(--accent-neon); font-size: 1rem;">${emailParam}</strong>` : 'your email';
+          descEl.innerHTML = `
+            <span style="display: block; margin-bottom: 6px;">We just sent your code to ${displayEmail}</span>
+            <span style="display: block; font-size: 0.82rem; opacity: 0.6; margin-bottom: 14px;">Not there? Check your spam or junk folder.</span>
+            <span style="display: block; font-size: 0.95rem; opacity: 0.9;">While you wait — bring your friend to life! 👇</span>
+          `;
+        }
+
         // Let claim users start at welcome screen (character selection)
       }
       const welcomeVideo = document.getElementById('welcomeVideo');
