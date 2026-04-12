@@ -143,48 +143,90 @@ export default async function handler(req, res) {
         console.log('Video generation started:', operationName);
 
         // Save to Supabase if configured and email provided
+        let isDuplicate = false;
         if (supabase && email) {
-            // 1. Log video session with operation_id
-            const { error: sessionError } = await supabase.from('video_sessions').insert([{
-                email: email.toLowerCase(),
-                product: selectedCharacter,
-                user_type: userType || null,
-                message: message,
-                operation_id: operationName,
-                status: 'pending',
-                sku: sku || null
-            }]);
-
-            if (sessionError) {
-                console.error('[Generate Video] video_sessions insert error:', sessionError);
-            } else {
-                console.log('[Generate Video] video_sessions insert OK for:', email);
-            }
-
-            // 2. Increment videos_created count
-            const { data: user, error: selectError } = await supabase
-                .from('users')
-                .select('videos_created')
+            // Duplicate prevention: check if same email has a pending session created in last 10 seconds
+            const { data: recentPending } = await supabase
+                .from('video_sessions')
+                .select('id, created_at')
                 .eq('email', email.toLowerCase())
-                .single();
+                .eq('status', 'pending')
+                .gte('created_at', new Date(Date.now() - 10000).toISOString())
+                .limit(1);
 
-            if (user) {
-                const { error: updateError } = await supabase
-                    .from('users')
-                    .update({
-                        videos_created: (user.videos_created || 0) + 1,
-                        updated_at: new Date().toISOString()
-                    })
-                    .eq('email', email.toLowerCase());
+            isDuplicate = recentPending && recentPending.length > 0;
 
-                if (updateError) {
-                    console.error('[Generate Video] videos_created update error:', updateError);
+            if (isDuplicate) {
+                console.log('[Generate Video] Duplicate detected for:', email, '- skipping DB insert');
+            } else {
+                // 1. Log video session with operation_id
+                const { error: sessionError } = await supabase.from('video_sessions').insert([{
+                    email: email.toLowerCase(),
+                    product: selectedCharacter,
+                    user_type: userType || null,
+                    message: message,
+                    operation_id: operationName,
+                    status: 'pending',
+                    sku: sku || null
+                }]);
+
+                if (sessionError) {
+                    console.error('[Generate Video] video_sessions insert error:', sessionError);
                 } else {
-                    console.log('[Generate Video] videos_created incremented for:', email, 'to', (user.videos_created || 0) + 1);
+                    console.log('[Generate Video] video_sessions insert OK for:', email);
                 }
-            } else if (selectError && selectError.code !== 'PGRST116') {
-                console.error('[Generate Video] user select error:', selectError);
+
+                // 2. Increment videos_created count (skip for retries)
+                if (!req.body.isRetry) {
+                    const { data: user, error: selectError } = await supabase
+                        .from('users')
+                        .select('videos_created')
+                        .eq('email', email.toLowerCase())
+                        .single();
+
+                    if (user) {
+                        const { error: updateError } = await supabase
+                            .from('users')
+                            .update({
+                                videos_created: (user.videos_created || 0) + 1,
+                                updated_at: new Date().toISOString()
+                            })
+                            .eq('email', email.toLowerCase());
+
+                        if (updateError) {
+                            console.error('[Generate Video] videos_created update error:', updateError);
+                        } else {
+                            console.log('[Generate Video] videos_created incremented for:', email, 'to', (user.videos_created || 0) + 1);
+                        }
+                    } else if (selectError && selectError.code !== 'PGRST116') {
+                        console.error('[Generate Video] user select error:', selectError);
+                    }
+                }
             }
+        }
+
+        // Fire-and-forget: kick off server-side resolution
+        // This runs independently — handles save + email even if user closes browser
+        if (!isDuplicate) {
+            const resolveUrl = process.env.VERCEL_URL
+                ? `https://${process.env.VERCEL_URL}/api/resolve-video`
+                : 'https://video.gotyoualittlesomething.com/api/resolve-video';
+
+            fetch(resolveUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    operationId: operationName,
+                    retryConfig: {
+                        message,
+                        character: selectedCharacter,
+                        email: email?.toLowerCase(),
+                        userType,
+                        sku: sku || null,
+                        isRetry: req.body.isRetry || false
+                    }
+                })
+            }).catch(err => console.error('[Generate Video] Failed to start resolver:', err));
         }
 
         // Return immediately with operationId for frontend to poll
