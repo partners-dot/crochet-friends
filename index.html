@@ -1825,9 +1825,12 @@
       if (window.posthog) posthog.capture('Message Written', { message_length: text.length, product: selectedProduct, user_type: userType });
       goToStep('email');
     }
+    let generationInProgress = false;
     async function startVideoGeneration() {
+      if (generationInProgress) return; // Prevent double-click duplicate submissions
+      generationInProgress = true;
       const text = pendingMessage;
-      if (!text) { goToStep('create'); return; }
+      if (!text) { generationInProgress = false; goToStep('create'); return; }
       // Show thank you page and start generation in background
       goToStep('thankyou');
       // PostHog: Track video generation started
@@ -1899,12 +1902,14 @@
         document.getElementById('loadingSection').classList.add('hidden');
         localStorage.removeItem('videoGeneration');
         stopLoadingAnimation();
+        generationInProgress = false;
         // Redirect to video preview page (same as email link)
         window.location.href = `/video-preview.html?id=${encodeURIComponent(operationId)}`;
       } catch (err) {
         console.error(err);
         localStorage.removeItem('videoGeneration');
         stopLoadingAnimation();
+        generationInProgress = false;
 
         // Generate user-friendly error message based on error code
         let userMessage = '';
@@ -2052,7 +2057,7 @@
       if (window.posthog) posthog.capture(eventType, props);
     }
     function trackReviewClick(source) {
-      trackEvent('Amazon Review Link Clicked', { source: source });
+      trackEvent('Amazon Review Link Clicked', { source: source, page: 'video_app' });
     }
     function trackCreateVideoClick() {
       if (window.posthog) posthog.capture('Create from Scratch Button Clicked', {

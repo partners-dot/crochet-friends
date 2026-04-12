@@ -349,12 +349,17 @@
                 renderLoading();
                 const data = await fetchVideoFromDb(operationId);
                 if (data && data.videoUrl) {
+                    // Store for use by event tracking functions
+                    window._videoUserType = data.userType;
+                    window._videoProduct = data.product;
                     // Show different content based on who made the video
                     // PostHog: Track share page view
                     if (window.posthog) {
                         posthog.capture('Video Share Page Opened', { user_type: data.userType, product: data.product });
                         // Set session properties for consistent tracking
                         posthog.register({
+                            'user_type': data.userType,
+                            'product': data.product,
                             'product_source': 'shared_link',
                             'device_type': /Mobile|Android|iPhone/.test(navigator.userAgent) ? 'mobile' : 'desktop'
                         });
@@ -379,7 +384,7 @@
 
         async function shareVideo() {
             // PostHog: Track share clicked
-            if (window.posthog) posthog.capture('Share Button Clicked', { page: 'video_share' });
+            if (window.posthog) posthog.capture('Share Button Clicked', { page: 'video_share', user_type: window._videoUserType, product: window._videoProduct });
             const shareData = {
                 title: 'A Special Thank You Video',
                 text: 'Watch this heartfelt video message! 💝',
@@ -415,9 +420,11 @@
         }
 
         function trackReviewClick(source) {
-            if (window.posthog) posthog.capture('Review Link Clicked', {
+            if (window.posthog) posthog.capture('Amazon Review Link Clicked', {
                 page: 'video_share',
-                source: source
+                source: source,
+                user_type: window._videoUserType,
+                product: window._videoProduct
             });
         }
 
