@@ -27,7 +27,7 @@ export default async function handler(req, res) {
         const googleCredentials = JSON.parse(process.env.GOOGLE_CONFIG_JSON);
         const PROJECT_ID = googleCredentials.project_id;
         const LOCATION = 'us-central1';
-        const MODEL_ID = 'veo-3.1-fast-generate-preview'; // Fast model for quicker generation
+        const MODEL_ID = 'veo-3.1-fast-generate-001'; // Fast model for quicker generation (updated from deprecated -preview)
 
         // Authenticate and get Access Token
         const auth = new GoogleAuth({
