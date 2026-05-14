@@ -116,7 +116,7 @@ export default async function handler(req, res) {
         const falInput = {
             prompt,
             start_image_url: imageUrl,
-            duration: '5',
+            duration: '6',
             generate_audio: true,
             negative_prompt: 'blur, distort, and low quality',
             cfg_scale: 0.5,
@@ -238,7 +238,7 @@ async function retryGeneration(userConfig) {
     await processVideoGeneration(retryOpId, {
         prompt,
         start_image_url: imageUrl,
-        duration: '5',
+        duration: '6',
         generate_audio: true,
         negative_prompt: 'blur, distort, and low quality',
         cfg_scale: 0.5,
