@@ -3,9 +3,14 @@
   "version": "1.0.0",
   "type": "module",
   "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
   "dependencies": {
+    "@fal-ai/client": "^1.10.1",
     "@supabase/supabase-js": "^2.39.0",
-    "google-auth-library": "^9.0.0",
+    "express": "^4.22.2",
     "resend": "^2.0.0"
   }
 }

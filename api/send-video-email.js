@@ -1,7 +1,7 @@
 /* Send Video Email - Uses Resend to email video link to user */
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 export default async function handler(req, res) {
     // CORS headers
@@ -19,7 +19,7 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: 'Email and videoUrl required' });
         }
 
-        const BASE_URL = 'https://crochet-friends1.vercel.app';
+        const BASE_URL = process.env.SITE_URL || 'https://crochet-friends1.vercel.app';
         const videoPageUrl = `${BASE_URL}/video.html?v=${encodeURIComponent(videoUrl)}`;
 
         // Character images for email

@@ -1,15 +1,19 @@
-/* Server-side Video Resolution — Runs independently of frontend polling.
- * 
- * Called by generate-video.js via fire-and-forget fetch after starting Veo.
- * This endpoint handles the entire lifecycle:
- *   1. Polls Veo for operation status
- *   2. Saves completed video URL to Supabase
- *   3. Sends email notification via Resend
- *   4. On failure: retries video generation with same config
+/* Background Video Resolution — fal.ai Kling v3 Standard
  *
- * This guarantees users get their video email even if they close the browser.
+ * Phase 2 of 2-phase approach. Called by generate-video.js fire-and-forget.
+ * 
+ * Flow:
+ *   1. Calls fal.subscribe with the full input config (60-240s)
+ *   2. On success: saves video_url to Supabase, sends email via Resend
+ *   3. On failure: saves error to Supabase, auto-retries once
+ *
+ * IMPORTANT: We do NOT respond to the HTTP request until fal.subscribe completes.
+ * If we respond early, Vercel kills the function and the video is lost.
+ * 
+ * fal.subscribe handles WebSocket-based polling internally (~60-120s typical,
+ * max observed 243s). Vercel Pro allows 300s — fits comfortably.
  */
-import { GoogleAuth } from 'google-auth-library';
+import { fal } from '@fal-ai/client';
 import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
 
@@ -18,154 +22,134 @@ const supabaseKey = process.env.SUPABASE_ANON_KEY;
 const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
+const FAL_MODEL = 'fal-ai/kling-video/v3/standard/image-to-video';
+
 export default async function handler(req, res) {
-    // This is a fire-and-forget endpoint — respond immediately
+    // CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
     if (req.method === 'OPTIONS') return res.status(200).end();
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-    const { operationId, sessionId, retryConfig } = req.body;
-    if (!operationId) return res.status(400).json({ error: 'operationId required' });
+    const { operationId, falInput, retryConfig } = req.body;
+    if (!operationId || !falInput) {
+        return res.status(400).json({ error: 'operationId and falInput required' });
+    }
 
-    // Acknowledge immediately — work happens below
-    res.status(200).json({ status: 'resolving', operationId });
+    const FAL_KEY = process.env.FAL_KEY;
+    if (!FAL_KEY) return res.status(500).json({ error: 'FAL_KEY not configured' });
 
-    // --- Background work begins ---
+    // Configure fal.ai SDK
+    fal.config({ credentials: FAL_KEY });
+
+    // DO NOT respond early — Vercel kills the function after response.
+    let finalStatus = 'unknown';
+    let videoUrl = null;
+
     try {
-        const googleCredentials = JSON.parse(process.env.GOOGLE_CONFIG_JSON);
-        const PROJECT_ID = googleCredentials.project_id;
-        const LOCATION = 'us-central1';
-        const MODEL_ID = 'veo-3.1-fast-generate-001';
+        console.log(`[resolve-video] Starting fal.subscribe for: ${operationId}`);
 
-        const auth = new GoogleAuth({
-            credentials: googleCredentials,
-            scopes: ['https://www.googleapis.com/auth/cloud-platform']
+        // Call fal.subscribe with the full input config
+        // This submits the job AND waits for completion via WebSocket
+        const result = await fal.subscribe(FAL_MODEL, {
+            input: falInput,
+            logs: false,
         });
-        const client = await auth.getClient();
-        const accessToken = await client.getAccessToken();
-        const token = accessToken.token;
 
-        // Poll Veo for completion (up to ~4.5 minutes within Vercel's 300s max for Pro)
-        const fetchOperationUrl = `https://${LOCATION}-aiplatform.googleapis.com/v1/projects/${PROJECT_ID}/locations/${LOCATION}/publishers/google/models/${MODEL_ID}:fetchPredictOperation`;
+        videoUrl = result.data?.video?.url;
 
-        let videoUrl = null;
-        let failed = false;
-        let failReason = null;
-        let failCode = null;
-        const maxAttempts = 50; // 50 × 5s = ~4 minutes
+        if (videoUrl) {
+            // ══════════════════════════════════════════
+            // SUCCESS — Save video URL and send email
+            // ══════════════════════════════════════════
+            console.log(`[resolve-video] ✅ Video ready for: ${operationId}`);
+            finalStatus = 'complete';
 
-        for (let attempt = 0; attempt < maxAttempts; attempt++) {
-            await new Promise(r => setTimeout(r, 5000)); // Wait 5 seconds
+            if (supabase) {
+                const { error: updateError } = await supabase
+                    .from('video_sessions')
+                    .update({ video_url: videoUrl, status: 'complete' })
+                    .eq('operation_id', operationId);
 
-            try {
-                const pollResponse = await fetch(fetchOperationUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ operationName: operationId })
-                });
-
-                if (!pollResponse.ok) continue; // Transient error, retry
-
-                const pollData = await pollResponse.json();
-
-                // Check for error states
-                if (pollData.error && !pollData.done) {
-                    failReason = pollData.error.message || 'Generation failed';
-                    failCode = String(pollData.error.code || 'API_ERROR');
-                    failed = true;
-                    break;
+                if (updateError) {
+                    console.error('[resolve-video] DB update error:', updateError);
                 }
-
-                if (pollData.metadata) {
-                    const state = pollData.metadata.state;
-                    if (state === 'FAILED' || state === 'CANCELLED' || state === 'BLOCKED') {
-                        failReason = pollData.metadata.failureReason || `Video generation ${state.toLowerCase()}`;
-                        failCode = state;
-                        failed = true;
-                        break;
-                    }
-                }
-
-                if (pollData.done) {
-                    if (pollData.error) {
-                        failReason = pollData.error.message || 'Generation failed';
-                        failCode = String(pollData.error.code || 'GENERATION_ERROR');
-                        failed = true;
-                        break;
-                    }
-
-                    const result = pollData.response;
-                    if (result && result.videos && result.videos.length > 0) {
-                        if (result.videos[0].bytesBase64Encoded) {
-                            videoUrl = 'data:video/mp4;base64,' + result.videos[0].bytesBase64Encoded;
-                        } else {
-                            videoUrl = result.videos[0].gcsUri || result.videos[0].uri;
-                        }
-                        break;
-                    } else {
-                        failReason = 'No video in response';
-                        failCode = 'NO_VIDEO_OUTPUT';
-                        failed = true;
-                        break;
-                    }
-                }
-                // Still processing — continue polling
-            } catch (pollErr) {
-                console.error('[resolve-video] Poll error:', pollErr.message);
-                // Continue polling on transient errors
-            }
-        }
-
-        if (!videoUrl && !failed) {
-            failReason = 'Server-side resolution timed out';
-            failCode = 'RESOLVE_TIMEOUT';
-            failed = true;
-        }
-
-        if (videoUrl && supabase) {
-            // === SUCCESS: Save video and send email ===
-            console.log('[resolve-video] Video complete for operation:', operationId);
-
-            // Save video URL to DB
-            const { error: updateError } = await supabase
-                .from('video_sessions')
-                .update({ video_url: videoUrl, status: 'complete' })
-                .eq('operation_id', operationId);
-
-            if (updateError) {
-                console.error('[resolve-video] DB update error:', updateError);
             }
 
-            // Send email
+            // Send email notification
             await sendVideoEmail(operationId);
 
-        } else if (failed && supabase) {
-            // === FAILURE: Log error and attempt retry ===
-            console.error('[resolve-video] Generation failed:', failCode, failReason);
+        } else {
+            throw new Error('fal.ai completed but no video URL in response');
+        }
 
+    } catch (err) {
+        // ══════════════════════════════════════════
+        // FAILURE — Log error and attempt retry
+        // ══════════════════════════════════════════
+        console.error('[resolve-video] ❌ Generation failed:', err.message);
+        finalStatus = 'failed';
+
+        if (supabase) {
             await supabase
                 .from('video_sessions')
                 .update({
                     status: 'failed',
-                    error_reason: failReason,
-                    error_code: failCode,
+                    error_reason: err.message,
+                    error_code: 'FAL_FAILED',
                     error_details: { resolved_by: 'server', original_operation: operationId }
                 })
                 .eq('operation_id', operationId);
-
-            // Auto-retry if we have the config and haven't already retried
-            if (retryConfig && !retryConfig.isRetry) {
-                console.log('[resolve-video] Auto-retrying for:', retryConfig.email);
-                await retryVideoGeneration(retryConfig);
-            }
         }
 
-    } catch (err) {
-        console.error('[resolve-video] Fatal error:', err);
+        // ── Auto-retry (once) ──
+        // retryConfig exists = first attempt → retry once
+        // retryConfig is null = this IS the retry → both attempts failed, send failure email
+        if (retryConfig) {
+            console.log(`[resolve-video] 🔄 Auto-retrying for: ${retryConfig.email}`);
+            try {
+                const retryUrl = process.env.SITE_URL || 'https://video.gotyoualittlesomething.com';
+
+                const retryRes = await fetch(`${retryUrl}/api/generate-video`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: retryConfig.message,
+                        character: retryConfig.character,
+                        email: retryConfig.email,
+                        userType: retryConfig.userType,
+                        sku: retryConfig.sku,
+                        isRetry: true // Prevents infinite retry loop (no retryConfig on retry)
+                    })
+                });
+
+                if (retryRes.ok) {
+                    const retryData = await retryRes.json();
+                    console.log(`[resolve-video] 🔄 Retry submitted: ${retryData.operationId}`);
+                } else {
+                    console.error('[resolve-video] Retry HTTP error:', retryRes.status);
+                    // Retry call itself failed — send failure email
+                    await sendFailureEmail(operationId);
+                }
+            } catch (retryErr) {
+                console.error('[resolve-video] Retry error:', retryErr.message);
+                await sendFailureEmail(operationId);
+            }
+        } else {
+            // This IS the retry attempt and it also failed — notify the user
+            console.log('[resolve-video] 💀 Both attempts failed — sending failure email');
+            await sendFailureEmail(operationId);
+        }
     }
+
+    // Respond AFTER all work is done (keeps Vercel runtime alive until completion)
+    return res.status(200).json({
+        status: finalStatus,
+        operationId,
+        videoUrl: videoUrl ? 'saved' : null
+    });
 }
 
 async function sendVideoEmail(operationId) {
@@ -223,7 +207,7 @@ async function sendVideoEmail(operationId) {
         if (emailError) {
             console.error('[resolve-video] Email error:', emailError);
         } else {
-            console.log('[resolve-video] Email sent to:', session.email);
+            console.log('[resolve-video] 📧 Email sent to:', session.email);
             await supabase
                 .from('video_sessions')
                 .update({ email_sent: true })
@@ -234,32 +218,77 @@ async function sendVideoEmail(operationId) {
     }
 }
 
-async function retryVideoGeneration(config) {
-    try {
-        const BASE_URL = process.env.VERCEL_URL
-            ? `https://${process.env.VERCEL_URL}`
-            : 'https://video.gotyoualittlesomething.com';
+async function sendFailureEmail(operationId) {
+    if (!supabase || !resend) return;
 
-        // Call generate-video to create a new attempt
-        const retryRes = await fetch(`${BASE_URL}/api/generate-video`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                message: config.message,
-                character: config.character,
-                email: config.email,
-                userType: config.userType,
-                sku: config.sku,
-                isRetry: true // Flag to prevent infinite retry loops
-            })
+    try {
+        const { data: session } = await supabase
+            .from('video_sessions')
+            .select('email, product, user_type, email_sent')
+            .eq('operation_id', operationId)
+            .single();
+
+        if (!session || !session.email) return;
+
+        const BASE_URL = 'https://video.gotyoualittlesomething.com';
+        // Link back to the main page with their product pre-selected
+        const retryUrl = `${BASE_URL}/?sku=${encodeURIComponent(session.product || '')}`;
+
+        const emailHtml = `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f5f5f5;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
+        <tr><td align="center">
+            <table width="100%" cellpadding="0" cellspacing="0" style="background: #ffffff; border-radius: 16px; max-width: 480px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                <tr><td align="center" style="padding: 40px 30px 20px;">
+                    <div style="font-size: 48px; margin-bottom: 16px;">😔</div>
+                    <h1 style="margin: 0; color: #1a1a1a; font-size: 24px; font-weight: 700;">
+                        Oops! Something Went Wrong
+                    </h1>
+                </td></tr>
+                <tr><td align="center" style="padding: 10px 30px 30px;">
+                    <p style="margin: 0 0 24px; color: #666666; font-size: 16px; line-height: 1.6;">
+                        We weren't able to create your video this time. 
+                        Don't worry — this happens rarely and your free video hasn't been used up!
+                    </p>
+                    <a href="${retryUrl}" style="display: inline-block; background: #ffd166; color: #1a1a1a; text-decoration: none; padding: 16px 32px; border-radius: 50px; font-size: 16px; font-weight: 700;">
+                        🔄 Try Again — It's Free!
+                    </a>
+                    <p style="margin: 20px 0 0; color: #999999; font-size: 13px; line-height: 1.5;">
+                        Just click the button above and create your video again.<br>
+                        It usually works perfectly on the next try!
+                    </p>
+                </td></tr>
+                <tr><td align="center" style="padding: 20px 30px; background: #fafafa; border-radius: 0 0 16px 16px;">
+                    <p style="margin: 0; color: #aaaaaa; font-size: 12px;">
+                        © Got You A Little Something<br>Made with 💛 for gift-givers everywhere
+                    </p>
+                </td></tr>
+            </table>
+        </td></tr>
+    </table>
+</body>
+</html>`;
+
+        const { error: emailError } = await resend.emails.send({
+            from: 'Got You A Little Something <info@gotyoualittlesomething.com>',
+            to: session.email,
+            subject: '😔 Your Video Needs Another Try',
+            html: emailHtml
         });
 
-        if (retryRes.ok) {
-            console.log('[resolve-video] Retry started for:', config.email);
+        if (emailError) {
+            console.error('[resolve-video] Failure email error:', emailError);
         } else {
-            console.error('[resolve-video] Retry failed:', await retryRes.text());
+            console.log('[resolve-video] 📧 Failure email sent to:', session.email);
+            // Mark email_sent so we don't send duplicates
+            await supabase
+                .from('video_sessions')
+                .update({ email_sent: true })
+                .eq('operation_id', operationId);
         }
     } catch (err) {
-        console.error('[resolve-video] Retry error:', err);
+        console.error('[resolve-video] Failure email process error:', err);
     }
 }
