@@ -19,7 +19,7 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: 'Email and videoUrl required' });
         }
 
-        const BASE_URL = process.env.SITE_URL || 'https://crochet-friends1.vercel.app';
+        const BASE_URL = process.env.SITE_URL || 'https://video.gotyoualittlesomething.com';
         const videoPageUrl = `${BASE_URL}/video.html?v=${encodeURIComponent(videoUrl)}`;
 
         // Character images for email
@@ -125,7 +125,7 @@ export default async function handler(req, res) {
         `;
 
         const { data, error } = await resend.emails.send({
-            from: 'Got You A Little Something <noreply@resend.dev>',
+            from: 'Got You A Little Something <info@gotyoualittlesomething.com>',
             to: email,
             subject: '🎉 Your Video is Ready to Share!',
             html: emailHtml

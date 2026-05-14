@@ -25,7 +25,7 @@ const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KE
 const FAL_MODEL = 'fal-ai/kling-video/v3/standard/image-to-video';
 
 // Character configuration — images served from same domain
-const BASE_URL = process.env.SITE_URL || 'https://crochet-friends1.vercel.app';
+const BASE_URL = process.env.SITE_URL || 'https://video.gotyoualittlesomething.com';
 const characterConfig = {
     potato:      { buyerImage: `${BASE_URL}/images/potato-buyer.jpg`,      receiverImage: `${BASE_URL}/images/potato-receiver.jpg`,      description: 'crocheted potato doll' },
     cupcake:     { buyerImage: `${BASE_URL}/images/cupcake-buyer.jpg`,     receiverImage: `${BASE_URL}/images/cupcake-receiver.jpg`,     description: 'crocheted cupcake doll with pink frosting and a cherry on top' },
