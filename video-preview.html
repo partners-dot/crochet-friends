@@ -370,12 +370,14 @@
         }
 
         function trackReviewClick(source) {
+            // send_instantly: review link opens Amazon (target=_blank); flush now so the
+            // event isn't lost if the browser suspends this tab when focus moves away.
             if (window.posthog) posthog.capture('Amazon Review Link Clicked', {
                 page: 'video_preview',
                 source: source,
                 user_type: videoData?.userType,
                 product: videoData?.product
-            });
+            }, { send_instantly: true });
 
             // Track in Klaviyo via our API (sender only — they have an email)
             const operationId = getOperationId();

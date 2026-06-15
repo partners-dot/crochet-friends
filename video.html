@@ -420,12 +420,14 @@
         }
 
         function trackReviewClick(source) {
+            // send_instantly: review link opens Amazon (target=_blank); flush now so the
+            // event isn't lost if the browser suspends this tab when focus moves away.
             if (window.posthog) posthog.capture('Amazon Review Link Clicked', {
                 page: 'video_share',
                 source: source,
                 user_type: window._videoUserType,
                 product: window._videoProduct
-            });
+            }, { send_instantly: true });
         }
 
         // Initialize

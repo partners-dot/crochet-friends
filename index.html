@@ -2049,15 +2049,17 @@
         btn.textContent = '🔇';
       }
     }
-    function trackEvent(eventType, extraProps = {}) {
+    function trackEvent(eventType, extraProps = {}, opts = {}) {
       const props = { event_type: eventType, product: selectedProduct, user_type: userType, email: userEmail, ...extraProps };
       // Send to Supabase (existing)
       fetch('/api/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(props) }).catch(err => console.error('Track error:', err));
       // Send to PostHog
-      if (window.posthog) posthog.capture(eventType, props);
+      if (window.posthog) posthog.capture(eventType, props, opts);
     }
     function trackReviewClick(source) {
-      trackEvent('Amazon Review Link Clicked', { source: source, page: 'video_app' });
+      // send_instantly: review link opens Amazon (target=_blank); flush now so the
+      // event isn't lost if the browser suspends this tab when focus moves away.
+      trackEvent('Amazon Review Link Clicked', { source: source, page: 'video_app' }, { send_instantly: true });
     }
     function trackCreateVideoClick() {
       if (window.posthog) posthog.capture('Create from Scratch Button Clicked', {
