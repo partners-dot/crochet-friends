@@ -1211,6 +1211,18 @@
                         klaviyo_success: response.ok
                     });
                 }
+                // Supabase funnel log (agent source of truth) — phase=claim
+                try {
+                    fetch('/api/track', {
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            event: 'email_entered', phase: 'claim',
+                            role: (state.userType === 'buyer' || state.userType === 'receiver') ? state.userType : 'unknown',
+                            email: email || null, product: state.sku || null,
+                            source: 'claim_page', properties: { sku: state.sku || null }
+                        })
+                    }).catch(() => { });
+                } catch (e) { /* never block */ }
 
                 showPrize();
             } catch (err) {
