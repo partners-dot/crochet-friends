@@ -227,6 +227,23 @@
             return params.get('id');
         }
 
+        // logFunnel: write one row to Supabase log_video_funnel_events (agent source of truth).
+        // phase=share. operationId is in the URL → role resolves server-side from video_sessions.
+        function logFunnel(event, { source = null, properties = {} } = {}) {
+            try {
+                const ut = window._videoUserType;
+                fetch('/api/track', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        event, phase: 'share',
+                        role: (ut === 'buyer' || ut === 'receiver') ? ut : 'unknown',
+                        operationId: getOperationId(), product: window._videoProduct || null,
+                        source, properties
+                    })
+                }).catch(() => { });
+            } catch (e) { /* never block */ }
+        }
+
         async function fetchVideoFromDb(operationId) {
             try {
                 const res = await fetch(`/api/get-video?id=${encodeURIComponent(operationId)}`);
@@ -352,6 +369,8 @@
                     // Store for use by event tracking functions
                     window._videoUserType = data.userType;
                     window._videoProduct = data.product;
+                    // Supabase funnel log (agent source of truth) — phase=share
+                    logFunnel('share_page_opened');
                     // Show different content based on who made the video
                     // PostHog: Track share page view
                     if (window.posthog) {
@@ -385,6 +404,7 @@
         async function shareVideo() {
             // PostHog: Track share clicked
             if (window.posthog) posthog.capture('Share Button Clicked', { page: 'video_share', user_type: window._videoUserType, product: window._videoProduct });
+            logFunnel('share_clicked');
             const shareData = {
                 title: 'A Special Thank You Video',
                 text: 'Watch this heartfelt video message! 💝',
@@ -399,6 +419,7 @@
                         page: 'video_share',
                         method: 'native_share'
                     });
+                    logFunnel('share_completed', { properties: { method: 'native_share' } });
                 } else {
                     // Fallback: copy link to clipboard
                     await navigator.clipboard.writeText(window.location.href);
@@ -407,6 +428,7 @@
                         page: 'video_share',
                         method: 'clipboard_copy'
                     });
+                    logFunnel('share_completed', { properties: { method: 'clipboard_copy' } });
                     alert('Link copied to clipboard! Share it with someone special 💝');
                 }
             } catch (err) {
@@ -428,6 +450,9 @@
                 user_type: window._videoUserType,
                 product: window._videoProduct
             }, { send_instantly: true });
+            // Supabase funnel log — closes the previously-missing recipient review-click path.
+            // operationId is in the URL, so track.js resolves role from video_sessions.
+            logFunnel('review_clicked', { source });
         }
 
         // Initialize

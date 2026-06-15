@@ -257,6 +257,22 @@
             return params.get('id');
         }
 
+        // logFunnel: write one row to Supabase log_video_funnel_events (agent source of truth).
+        // phase=preview. role resolves server-side from video_sessions via operationId.
+        function logFunnel(event, { source = null, properties = {} } = {}) {
+            try {
+                fetch('/api/track', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        event, phase: 'preview',
+                        role: (videoData?.userType === 'buyer' || videoData?.userType === 'receiver') ? videoData.userType : 'unknown',
+                        operationId: getOperationId(), product: videoData?.product || null,
+                        source, properties
+                    })
+                }).catch(() => { });
+            } catch (e) { /* never block */ }
+        }
+
         async function fetchVideoFromDb(operationId) {
             try {
                 const res = await fetch(`/api/get-video?id=${encodeURIComponent(operationId)}`);
@@ -379,15 +395,10 @@
                 product: videoData?.product
             }, { send_instantly: true });
 
-            // Track in Klaviyo via our API (sender only — they have an email)
-            const operationId = getOperationId();
-            if (operationId) {
-                fetch('/api/track', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ operationId, action: 'review_clicked' })
-                }).catch(() => { });
-            }
+            // Supabase funnel log + Klaviyo (track.js maps review_clicked → Klaviyo too).
+            // New shape carries `source` (buyer vs receiver button), which the legacy
+            // {operationId, action} shape dropped.
+            logFunnel('review_clicked', { source });
         }
 
         async function initPage() {
@@ -403,6 +414,7 @@
 
             if (videoData && videoData.videoUrl) {
                 // PostHog: Track preview page view
+                logFunnel('preview_opened');
                 if (window.posthog) {
                     posthog.capture('Video Preview Page Opened', {
                         user_type: videoData.userType,
@@ -449,16 +461,8 @@
                 page: 'video_preview',
                 user_type: videoData?.userType
             });
-
-            // Track video_shared in Klaviyo via our API
-            const operationId = getOperationId();
-            if (operationId) {
-                fetch('/api/track', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ operationId, action: 'video_shared' })
-                }).catch(() => { });
-            }
+            logFunnel('share_clicked');
+            // Klaviyo video_shared is marked on completion below (share_completed → track.js).
 
             const shareData = {
                 title: videoData?.userType === 'receiver'
@@ -480,6 +484,7 @@
                         user_type: videoData?.userType,
                         product: videoData?.product
                     });
+                    logFunnel('share_completed', { properties: { method: 'native_share' } });
                 } else {
                     // Fallback: copy link to clipboard
                     await navigator.clipboard.writeText(shareUrl);
@@ -490,6 +495,7 @@
                         user_type: videoData?.userType,
                         product: videoData?.product
                     });
+                    logFunnel('share_completed', { properties: { method: 'clipboard_copy' } });
                     alert('Link copied to clipboard! Share it with someone special 💝');
                 }
             } catch (err) {
@@ -509,6 +515,7 @@
                         user_type: videoData?.userType,
                         product: videoData?.product
                     });
+                    logFunnel('share_completed', { properties: { method: 'clipboard_fallback' } });
                     alert('Link copied to clipboard! Share it with someone special 💝');
                 } catch (clipErr) {
                     alert(`Share this link: ${shareUrl}`);

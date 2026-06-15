@@ -1644,6 +1644,8 @@
         user_type: type,
         seconds_to_select: timeToSelect
       });
+      // userType was just set (line ~1635) so logFunnel resolves role correctly.
+      logFunnel('role_selected', { properties: { seconds_to_select: timeToSelect } });
       updateProductImages(type);
       goToStep(type);
     }
@@ -1707,6 +1709,7 @@
         posthog.identify(email);
         posthog.capture('Email Submitted', { email: email, user_type: userType, product: selectedProduct });
       }
+      logFunnel('email_entered');
       try {
         const res = await fetch('/api/user', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, userType, product: selectedProduct }) });
         const data = await res.json();
@@ -1788,6 +1791,7 @@
       if (!templateText) return;
       // PostHog: Track template usage
       if (window.posthog) posthog.capture('Message Template Used', { template_preview: templateText.substring(0, 50), user_type: userType });
+      logFunnel('template_used', { properties: { template_preview: templateText.substring(0, 50) } });
       pendingTemplate = templateText;
       goToStep('create');
     }
@@ -1840,6 +1844,7 @@
         const startData = await startRes.json();
         if (!startRes.ok) throw new Error(startData.error || 'Failed to start generation');
         const operationId = startData.operationId;
+        logFunnel('video_started', { operationId, properties: { message_length: text.length } });
         localStorage.setItem('videoGeneration', JSON.stringify({
           operationId: operationId,
           email: userEmail,
@@ -1886,6 +1891,7 @@
         }
 
         trackEvent('video_created');
+        logFunnel('video_created', { operationId });
         document.getElementById('video').src = videoUrl;
         window.videoData = videoUrl;
         window.videoFilename = `crochet-${selectedProduct}-message.mp4`;
@@ -2051,15 +2057,29 @@
     }
     function trackEvent(eventType, extraProps = {}, opts = {}) {
       const props = { event_type: eventType, product: selectedProduct, user_type: userType, email: userEmail, ...extraProps };
-      // Send to Supabase (existing)
-      fetch('/api/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(props) }).catch(err => console.error('Track error:', err));
-      // Send to PostHog
+      // Send to PostHog (human dashboards)
       if (window.posthog) posthog.capture(eventType, props, opts);
+    }
+    // logFunnel: write one row to Supabase log_video_funnel_events (agent source of truth).
+    // event/phase/source come from analytics-events.js conventions. phase here = in_app.
+    function logFunnel(event, { source = null, properties = {}, operationId = null } = {}) {
+      try {
+        fetch('/api/track', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            event, phase: 'in_app',
+            role: (userType === 'buyer' || userType === 'receiver') ? userType : 'unknown',
+            email: userEmail || null, product: selectedProduct || null,
+            operationId, source, properties
+          })
+        }).catch(() => { });
+      } catch (e) { /* never block the user */ }
     }
     function trackReviewClick(source) {
       // send_instantly: review link opens Amazon (target=_blank); flush now so the
       // event isn't lost if the browser suspends this tab when focus moves away.
       trackEvent('Amazon Review Link Clicked', { source: source, page: 'video_app' }, { send_instantly: true });
+      logFunnel('review_clicked', { source });
     }
     function trackCreateVideoClick() {
       if (window.posthog) posthog.capture('Create from Scratch Button Clicked', {
@@ -2193,6 +2213,7 @@
       localStorage.removeItem('videoGeneration');
       stopLoadingAnimation();
       trackEvent('video_created');
+      logFunnel('video_created', { operationId });
       document.getElementById('video').src = videoUrl;
       window.videoData = videoUrl;
       window.videoFilename = `crochet-${selectedProduct}-message.mp4`;
