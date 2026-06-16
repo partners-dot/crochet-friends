@@ -725,18 +725,33 @@
       margin: 2rem 0;
     }
 
-    .review-ask-text {
+    /* Review hero card — the focal point of the "check your email" screen. */
+    .review-hero-card {
+      background: linear-gradient(160deg, rgba(255,209,102,0.18) 0%, rgba(244,169,66,0.10) 100%);
+      border: 2px solid var(--accent-neon);
+      border-radius: 20px;
+      padding: 1.75rem 1.5rem 1.5rem;
+      margin: 1.75rem 0 1.5rem;
+      box-shadow: var(--glow), 0 8px 30px rgba(0,0,0,0.25);
+      text-align: center;
+    }
+    .review-hero-emoji {
+      font-size: 2.4rem;
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+    .review-hero-card h3 {
+      color: var(--text-primary);
+      font-size: 1.25rem;
+      line-height: 1.35;
+      margin: 0 0 0.6rem;
+    }
+    .review-hero-card p {
       color: var(--text-secondary);
       font-size: 0.95rem;
-      margin-bottom: 1rem;
+      margin: 0 0 1.25rem;
     }
-
-    .review-ask-text strong {
-      color: var(--text-primary);
-      display: block;
-      font-size: 1.1rem;
-      margin-bottom: 0.3rem;
-    }
+    .review-hero-card .btn-review-large { margin-bottom: 0; width: 100%; }
 
     .btn-review-large {
       display: inline-block;
@@ -1118,28 +1133,26 @@
         Edit Your Message</button>
     </section>
     <section id="thankYouSection" class="section hidden thank-you-section">
-      <div class="thank-you-emoji">✨</div>
-      <h2 id="thankYouHeadline">Your Video is Being Created!</h2>
+      <div class="thank-you-emoji">📧</div>
+      <h2 id="thankYouHeadline">Check Your Email!</h2>
       <p class="thank-you-subtext" id="thankYouSubtext">
-        We're crafting your personalized message right now.<br>
-        Check your inbox in 2-3 minutes – we'll send it ready to share!
+        Your video is being created and we're sending it straight to your inbox.<br>
+        It'll arrive in 2-3 minutes, ready to share. You can close this page. 💛
       </p>
+
+      <!-- Review ask is the HERO of this screen — it's the primary moment while the email is on its way. -->
+      <div class="review-hero-card">
+        <div class="review-hero-emoji">⭐</div>
+        <h3 id="reviewAskText">While your video is on its way…<br>a review would mean the world to us</h3>
+        <p>It takes 30 seconds and helps other gift-lovers find us. Thank you! ❤️</p>
+        <a href="#" id="thankYouReviewLink" class="btn-review-large" onclick="trackReviewClick('thankyou')">⭐ Leave a Review on Amazon</a>
+      </div>
 
       <div class="pro-tip-box">
         <strong>📲 Pro Tip</strong>
         <p id="thankYouProTip">When you get the email, just tap "Watch & Share" to send your special message. They're
           going to love it!</p>
       </div>
-
-      <hr class="review-divider">
-
-      <div class="review-ask-text" id="reviewAskText">
-        <strong>💛 While you wait...</strong>
-        If you're loving this experience, we'd really appreciate a quick review!
-      </div>
-
-      <a href="#" id="thankYouReviewLink" class="btn-review-large" onclick="trackReviewClick('thankyou')">⭐ Leave a
-        Review on Amazon</a>
 
       <a class="create-another-link" onclick="createAnother()">← Create Another Video</a>
     </section>
@@ -1697,19 +1710,19 @@
       const reviewAsk = document.getElementById('reviewAskText');
       const reviewLink = document.getElementById('thankYouReviewLink');
 
+      // Email-first screen: headline is "Check your email", review ask is the hero.
+      headline.innerHTML = '📧 Check Your Email!';
+      const spam = '<br><small style="opacity: 0.8; font-size: 0.85em;">(Arrives in 2-3 min — if you don\'t see it, check your Spam or Junk folder)</small>';
       if (userType === 'receiver') {
-        headline.innerHTML = '💝 Your Thank-You Video<br>is on the Way!';
-        subtext.innerHTML = 'Your friend is rehearsing their lines!<br>We\'re putting the final stitches on your video - check your inbox in about 2 minutes.<br><small style="opacity: 0.8; font-size: 0.85em;">(If you don\'t see it please check your Spam or Junk folder)</small>';
-        proTip.textContent = '💡 Next Step: Watch the video yourself first! Once you approve, forward the email to the gift-giver to surprise them';
-        reviewAsk.innerHTML = '<strong>⭐ While you wait...</strong>A quick review helps other gift-lovers find us – and it only takes 30 seconds!';
-        reviewLink.textContent = '⭐ Share the Love – Leave a Review';
+        subtext.innerHTML = 'Your thank-you video is being created and we\'re sending it straight to your inbox, ready to forward to the gift-giver.' + spam;
+        proTip.textContent = '💡 Next Step: When the email arrives, watch it yourself first — then forward it to the gift-giver to surprise them!';
       } else {
-        headline.innerHTML = '✨ Your Video is<br>Being Created!';
-        subtext.innerHTML = 'Your friend is rehearsing their lines!<br>We\'re putting the final stitches on your video - check your inbox in about 2 minutes.<br><small style="opacity: 0.8; font-size: 0.85em;">(If you don\'t see it please check your Spam or Junk folder)</small>';
-        proTip.textContent = '💡 Next Step: Watch the video yourself first! Once you approve, forward the email to the recipient to surprise them';
-        reviewAsk.innerHTML = '<strong>⭐ While you wait...</strong>We would really appreciate a quick review - it only takes 30 seconds. Thank You! ❤️';
-        reviewLink.textContent = '⭐ Leave a Review on Amazon';
+        subtext.innerHTML = 'Your video is being created and we\'re sending it straight to your inbox, ready to share.' + spam;
+        proTip.textContent = '💡 Next Step: When the email arrives, just tap "Watch & Share" to send your special message. They\'re going to love it!';
       }
+      // Review hero copy (same for both roles).
+      reviewAsk.innerHTML = 'While your video is on its way…<br>a review would mean the world to us';
+      reviewLink.textContent = '⭐ Leave a Review on Amazon';
 
       // Update review link URL — use the SKU-resolved URL (correct ASIN), not the character map.
       reviewLink.href = currentReviewUrl();
@@ -1883,92 +1896,14 @@
           startTime: Date.now()
         }));
 
-        // ── Mobile recovery (Lever 1b) ──
-        // On phones the poll loop below freezes when the tab is backgrounded (locked screen /
-        // app switch), so a user can return to a stalled spinner even though their video is ready.
-        // When the tab becomes visible again, immediately re-check status once and redirect to the
-        // preview if it's done — don't wait for the throttled 5s loop to wake up.
-        let recoveryRedirected = false;
-        async function recoverOnResume() {
-          if (document.visibilityState !== 'visible' || recoveryRedirected) return;
-          try {
-            const r = await fetch(`/api/check-status?operationId=${encodeURIComponent(operationId)}`);
-            if (!r.ok) return;
-            const d = await r.json();
-            if (d.status === 'done' && d.videoUrl && !recoveryRedirected) {
-              recoveryRedirected = true;
-              localStorage.removeItem('videoGeneration');
-              trackEvent('video_created');
-              logFunnel('video_created', { operationId });
-              window.location.href = `/video-preview.html?id=${encodeURIComponent(operationId)}`;
-            }
-          } catch (e) { /* keep waiting; the main loop / email are the backstops */ }
-        }
-        document.addEventListener('visibilitychange', recoverOnResume);
-
-        progressText.textContent = '✨ Your video is being created — we\'re sending it straight to your email. You can close this page; it\'ll be in your inbox shortly. 💛';
-        let videoUrl = null; let attempts = 0; let consecutiveFailures = 0; const maxAttempts = 60;
-        while (!videoUrl && attempts < maxAttempts) {
-          await new Promise(r => setTimeout(r, 5000)); attempts++;
-          if (recoveryRedirected) return; // resume-recovery already handled completion
-          // Keep the email-first reassurance steady — no second-by-second countdown (felt like waiting).
-          progressText.textContent = '✨ Creating your video — we\'ll email it to you the moment it\'s ready. 💛';
-          try {
-            const statusRes = await fetch(`/api/check-status?operationId=${encodeURIComponent(operationId)}`);
-            const statusData = await statusRes.json();
-            if (!statusRes.ok) { consecutiveFailures++; if (consecutiveFailures >= 3) throw new Error(statusData.details || statusData.error || 'Video generation failed'); continue; }
-            consecutiveFailures = 0;
-            if (statusData.status === 'done') videoUrl = statusData.videoUrl;
-            else if (statusData.status === 'error') {
-              const errorCode = statusData.errorCode || 'UNKNOWN';
-              const errorMsg = statusData.error || 'Video generation failed';
-              const err = new Error(errorMsg);
-              err.code = errorCode;
-              throw err;
-            }
-          } catch (fetchErr) { consecutiveFailures++; if (consecutiveFailures >= 3) throw fetchErr; }
-        }
-        if (!videoUrl) {
-          const err = new Error('Video generation timed out after 5 minutes');
-          err.code = 'TIMEOUT';
-          throw err;
-        }
-
-        // Save video URL to database from frontend (backup save)
-        try {
-          await fetch('/api/save-video', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ operationId: operationId, videoUrl: videoUrl })
-          });
-          console.log('Video URL saved to database');
-        } catch (saveErr) {
-          console.error('Failed to save video URL:', saveErr);
-        }
-
-        document.removeEventListener('visibilitychange', recoverOnResume);
-        if (recoveryRedirected) return; // recovery path already redirected
-        trackEvent('video_created');
-        logFunnel('video_created', { operationId });
-        document.getElementById('video').src = videoUrl;
-        window.videoData = videoUrl;
-        window.videoFilename = `crochet-${selectedProduct}-message.mp4`;
-        document.getElementById('downloadBtn').onclick = function () {
-          // PostHog: Track download
-          if (window.posthog) posthog.capture('Video Downloaded', { product: selectedProduct, user_type: userType });
-          const link = document.createElement('a');
-          link.href = window.videoData;
-          link.download = window.videoFilename;
-          link.click();
-        };
-        videosRemaining--;
-        if (videosRemaining <= 0) document.getElementById('createAnotherBtn').classList.add('hidden');
-        document.getElementById('loadingSection').classList.add('hidden');
-        localStorage.removeItem('videoGeneration');
-        stopLoadingAnimation();
+        // ── Email-first delivery ──
+        // We do NOT poll or auto-redirect anymore. Generation runs server-side (background promise
+        // in /api/generate-video), which saves the video, logs video_created, and emails the
+        // ready-to-share link. The user stays on the thank-you screen (already shown above) with a
+        // big "leave a review while you wait" CTA. This makes the review ask the primary moment and
+        // means nobody gets stranded on a spinner. The video arrives by email.
         generationInProgress = false;
-        // Redirect to video preview page (same as email link)
-        window.location.href = `/video-preview.html?id=${encodeURIComponent(operationId)}`;
+        return;
       } catch (err) {
         console.error(err);
         localStorage.removeItem('videoGeneration');
