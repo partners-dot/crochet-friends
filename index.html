@@ -1882,11 +1882,36 @@
           product: selectedProduct,
           startTime: Date.now()
         }));
-        progressText.textContent = 'Video is being created...';
+
+        // ── Mobile recovery (Lever 1b) ──
+        // On phones the poll loop below freezes when the tab is backgrounded (locked screen /
+        // app switch), so a user can return to a stalled spinner even though their video is ready.
+        // When the tab becomes visible again, immediately re-check status once and redirect to the
+        // preview if it's done — don't wait for the throttled 5s loop to wake up.
+        let recoveryRedirected = false;
+        async function recoverOnResume() {
+          if (document.visibilityState !== 'visible' || recoveryRedirected) return;
+          try {
+            const r = await fetch(`/api/check-status?operationId=${encodeURIComponent(operationId)}`);
+            if (!r.ok) return;
+            const d = await r.json();
+            if (d.status === 'done' && d.videoUrl && !recoveryRedirected) {
+              recoveryRedirected = true;
+              localStorage.removeItem('videoGeneration');
+              trackEvent('video_created');
+              logFunnel('video_created', { operationId });
+              window.location.href = `/video-preview.html?id=${encodeURIComponent(operationId)}`;
+            }
+          } catch (e) { /* keep waiting; the main loop / email are the backstops */ }
+        }
+        document.addEventListener('visibilitychange', recoverOnResume);
+
+        progressText.textContent = 'Video is being created... (takes ~30–60s — we\'ll also email it to you, so you can safely leave this page)';
         let videoUrl = null; let attempts = 0; let consecutiveFailures = 0; const maxAttempts = 60;
         while (!videoUrl && attempts < maxAttempts) {
           await new Promise(r => setTimeout(r, 5000)); attempts++;
-          progressText.textContent = `Creating magic... (${attempts * 5}s)`;
+          if (recoveryRedirected) return; // resume-recovery already handled completion
+          progressText.textContent = `Creating magic... (${attempts * 5}s) — we'll also email your video`;
           try {
             const statusRes = await fetch(`/api/check-status?operationId=${encodeURIComponent(operationId)}`);
             const statusData = await statusRes.json();
@@ -1920,6 +1945,8 @@
           console.error('Failed to save video URL:', saveErr);
         }
 
+        document.removeEventListener('visibilitychange', recoverOnResume);
+        if (recoveryRedirected) return; // recovery path already redirected
         trackEvent('video_created');
         logFunnel('video_created', { operationId });
         document.getElementById('video').src = videoUrl;
