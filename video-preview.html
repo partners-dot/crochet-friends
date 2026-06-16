@@ -191,6 +191,15 @@
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
         }
 
+        /* Post-share: pulse the review card to draw the eye without replacing the page. */
+        @keyframes reviewPulse {
+            0%   { transform: scale(1);    box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+            30%  { transform: scale(1.04); box-shadow: 0 0 0 4px rgba(255,159,28,0.5), 0 8px 30px rgba(232,93,4,0.4); }
+            60%  { transform: scale(1);    box-shadow: 0 0 0 3px rgba(255,159,28,0.35); }
+            100% { transform: scale(1);    box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+        }
+        .review-pulse { animation: reviewPulse 1.4s ease-in-out 2; }
+
         .error-state {
             text-align: center;
             padding: 3rem 1rem;
@@ -405,26 +414,32 @@
         // Resolved review URL (set in initPage from the SKU lookup). Reused by the celebration.
         let resolvedReviewUrl = 'https://www.amazon.com/review/create-review/?ie=UTF8&channel=glance-detail&asin=B0DVR6VBRR';
 
-        // Post-share celebration (Lever 2): the moment a share completes, flip the screen to a
-        // focused, happy review ask — peak goodwill, mirrors the ~54%-converting in-app screen.
-        function showReviewCelebration() {
-            const container = document.getElementById('content');
-            if (!container) return;
-            const src = videoData?.userType === 'buyer' ? 'video_preview_buyer' : 'video_preview_receiver';
-            container.innerHTML = `
-                <div class="logo">Got You A Little Something</div>
-                <h1>🎉 Sent! 🎉</h1>
-                <p class="subtitle" style="margin-bottom:1.5rem;">Your video is on its way. You just made someone's day! 💛</p>
-                <div class="review-section" style="margin-top:0;">
-                    <h3>⭐ Made you smile?</h3>
-                    <p>A quick 30-second review helps other gift-lovers find us — it would mean the world. ❤️</p>
-                    <a href="${resolvedReviewUrl}" target="_blank" class="review-btn" onclick="trackReviewClick('${src}')">
-                        Leave a Review ⭐
-                    </a>
-                </div>
-                <p class="footer">Made with 💛 by Got You A Little Something</p>
-            `;
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+        // Post-share (Lever 2, non-destructive): DON'T replace the page. The video + share button
+        // stay exactly where they are so nothing feels lost and people can re-share / re-watch.
+        // We just confirm the share, gently scroll the existing review card into view, and pulse it.
+        function highlightReviewAsk() {
+            const section = document.querySelector('.review-section');
+            if (!section) return;
+            // Soften the heading to a post-share, higher-intent ask (the card itself stays in place).
+            const h3 = section.querySelector('h3');
+            if (h3 && !section.dataset.shared) h3.textContent = '🎉 Sent! Made you smile?';
+            section.dataset.shared = '1';
+            section.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Pulse to draw the eye, then settle.
+            section.classList.remove('review-pulse'); // restart if shared twice
+            void section.offsetWidth;                  // reflow so the animation can replay
+            section.classList.add('review-pulse');
+        }
+
+        // Inline "Copied!" feedback on the share button — replaces the clunky alert() popup.
+        function flashCopied() {
+            document.querySelectorAll('[onclick="shareVideo()"]').forEach(btn => {
+                if (btn.dataset.flashing) return;
+                btn.dataset.flashing = '1';
+                const original = btn.innerHTML;
+                btn.innerHTML = '✓ Link Copied!';
+                setTimeout(() => { btn.innerHTML = original; delete btn.dataset.flashing; }, 2000);
+            });
         }
 
         async function initPage() {
@@ -513,7 +528,7 @@
                         product: videoData?.product
                     });
                     logFunnel('share_completed', { properties: { method: 'native_share' } });
-                    showReviewCelebration();
+                    highlightReviewAsk();
                 } else {
                     // Fallback: copy link to clipboard
                     await navigator.clipboard.writeText(shareUrl);
@@ -525,8 +540,8 @@
                         product: videoData?.product
                     });
                     logFunnel('share_completed', { properties: { method: 'clipboard_copy' } });
-                    alert('Link copied to clipboard! Share it with someone special 💝');
-                    showReviewCelebration();
+                    flashCopied();
+                    highlightReviewAsk();
                 }
             } catch (err) {
                 console.error('Share failed:', err);
@@ -546,8 +561,8 @@
                         product: videoData?.product
                     });
                     logFunnel('share_completed', { properties: { method: 'clipboard_fallback' } });
-                    alert('Link copied to clipboard! Share it with someone special 💝');
-                    showReviewCelebration();
+                    flashCopied();
+                    highlightReviewAsk();
                 } catch (clipErr) {
                     alert(`Share this link: ${shareUrl}`);
                 }

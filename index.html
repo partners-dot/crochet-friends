@@ -1906,12 +1906,13 @@
         }
         document.addEventListener('visibilitychange', recoverOnResume);
 
-        progressText.textContent = 'Video is being created... (takes ~30–60s — we\'ll also email it to you, so you can safely leave this page)';
+        progressText.textContent = '✨ Your video is being created — we\'re sending it straight to your email. You can close this page; it\'ll be in your inbox shortly. 💛';
         let videoUrl = null; let attempts = 0; let consecutiveFailures = 0; const maxAttempts = 60;
         while (!videoUrl && attempts < maxAttempts) {
           await new Promise(r => setTimeout(r, 5000)); attempts++;
           if (recoveryRedirected) return; // resume-recovery already handled completion
-          progressText.textContent = `Creating magic... (${attempts * 5}s) — we'll also email your video`;
+          // Keep the email-first reassurance steady — no second-by-second countdown (felt like waiting).
+          progressText.textContent = '✨ Creating your video — we\'ll email it to you the moment it\'s ready. 💛';
           try {
             const statusRes = await fetch(`/api/check-status?operationId=${encodeURIComponent(operationId)}`);
             const statusData = await statusRes.json();
@@ -2232,7 +2233,7 @@
       while (!videoUrl && attempts < maxAttempts) {
         await new Promise(r => setTimeout(r, 5000));
         attempts++;
-        progressText.textContent = `Creating magic... (${attempts * 5}s)`;
+        progressText.textContent = '✨ Creating your video — we\'ll email it to you the moment it\'s ready. 💛';
         try {
           const statusRes = await fetch(`/api/check-status?operationId=${encodeURIComponent(operationId)}`);
           const statusData = await statusRes.json();
