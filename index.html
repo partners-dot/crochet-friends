@@ -277,7 +277,8 @@
       position: absolute;
       bottom: 8px;
       left: 8px;
-      display: none;
+      display: flex;
+      align-items: center;
       gap: 5px;
       background: rgba(5, 10, 48, 0.8);
       backdrop-filter: blur(8px);
@@ -285,11 +286,18 @@
       border-radius: 14px;
       z-index: 10;
       border: 1px solid rgba(255, 255, 255, 0.1);
+      /* Hidden by default — shown briefly on interaction, then fade out so they don't
+         cover the on-video captions. */
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
     }
 
     .video-controls.visible {
-      display: flex;
-      align-items: center;
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
     }
 
     .video-controls button {
@@ -995,8 +1003,7 @@
   <div class="container">
     <section id="welcomeSection" class="section">
       <header class="welcome-hero">
-        <div class="subtitle" id="welcomeBrand">Got You A Little Something</div>
-        <h1 id="welcomeHeadline">🎁→🎥 Turn your gift into a<br>video message they'll <span class="hl">love</span></h1>
+        <h1 id="welcomeHeadline">Turn your gift into a<br>video message they'll <span class="hl">love</span></h1>
         <p class="welcome-valueprops" id="welcomeValueProps">✨ Free · ⏱️ Takes a minute · 📱 No app needed</p>
       </header>
       <div class="welcome-video-container" onclick="unmuteWelcome()">
@@ -1622,7 +1629,7 @@
               Not in your inbox? Check your spam folder.
             </p>
             <p style="margin: 0; font-size: 0.85rem; color: rgba(255,255,255,0.55); font-weight: 500; text-transform: uppercase; letter-spacing: 1.5px;">While you wait...</p>
-            <p style="margin: 4px 0 0; font-size: 1.9rem; font-weight: 800; color: var(--accent-neon); line-height: 1.15; text-shadow: 0 0 20px rgba(255, 209, 102, 0.3);">🎁→🎥 Turn your gift into a<br>video they'll love</p>
+            <p style="margin: 4px 0 0; font-size: 1.9rem; font-weight: 800; color: var(--accent-neon); line-height: 1.15; text-shadow: 0 0 20px rgba(255, 209, 102, 0.3);">Turn your gift into a<br>video they'll love</p>
             <p style="margin: 8px 0 0; font-size: 0.9rem; color: rgba(255,255,255,0.6); font-weight: 600;">✨ Free · ⏱️ Takes a minute · 📱 No app needed</p>
           `;
           headerEl.style.padding = '0.5rem 0 0.75rem';
@@ -2162,6 +2169,16 @@
         product: selectedProduct
       });
     }
+    // The video controls overlap the on-video captions, so auto-hide them shortly after each
+    // interaction (standard player behavior). Tapping the video brings them back briefly.
+    let controlsHideTimer = null;
+    function flashControls() {
+      const controls = document.getElementById('videoControls');
+      if (!controls) return;
+      controls.classList.add('visible');
+      clearTimeout(controlsHideTimer);
+      controlsHideTimer = setTimeout(() => controls.classList.remove('visible'), 2500);
+    }
     function unmuteWelcome() {
       const video = document.getElementById('welcomeVideo');
       const overlay = document.getElementById('welcomeSoundOverlay');
@@ -2184,11 +2201,12 @@
           };
         }
         if (overlay) overlay.style.display = 'none';
-        if (controls) controls.classList.add('visible');
+        flashControls(); // show briefly, then auto-hide so captions stay visible
         videoUnmuted = true;
         return;
       }
-      togglePlay();
+      // Already unmuted → a tap on the video reveals the controls again (then they auto-hide).
+      flashControls();
     }
     function togglePlay() {
       const video = document.getElementById('welcomeVideo');
@@ -2200,10 +2218,12 @@
         video.pause();
         btn.textContent = '▶️';
       }
+      flashControls(); // keep controls visible briefly after interacting
     }
     function toggleMute() {
       const video = document.getElementById('welcomeVideo');
       const btn = document.getElementById('muteBtn');
+      flashControls(); // keep controls visible briefly after interacting
       if (video.muted) {
         video.muted = false;
         btn.textContent = '🔊';
