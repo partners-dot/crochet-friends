@@ -176,6 +176,23 @@ async function processVideoGeneration(operationId, falInput, userConfig, isRetry
                 .from('video_sessions')
                 .update({ video_url: videoUrl, status: 'complete' })
                 .eq('operation_id', operationId);
+
+            // Log video_created to the funnel table SERVER-SIDE (best-effort). Previously this
+            // event only fired from the browser's polling loop — which we've removed (email-first
+            // flow), and which undercounted on mobile anyway. Logging here makes it reliable.
+            try {
+                const role = (userConfig?.userType === 'buyer' || userConfig?.userType === 'receiver')
+                    ? userConfig.userType : 'unknown';
+                await supabase.from('log_video_funnel_events').insert({
+                    event: 'video_created', phase: 'in_app', role,
+                    email: userConfig?.email ? userConfig.email.toLowerCase() : null,
+                    operation_id: operationId,
+                    product: userConfig?.character || null,
+                    source: 'server', properties: { sku: userConfig?.sku || null, resolved_by: 'generate-video' }
+                });
+            } catch (logErr) {
+                console.error('[bg] funnel video_created log failed:', logErr.message);
+            }
         }
 
         // Send success email
