@@ -331,7 +331,7 @@
                 <div class="review-section">
                     <h3>⭐ Made You Smile?</h3>
                     <p>We would really appreciate a quick review - it only takes 30 seconds. Thank You! ❤️</p>
-                    <a href="#" target="_blank" class="review-btn" id="reviewLinkBuyer" onclick="trackReviewClick('video_preview_buyer')">
+                    <a href="#" target="_blank" class="review-btn" id="reviewLinkBuyer" onclick="return trackReviewClick('video_preview_buyer')">
                         Leave a Review ⭐
                     </a>
                 </div>
@@ -366,7 +366,7 @@
                 <div class="review-section">
                     <h3>⭐ Made You Smile?</h3>
                     <p>We would really appreciate a quick review - it only takes 30 seconds. Thank You! ❤️</p>
-                    <a href="#" target="_blank" class="review-btn" id="reviewLinkReceiver" onclick="trackReviewClick('video_preview_receiver')">
+                    <a href="#" target="_blank" class="review-btn" id="reviewLinkReceiver" onclick="return trackReviewClick('video_preview_receiver')">
                         Leave a Review ⭐
                     </a>
                 </div>
@@ -409,6 +409,22 @@
             // New shape carries `source` (buyer vs receiver button), which the legacy
             // {operationId, action} shape dropped.
             logFunnel('review_clicked', { source });
+            // CLICK-TIME SAFEGUARD: re-resolve the correct ASIN from this session's SKU and navigate,
+            // so a stale-cached page can't send the user to the wrong product.
+            openReviewForSku(videoData?.sku);
+            return false;
+        }
+
+        // Open the Amazon review page for `sku`, resolved at click-time (popup-safe).
+        function openReviewForSku(sku) {
+            const fallback = resolvedReviewUrl;
+            const win = window.open('about:blank', '_blank');
+            const go = (url) => { if (win && !win.closed) win.location.href = url; else window.open(url, '_blank'); };
+            if (!sku) { go(fallback); return; }
+            fetch(`/api/product-lookup?sku=${encodeURIComponent(sku)}`)
+                .then(r => r.ok ? r.json() : null)
+                .then(d => go((d && d.amazonReviewUrl) ? d.amazonReviewUrl : fallback))
+                .catch(() => go(fallback));
         }
 
         // Resolved review URL (set in initPage from the SKU lookup). Reused by the celebration.
