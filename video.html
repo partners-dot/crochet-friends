@@ -241,7 +241,9 @@
         // review URL only if there's no SKU or the lookup fails — never a wrong specific product.
         const FALLBACK_REVIEW_URL = 'https://www.amazon.com/review/create-review/?ie=UTF8&channel=glance-detail&asin=B0DVR6VBRR';
         let resolvedReviewUrl = FALLBACK_REVIEW_URL; // reused by the post-share celebration
+        let sessionSku = null;                        // this session's SKU, for the click-time safeguard
         async function setReviewLinksFromSku(sku) {
+            sessionSku = sku || null;
             let reviewUrl = FALLBACK_REVIEW_URL;
             if (sku) {
                 try {
@@ -254,6 +256,19 @@
             }
             resolvedReviewUrl = reviewUrl;
             document.querySelectorAll('.review-btn').forEach(link => link.href = reviewUrl);
+        }
+
+        // Open the Amazon review page for this session's SKU, resolved at click-time (popup-safe).
+        // Guarantees the right product even if a stale-cached page pre-set the wrong href.
+        function openReviewForSku(sku) {
+            const fallback = resolvedReviewUrl;
+            const win = window.open('about:blank', '_blank');
+            const go = (url) => { if (win && !win.closed) win.location.href = url; else window.open(url, '_blank'); };
+            if (!sku) { go(fallback); return; }
+            fetch(`/api/product-lookup?sku=${encodeURIComponent(sku)}`)
+                .then(r => r.ok ? r.json() : null)
+                .then(d => go((d && d.amazonReviewUrl) ? d.amazonReviewUrl : fallback))
+                .catch(() => go(fallback));
         }
 
         // Post-share celebration (Lever 2): flip to a focused review ask the moment a share completes.
@@ -342,7 +357,7 @@
                 <div class="review-section">
                     <h3>⭐ Help Us Grow!</h3>
                     <p>Love this experience? A quick review would mean the world to us!</p>
-                    <a href="#" target="_blank" class="review-btn" onclick="trackReviewClick('video_share_receiver')">
+                    <a href="#" target="_blank" class="review-btn" onclick="return trackReviewClick('video_share_receiver')">
                         Leave a Review ⭐
                     </a>
                 </div>
@@ -377,7 +392,7 @@
                 <div class="review-section">
                     <h3>⭐ Help Us Grow!</h3>
                     <p>Love this experience? A quick review would mean the world to us!</p>
-                    <a href="#" target="_blank" class="review-btn" onclick="trackReviewClick('video_share_buyer')">
+                    <a href="#" target="_blank" class="review-btn" onclick="return trackReviewClick('video_share_buyer')">
                         Leave a Review ⭐
                     </a>
                 </div>
@@ -515,6 +530,9 @@
             // Supabase funnel log — closes the previously-missing recipient review-click path.
             // operationId is in the URL, so track.js resolves role from video_sessions.
             logFunnel('review_clicked', { source });
+            // CLICK-TIME SAFEGUARD: re-resolve the correct ASIN from this session's SKU and navigate.
+            openReviewForSku(sessionSku);
+            return false;
         }
 
         // Initialize

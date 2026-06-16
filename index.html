@@ -1145,7 +1145,7 @@
         <div class="review-hero-emoji">⭐</div>
         <h3 id="reviewAskText">While your video is on its way…<br>a review would mean the world to us</h3>
         <p>It takes 30 seconds and helps other gift-lovers find us. Thank you! ❤️</p>
-        <a href="#" id="thankYouReviewLink" class="btn-review-large" onclick="trackReviewClick('thankyou')">⭐ Leave a Review on Amazon</a>
+        <a href="#" id="thankYouReviewLink" class="btn-review-large" onclick="return trackReviewClick('thankyou')">⭐ Leave a Review on Amazon</a>
       </div>
 
       <div class="pro-tip-box">
@@ -1284,7 +1284,7 @@
       <div class="review-cta-box">
         <h3>⭐ Help Us Grow!</h3>
         <p>If you love your crocheted friend, please leave us a review. It means the world to us!</p><a href="#"
-          id="strongReviewLink" class="btn btn-amazon" onclick="trackReviewClick('strong')">Leave a Review ⭐</a>
+          id="strongReviewLink" class="btn btn-amazon" onclick="return trackReviewClick('strong')">Leave a Review ⭐</a>
       </div>
     </section>
     <section id="errorSection" class="card error hidden">
@@ -2073,6 +2073,26 @@
       // event isn't lost if the browser suspends this tab when focus moves away.
       trackEvent('Amazon Review Link Clicked', { source: source, page: 'video_app' }, { send_instantly: true });
       logFunnel('review_clicked', { source });
+      // CLICK-TIME SAFEGUARD: re-resolve the correct ASIN from the SKU right now and navigate.
+      // This guarantees the right product even if a stale-cached page pre-set the wrong href.
+      openReviewForSku(currentSku);
+      return false; // prevent the href="#" default
+    }
+
+    // Open the Amazon review page for `sku`, resolved at click-time. Opens a tab synchronously
+    // (so it isn't popup-blocked), then points it at the correct URL once the lookup returns.
+    function openReviewForSku(sku) {
+      const fallback = currentReviewUrl();
+      const win = window.open('about:blank', '_blank'); // sync → not blocked
+      const go = (url) => {
+        if (win && !win.closed) win.location.href = url;
+        else window.open(url, '_blank'); // popup blocked → best-effort
+      };
+      if (!sku) { go(fallback); return; }
+      fetch(`/api/product-lookup?sku=${encodeURIComponent(sku)}`)
+        .then(r => r.ok ? r.json() : null)
+        .then(d => go((d && d.amazonReviewUrl) ? d.amazonReviewUrl : fallback))
+        .catch(() => go(fallback));
     }
     function trackCreateVideoClick() {
       if (window.posthog) posthog.capture('Create from Scratch Button Clicked', {
