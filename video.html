@@ -123,16 +123,16 @@
         }
 
         .divider {
-            margin: 2rem 0;
-            border: none;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: none;  /* don't visually demote the review ask below the fold */
         }
 
         .review-section {
-            background: rgba(139, 69, 19, 0.3);
+            background: rgba(255, 209, 102, 0.18);
             border-radius: 16px;
-            padding: 1.5rem;
+            padding: 1.75rem 1.5rem;
+            margin-top: 1.25rem;
             border: 2px solid #ffd166;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
         }
 
         .review-section h3 {
@@ -231,6 +231,7 @@
         // Resolves via /api/product-lookup (returns the right ASIN). Falls back to a generic
         // review URL only if there's no SKU or the lookup fails — never a wrong specific product.
         const FALLBACK_REVIEW_URL = 'https://www.amazon.com/review/create-review/?ie=UTF8&channel=glance-detail&asin=B0DVR6VBRR';
+        let resolvedReviewUrl = FALLBACK_REVIEW_URL; // reused by the post-share celebration
         async function setReviewLinksFromSku(sku) {
             let reviewUrl = FALLBACK_REVIEW_URL;
             if (sku) {
@@ -242,7 +243,29 @@
                     }
                 } catch (e) { /* keep fallback */ }
             }
+            resolvedReviewUrl = reviewUrl;
             document.querySelectorAll('.review-btn').forEach(link => link.href = reviewUrl);
+        }
+
+        // Post-share celebration (Lever 2): flip to a focused review ask the moment a share completes.
+        function showReviewCelebration() {
+            const container = document.getElementById('content');
+            if (!container) return;
+            const src = window._videoUserType === 'buyer' ? 'video_share_buyer' : 'video_share_receiver';
+            container.innerHTML = `
+                <div class="logo">Got You A Little Something</div>
+                <h1>🎉 Shared! 🎉</h1>
+                <p class="subtitle" style="margin-bottom:1.5rem;">Thanks for spreading the love! 💛</p>
+                <div class="review-section">
+                    <h3>⭐ Loved this?</h3>
+                    <p>A quick 30-second review helps other gift-lovers find us — it would mean the world. ❤️</p>
+                    <a href="${resolvedReviewUrl}" target="_blank" class="review-btn" onclick="trackReviewClick('${src}')">
+                        Leave a Review ⭐
+                    </a>
+                </div>
+                <p class="footer">Made with 💛 by Got You A Little Something</p>
+            `;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         // logFunnel: write one row to Supabase log_video_funnel_events (agent source of truth).
@@ -443,6 +466,7 @@
                         method: 'native_share'
                     });
                     logFunnel('share_completed', { properties: { method: 'native_share' } });
+                    showReviewCelebration();
                 } else {
                     // Fallback: copy link to clipboard
                     await navigator.clipboard.writeText(window.location.href);
@@ -453,6 +477,7 @@
                     });
                     logFunnel('share_completed', { properties: { method: 'clipboard_copy' } });
                     alert('Link copied to clipboard! Share it with someone special 💝');
+                    showReviewCelebration();
                 }
             } catch (err) {
                 console.error('Share failed:', err);
