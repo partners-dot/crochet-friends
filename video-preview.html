@@ -281,7 +281,8 @@
                 return {
                     videoUrl: data.videoUrl,
                     userType: data.userType || 'receiver',
-                    product: data.product
+                    product: data.product,
+                    sku: data.sku || null
                 };
             } catch (err) {
                 console.error('Failed to fetch video:', err);
@@ -401,6 +402,31 @@
             logFunnel('review_clicked', { source });
         }
 
+        // Resolved review URL (set in initPage from the SKU lookup). Reused by the celebration.
+        let resolvedReviewUrl = 'https://www.amazon.com/review/create-review/?ie=UTF8&channel=glance-detail&asin=B0DVR6VBRR';
+
+        // Post-share celebration (Lever 2): the moment a share completes, flip the screen to a
+        // focused, happy review ask — peak goodwill, mirrors the ~54%-converting in-app screen.
+        function showReviewCelebration() {
+            const container = document.getElementById('content');
+            if (!container) return;
+            const src = videoData?.userType === 'buyer' ? 'video_preview_buyer' : 'video_preview_receiver';
+            container.innerHTML = `
+                <div class="logo">Got You A Little Something</div>
+                <h1>🎉 Sent! 🎉</h1>
+                <p class="subtitle" style="margin-bottom:1.5rem;">Your video is on its way. You just made someone's day! 💛</p>
+                <div class="review-section" style="margin-top:0;">
+                    <h3>⭐ Made you smile?</h3>
+                    <p>A quick 30-second review helps other gift-lovers find us — it would mean the world. ❤️</p>
+                    <a href="${resolvedReviewUrl}" target="_blank" class="review-btn" onclick="trackReviewClick('${src}')">
+                        Leave a Review ⭐
+                    </a>
+                </div>
+                <p class="footer">Made with 💛 by Got You A Little Something</p>
+            `;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
         async function initPage() {
             const operationId = getOperationId();
 
@@ -433,8 +459,9 @@
                     renderReceiverPreview(videoData.videoUrl);
                 }
 
-                // Fetch dynamic ASIN for review link
-                const DEFAULT_REVIEW_URL = 'https://www.amazon.com/review/create-review?asin=B0DK1RF3TZ';
+                // Fetch dynamic ASIN for review link. Generic fallback (NOT a random specific product)
+                // only if there's no SKU or the lookup fails.
+                const DEFAULT_REVIEW_URL = 'https://www.amazon.com/review/create-review/?ie=UTF8&channel=glance-detail&asin=B0DVR6VBRR';
                 let reviewUrl = DEFAULT_REVIEW_URL;
                 if (videoData.sku) {
                     try {
@@ -445,6 +472,7 @@
                         }
                     } catch (e) { console.log('Product lookup failed, using default ASIN'); }
                 }
+                resolvedReviewUrl = reviewUrl; // reused by the post-share celebration
                 // Update all review links on the page
                 document.querySelectorAll('.review-btn').forEach(link => link.href = reviewUrl);
 
@@ -485,6 +513,7 @@
                         product: videoData?.product
                     });
                     logFunnel('share_completed', { properties: { method: 'native_share' } });
+                    showReviewCelebration();
                 } else {
                     // Fallback: copy link to clipboard
                     await navigator.clipboard.writeText(shareUrl);
@@ -497,6 +526,7 @@
                     });
                     logFunnel('share_completed', { properties: { method: 'clipboard_copy' } });
                     alert('Link copied to clipboard! Share it with someone special 💝');
+                    showReviewCelebration();
                 }
             } catch (err) {
                 console.error('Share failed:', err);
@@ -517,6 +547,7 @@
                     });
                     logFunnel('share_completed', { properties: { method: 'clipboard_fallback' } });
                     alert('Link copied to clipboard! Share it with someone special 💝');
+                    showReviewCelebration();
                 } catch (clipErr) {
                     alert(`Share this link: ${shareUrl}`);
                 }
