@@ -1366,12 +1366,39 @@
     };
 
     const urlParams = new URLSearchParams(window.location.search);
+    // Legacy character-keyed map — ONLY a last-resort fallback when we have no real SKU.
+    // The correct review URL comes from the actual SKU via /api/product-lookup (see resolveReviewUrlBySku).
     const amazonReviewUrls = {
       potato: 'https://www.amazon.com/review/create-review/?ie=UTF8&channel=glance-detail&asin=B0DVR6VBRR',
       cupcake: 'https://www.amazon.com/review/create-review/?ie=UTF8&channel=glance-detail&asin=B0DVGVHSZV',
       nursePotato: 'https://www.amazon.com/review/create-review/?ie=UTF8&channel=glance-detail&asin=B0DFMXPQKH',
       default: 'https://www.amazon.com/review/create-review/?ie=UTF8&channel=glance-detail&asin=B0DVR6VBRR'
     };
+
+    // The real SKU the user arrived with (?sku= or ?klavio_search=). This is what maps to the
+    // correct Amazon ASIN — NOT the character. Resolved once, cached for all review links.
+    const currentSku = urlParams.get('sku') || urlParams.get('klavio_search') || null;
+    let resolvedReviewUrl = null;  // populated by resolveReviewUrlBySku()
+
+    // Resolve the correct per-product review URL from the SKU via /api/product-lookup.
+    // Falls back to the character map only if there is no SKU or the lookup fails.
+    async function resolveReviewUrlBySku() {
+      if (currentSku) {
+        try {
+          const res = await fetch(`/api/product-lookup?sku=${encodeURIComponent(currentSku)}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data.amazonReviewUrl) { resolvedReviewUrl = data.amazonReviewUrl; return resolvedReviewUrl; }
+          }
+        } catch (e) { /* fall through to character map */ }
+      }
+      resolvedReviewUrl = amazonReviewUrls[selectedProduct] || amazonReviewUrls.default;
+      return resolvedReviewUrl;
+    }
+    // The single source of truth for "what review URL should a link use right now".
+    function currentReviewUrl() {
+      return resolvedReviewUrl || amazonReviewUrls[selectedProduct] || amazonReviewUrls.default;
+    }
 
     // Detect product from URL parameters
     function detectProductFromUrl() {
@@ -1513,6 +1540,9 @@
         if (receiverNote) receiverNote.classList.remove('hidden');
       }
       updateReviewLinks();
+      // Resolve the CORRECT review URL from the real SKU (async), then refresh all review links.
+      // Until this resolves, links use the character-map fallback; this corrects them to the right ASIN.
+      resolveReviewUrlBySku().then(() => updateReviewLinks());
 
       // === Claim Page Integration ===
       // When coming from claim.html, auto-set user type, pre-fill email, and skip to create step
@@ -1681,8 +1711,8 @@
         reviewLink.textContent = '⭐ Leave a Review on Amazon';
       }
 
-      // Update review link URL
-      reviewLink.href = amazonReviewUrls[selectedProduct] || amazonReviewUrls.default;
+      // Update review link URL — use the SKU-resolved URL (correct ASIN), not the character map.
+      reviewLink.href = currentReviewUrl();
     }
     async function validateEmail() {
       // PostHog: Track Continue button clicked
@@ -1951,7 +1981,7 @@
     function createAnother() { if (videosRemaining <= 0) { alert('You have used all your free videos!'); return; } document.getElementById('message').value = ''; document.getElementById('charCount').textContent = '0'; goToStep('create'); }
     function reset() { document.getElementById('errorSection').classList.add('hidden'); goToStep('create'); }
     function selectProductInUI(product) { const products = document.querySelectorAll('.product'); products.forEach(p => { p.classList.remove('selected'); if (p.dataset.product === product) p.classList.add('selected'); }); }
-    function updateReviewLinks() { const url = amazonReviewUrls[selectedProduct] || amazonReviewUrls.default; document.querySelectorAll('#softReviewLink, #buyerReviewLink, #receiverReviewLink, #strongReviewLink').forEach(link => link.href = url); }
+    function updateReviewLinks() { const url = currentReviewUrl(); document.querySelectorAll('#softReviewLink, #buyerReviewLink, #receiverReviewLink, #strongReviewLink').forEach(link => link.href = url); }
     function updateCreateHeader() {
       const headerText = document.querySelector('#createHeader > span:first-child');
       if (headerText) {

@@ -227,6 +227,24 @@
             return params.get('id');
         }
 
+        // Set every .review-btn href to the correct Amazon review URL for this product's SKU.
+        // Resolves via /api/product-lookup (returns the right ASIN). Falls back to a generic
+        // review URL only if there's no SKU or the lookup fails — never a wrong specific product.
+        const FALLBACK_REVIEW_URL = 'https://www.amazon.com/review/create-review/?ie=UTF8&channel=glance-detail&asin=B0DVR6VBRR';
+        async function setReviewLinksFromSku(sku) {
+            let reviewUrl = FALLBACK_REVIEW_URL;
+            if (sku) {
+                try {
+                    const res = await fetch(`/api/product-lookup?sku=${encodeURIComponent(sku)}`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data.amazonReviewUrl) reviewUrl = data.amazonReviewUrl;
+                    }
+                } catch (e) { /* keep fallback */ }
+            }
+            document.querySelectorAll('.review-btn').forEach(link => link.href = reviewUrl);
+        }
+
         // logFunnel: write one row to Supabase log_video_funnel_events (agent source of truth).
         // phase=share. operationId is in the URL → role resolves server-side from video_sessions.
         function logFunnel(event, { source = null, properties = {} } = {}) {
@@ -252,7 +270,8 @@
                 return {
                     videoUrl: data.videoUrl,
                     userType: data.userType || 'receiver',
-                    product: data.product
+                    product: data.product,
+                    sku: data.sku || null
                 };
             } catch (err) {
                 console.error('Failed to fetch video:', err);
@@ -286,7 +305,7 @@
                 <div class="review-section">
                     <h3>⭐ Help Us Grow!</h3>
                     <p>Love this experience? A quick review would mean the world to us!</p>
-                    <a href="https://www.amazon.com/review/create-review?asin=B0DK1RF3TZ" target="_blank" class="review-btn" onclick="trackReviewClick('video_share_receiver')">
+                    <a href="#" target="_blank" class="review-btn" onclick="trackReviewClick('video_share_receiver')">
                         Leave a Review ⭐
                     </a>
                 </div>
@@ -321,7 +340,7 @@
                 <div class="review-section">
                     <h3>⭐ Help Us Grow!</h3>
                     <p>Love this experience? A quick review would mean the world to us!</p>
-                    <a href="https://www.amazon.com/review/create-review?asin=B0DK1RF3TZ" target="_blank" class="review-btn" onclick="trackReviewClick('video_share_buyer')">
+                    <a href="#" target="_blank" class="review-btn" onclick="trackReviewClick('video_share_buyer')">
                         Leave a Review ⭐
                     </a>
                 </div>
@@ -355,9 +374,10 @@
             const videoUrl = getVideoUrl();
             const operationId = getOperationId();
 
-            // If we have a direct video URL (legacy support)
+            // If we have a direct video URL (legacy support) — no SKU here, use generic fallback.
             if (videoUrl) {
                 renderReceiverContent(videoUrl);
+                setReviewLinksFromSku(null);
                 return;
             }
 
@@ -391,6 +411,9 @@
                         // Receiver made the video -> Buyer is viewing it
                         renderReceiverContent(data.videoUrl);
                     }
+                    // Set review links to the CORRECT per-product ASIN from the session's SKU.
+                    // (Was hardcoded to one wrong ASIN; resolve via /api/product-lookup like the preview page.)
+                    setReviewLinksFromSku(data.sku);
                 } else {
                     renderError('Video not found or not ready');
                 }

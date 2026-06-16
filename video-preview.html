@@ -281,7 +281,8 @@
                 return {
                     videoUrl: data.videoUrl,
                     userType: data.userType || 'receiver',
-                    product: data.product
+                    product: data.product,
+                    sku: data.sku || null
                 };
             } catch (err) {
                 console.error('Failed to fetch video:', err);
@@ -433,8 +434,9 @@
                     renderReceiverPreview(videoData.videoUrl);
                 }
 
-                // Fetch dynamic ASIN for review link
-                const DEFAULT_REVIEW_URL = 'https://www.amazon.com/review/create-review?asin=B0DK1RF3TZ';
+                // Fetch dynamic ASIN for review link. Generic fallback (NOT a random specific product)
+                // only if there's no SKU or the lookup fails.
+                const DEFAULT_REVIEW_URL = 'https://www.amazon.com/review/create-review/?ie=UTF8&channel=glance-detail&asin=B0DVR6VBRR';
                 let reviewUrl = DEFAULT_REVIEW_URL;
                 if (videoData.sku) {
                     try {
