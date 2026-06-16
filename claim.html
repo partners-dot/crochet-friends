@@ -124,17 +124,18 @@
 
         /* Kicker — THE primary hook, grabs attention */
         .kicker {
-            font-size: clamp(1.8rem, 7vw, 2.5rem);
-            background: linear-gradient(135deg, #FFD166 0%, #FFEB99 40%, #FFD166 100%);
+            font-size: clamp(1.6rem, 6vw, 2.05rem);
+            background: linear-gradient(135deg, #FFD166 0%, #FFEB99 45%, #FFD166 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             font-weight: 800;
             text-align: center;
-            margin-bottom: 6px;
-            line-height: 1.15;
+            margin-bottom: 0.5rem;
+            line-height: 1.1;
+            letter-spacing: -0.5px;
             white-space: nowrap;
-            filter: drop-shadow(0 2px 8px rgba(255, 209, 102, 0.3));
+            filter: drop-shadow(0 2px 10px rgba(255, 209, 102, 0.28));
         }
 
         /* Hero title — brand name, warm accent (not the headline) */
@@ -202,8 +203,72 @@
         /* =============================================
        VIDEO PREVIEW — Teaser to drive engagement
        ============================================= */
+        /* Two-rewards list — clean, premium. The 30% code (hero) + the free video (bonus). */
+        .reward-intro {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            font-weight: 500;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            margin: 0 0 1rem;
+        }
+        .reward-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+            margin: 0 auto 1.75rem;
+            max-width: 300px;
+            text-align: left;
+        }
+        .reward-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.7rem;
+        }
+        .reward-check {
+            color: var(--bg-deep);
+            background: var(--gold);
+            font-weight: 800;
+            font-size: 0.7rem;
+            width: 1.15rem;
+            height: 1.15rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 0.1rem;
+        }
+        .reward-text {
+            font-size: 0.95rem;
+            line-height: 1.45;
+            color: var(--text-secondary);
+        }
+        .reward-text strong { color: var(--text-primary); font-weight: 600; }
+
+        /* The free-video preview — clearly separated from the ask above by space + a divider. */
+        .video-bonus-wrap {
+            margin-top: 2.5rem;
+            padding-top: 2.25rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            text-align: center;
+        }
+        /* A real section title (not a tiny caption) so the bonus reads as its own section. */
+        .bonus-caption {
+            font-size: 1.15rem;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+            color: var(--text-primary);
+            margin-bottom: 0.4rem;
+        }
+        .bonus-subcaption {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin: 0 0 1.1rem;
+        }
+
         .video-preview-wrap {
-            margin: 1.25rem 0;
             text-align: center;
             position: relative;
             display: inline-block;
@@ -264,7 +329,8 @@
             bottom: 8px;
             left: 50%;
             transform: translateX(-50%);
-            display: none;
+            display: flex;
+            align-items: center;
             gap: 5px;
             background: rgba(5, 10, 48, 0.8);
             backdrop-filter: blur(8px);
@@ -273,11 +339,17 @@
             border-radius: 14px;
             z-index: 10;
             border: 1px solid rgba(255, 255, 255, 0.1);
+            /* Hidden by default — shown briefly on tap, then fade out so they don't cover captions. */
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
         }
 
         .claim-video-controls.visible {
-            display: flex;
-            align-items: center;
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
         }
 
         .claim-video-controls button {
@@ -362,21 +434,19 @@
        FORM — Single email input for maximum conversion
        ============================================= */
         .form-card {
-            background: var(--bg-surface);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: var(--r-lg);
-            padding: 1.75rem 1.5rem;
-            border: 1px solid var(--glass-border);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
-            margin-bottom: 1.25rem;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            padding: 0;
+            margin-bottom: 0.9rem;
         }
 
         .form-label {
             display: block;
             font-weight: 600;
-            margin-bottom: 0.7rem;
-            font-size: 0.88rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
             letter-spacing: 0.3px;
         }
 
@@ -422,15 +492,15 @@
        ============================================= */
         .btn-primary {
             width: 100%;
-            padding: 1.15rem;
+            padding: 1.1rem;
             border: none;
             border-radius: var(--r-md);
-            font-size: 1.15rem;
+            font-size: 1rem;
             font-weight: 700;
             cursor: pointer;
             font-family: inherit;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
+            letter-spacing: 1px;
             background: linear-gradient(135deg, #FFD166 0%, #FABC2A 100%);
             color: #050A30;
             box-shadow: 0 8px 25px rgba(255, 209, 102, 0.22);
@@ -968,7 +1038,7 @@
            the video flow where it actually matters.
            ==================================== -->
             <section id="welcomeSection" class="section page-blurred">
-                <div class="kicker" style="margin-bottom: 16px;">🎉 You've Got 30% OFF! 🎉</div>
+                <div class="kicker" style="margin-bottom: 16px;">You've Got 30% Off</div>
 
                 <!-- Product image + name — hidden by design, data used internally -->
                 <div class="product-showcase" style="display:none;">
@@ -976,34 +1046,22 @@
                     <div id="productNameDisplay" class="product-label hidden"></div>
                 </div>
 
-                <!-- Description — lead with code, tease video -->
-                <p class="body-text" style="margin-bottom: 1rem;">
-                    Enter your email to get your <strong style="color: var(--gold);">30% OFF code</strong>
-                    - we'll send it straight to your inbox.
-                </p>
-                <p class="body-text" style="font-size: 0.85rem; opacity: 0.75; margin-bottom: 0;">
-                    But that's not all! Your crocheted friend can come alive in a <strong
-                        style="color: var(--text-primary);">free
-                        personalized video</strong>.
-                </p>
-                <p class="body-text"
-                    style="font-size: 0.9rem; margin-top: 0.5rem; margin-bottom: 0; font-weight: 600; color: var(--gold);">
-                    Enter your email to unlock both!
-                </p>
-
-                <div class="video-preview-wrap" id="videoPreviewWrap" onclick="unmuteClaimVideo()"
-                    style="margin-top: 0.75rem;">
-                    <video id="videoPreview" class="video-preview" autoplay muted loop playsinline>
-                        <source id="videoPreviewSrc" src="videos/claim-preview.mp4" type="video/mp4">
-                    </video>
-                    <div id="claimSoundOverlay" class="claim-sound-overlay">🔊 Tap for sound</div>
-                    <div id="claimVideoControls" class="claim-video-controls">
-                        <button onclick="event.stopPropagation(); toggleClaimPlay();" id="claimPlayPauseBtn">⏸️</button>
-                        <button onclick="event.stopPropagation(); toggleClaimMute();" id="claimMuteBtn">🔊</button>
+                <!-- Two rewards, refined: the 30% code is the hero; the free personalized video is
+                     a tangible bonus that sweetens the email ask. Clean, premium — minimal emoji. -->
+                <p class="reward-intro">Enter your email to receive</p>
+                <div class="reward-list">
+                    <div class="reward-row">
+                        <span class="reward-check">✓</span>
+                        <span class="reward-text"><strong style="color: var(--gold);">30% off</strong> your order — code sent to your inbox</span>
+                    </div>
+                    <div class="reward-row">
+                        <span class="reward-check">✓</span>
+                        <span class="reward-text">A <strong>free personalized video</strong> starring your crochet friend</span>
                     </div>
                 </div>
 
-                <!-- Email form — ONE field, maximum conversion -->
+                <!-- Email form FIRST (above the video) — they came for the code, so the primary
+                     action is right after the rewards. The video bonus sits below as a sweetener. -->
                 <div class="form-card">
                     <label class="form-label" for="claimEmail">Email Address</label>
                     <input type="email" id="claimEmail" class="email-input" placeholder="you@example.com" required
@@ -1015,10 +1073,30 @@
                     Send Me My Code
                 </button>
 
+                <p class="body-text" style="font-size: 0.82rem; opacity: 0.8; margin: 0.6rem 0 0;">
+                    📩 Your code lands in your inbox in about a minute.
+                </p>
+
                 <div class="trust-bar">
                     <span>No spam, ever</span>
                     <span>Code sent by email</span>
                     <span>Unsubscribe anytime</span>
+                </div>
+
+                <!-- The free-video bonus, clearly separated from the ask above. -->
+                <div class="video-bonus-wrap">
+                    <h2 class="bonus-caption">Your Free Personalized Video</h2>
+                    <p class="bonus-subcaption">Here's a peek at what you'll create 👇</p>
+                    <div class="video-preview-wrap" id="videoPreviewWrap" onclick="unmuteClaimVideo()">
+                        <video id="videoPreview" class="video-preview" autoplay muted loop playsinline>
+                            <source id="videoPreviewSrc" src="videos/claim-preview.mp4" type="video/mp4">
+                        </video>
+                        <div id="claimSoundOverlay" class="claim-sound-overlay">🔊 Tap for sound</div>
+                        <div id="claimVideoControls" class="claim-video-controls">
+                            <button onclick="event.stopPropagation(); toggleClaimPlay();" id="claimPlayPauseBtn">⏸️</button>
+                            <button onclick="event.stopPropagation(); toggleClaimMute();" id="claimMuteBtn">🔊</button>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Brand footer -->
@@ -1290,10 +1368,20 @@
             });
         }
 
+        // Controls overlap the on-video caption text, so auto-hide them shortly after each tap
+        // (standard player behavior). Tapping the video brings them back briefly.
+        let claimControlsHideTimer = null;
+        function flashClaimControls() {
+            const controls = document.getElementById('claimVideoControls');
+            if (!controls) return;
+            controls.classList.add('visible');
+            clearTimeout(claimControlsHideTimer);
+            claimControlsHideTimer = setTimeout(() => controls.classList.remove('visible'), 2500);
+        }
+
         function unmuteClaimVideo() {
             const video = document.getElementById('videoPreview');
             const overlay = document.getElementById('claimSoundOverlay');
-            const controls = document.getElementById('claimVideoControls');
             if (!claimVideoUnmuted) {
                 if (video) {
                     video.muted = false;
@@ -1301,11 +1389,12 @@
                     video.currentTime = 0;
                 }
                 if (overlay) overlay.classList.remove('visible');
-                if (controls) controls.classList.add('visible');
+                flashClaimControls(); // show briefly, then auto-hide so captions stay visible
                 claimVideoUnmuted = true;
                 return;
             }
-            toggleClaimPlay();
+            // Already unmuted → a tap reveals the controls again (then they auto-hide).
+            flashClaimControls();
         }
 
         function toggleClaimPlay() {
@@ -1318,11 +1407,13 @@
                 video.pause();
                 btn.textContent = '▶️';
             }
+            flashClaimControls();
         }
 
         function toggleClaimMute() {
             const video = document.getElementById('videoPreview');
             const btn = document.getElementById('claimMuteBtn');
+            flashClaimControls();
             if (video.muted) {
                 video.muted = false;
                 btn.textContent = '🔊';
