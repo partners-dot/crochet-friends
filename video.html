@@ -172,6 +172,15 @@
             box-shadow: 0 12px 35px rgba(255, 209, 102, 0.4);
         }
 
+        /* Post-share: pulse the review card to draw the eye without replacing the page. */
+        @keyframes reviewPulse {
+            0%   { transform: scale(1);    box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+            30%  { transform: scale(1.04); box-shadow: 0 0 0 4px rgba(255,209,102,0.55), 0 8px 30px rgba(255,209,102,0.4); }
+            60%  { transform: scale(1);    box-shadow: 0 0 0 3px rgba(255,209,102,0.35); }
+            100% { transform: scale(1);    box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+        }
+        .review-pulse { animation: reviewPulse 1.4s ease-in-out 2; }
+
         .error-state {
             text-align: center;
             padding: 3rem 1rem;
@@ -248,24 +257,29 @@
         }
 
         // Post-share celebration (Lever 2): flip to a focused review ask the moment a share completes.
-        function showReviewCelebration() {
-            const container = document.getElementById('content');
-            if (!container) return;
-            const src = window._videoUserType === 'buyer' ? 'video_share_buyer' : 'video_share_receiver';
-            container.innerHTML = `
-                <div class="logo">Got You A Little Something</div>
-                <h1>🎉 Shared! 🎉</h1>
-                <p class="subtitle" style="margin-bottom:1.5rem;">Thanks for spreading the love! 💛</p>
-                <div class="review-section">
-                    <h3>⭐ Loved this?</h3>
-                    <p>A quick 30-second review helps other gift-lovers find us — it would mean the world. ❤️</p>
-                    <a href="${resolvedReviewUrl}" target="_blank" class="review-btn" onclick="trackReviewClick('${src}')">
-                        Leave a Review ⭐
-                    </a>
-                </div>
-                <p class="footer">Made with 💛 by Got You A Little Something</p>
-            `;
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+        // Post-share (non-destructive): keep the video + share button on screen; just confirm,
+        // scroll the existing review card into view, and pulse it. Nothing disappears.
+        function highlightReviewAsk() {
+            const section = document.querySelector('.review-section');
+            if (!section) return;
+            const h3 = section.querySelector('h3');
+            if (h3 && !section.dataset.shared) h3.textContent = '🎉 Shared! Loved this?';
+            section.dataset.shared = '1';
+            section.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            section.classList.remove('review-pulse');
+            void section.offsetWidth;
+            section.classList.add('review-pulse');
+        }
+
+        // Inline "Copied!" feedback on the share button — replaces the clunky alert() popup.
+        function flashCopied() {
+            document.querySelectorAll('[onclick="shareVideo()"]').forEach(btn => {
+                if (btn.dataset.flashing) return;
+                btn.dataset.flashing = '1';
+                const original = btn.innerHTML;
+                btn.innerHTML = '✓ Link Copied!';
+                setTimeout(() => { btn.innerHTML = original; delete btn.dataset.flashing; }, 2000);
+            });
         }
 
         // logFunnel: write one row to Supabase log_video_funnel_events (agent source of truth).
@@ -466,7 +480,7 @@
                         method: 'native_share'
                     });
                     logFunnel('share_completed', { properties: { method: 'native_share' } });
-                    showReviewCelebration();
+                    highlightReviewAsk();
                 } else {
                     // Fallback: copy link to clipboard
                     await navigator.clipboard.writeText(window.location.href);
@@ -476,8 +490,8 @@
                         method: 'clipboard_copy'
                     });
                     logFunnel('share_completed', { properties: { method: 'clipboard_copy' } });
-                    alert('Link copied to clipboard! Share it with someone special 💝');
-                    showReviewCelebration();
+                    flashCopied();
+                    highlightReviewAsk();
                 }
             } catch (err) {
                 console.error('Share failed:', err);
