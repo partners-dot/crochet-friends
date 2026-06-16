@@ -2297,7 +2297,11 @@
       localStorage.removeItem('videoGeneration');
       stopLoadingAnimation();
       trackEvent('video_created');
-      logFunnel('video_created', { operationId });
+      // Do NOT also logFunnel('video_created') here. In email-first mode the SERVER owns the
+      // Supabase video_created row (api/generate-video.js logs it once on completion). This resume
+      // path runs when a user reloads index.html mid-flight; a logFunnel here would write a SECOND
+      // log_video_funnel_events row for the same operation_id → double-counts the funnel metric.
+      // (trackEvent above is PostHog-only, which has no server-side duplicate.) Audit #1, 2026-06-16.
       document.getElementById('video').src = videoUrl;
       window.videoData = videoUrl;
       window.videoFilename = `crochet-${selectedProduct}-message.mp4`;
