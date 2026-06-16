@@ -99,6 +99,31 @@
       margin-right: auto;
     }
 
+    /* Value-prop hero (Lever 3, Fix A) — lead with the magic so people get it instantly. */
+    .welcome-hero { text-align: center; margin-bottom: 1rem; }
+    #welcomeHeadline {
+      font-size: 1.6rem;
+      line-height: 1.25;
+      margin: 0.4rem 0 0.6rem;
+      font-weight: 800;
+    }
+    #welcomeHeadline .hl {
+      color: var(--accent-neon);
+      text-shadow: 0 0 18px rgba(255, 209, 102, 0.45);
+    }
+    .welcome-valueprops {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin: 0 0 0.5rem;
+      letter-spacing: 0.2px;
+    }
+    .welcome-prompt {
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+    }
+
     .card {
       background: var(--card-bg);
       backdrop-filter: blur(16px);
@@ -252,7 +277,8 @@
       position: absolute;
       bottom: 8px;
       left: 8px;
-      display: none;
+      display: flex;
+      align-items: center;
       gap: 5px;
       background: rgba(5, 10, 48, 0.8);
       backdrop-filter: blur(8px);
@@ -260,11 +286,18 @@
       border-radius: 14px;
       z-index: 10;
       border: 1px solid rgba(255, 255, 255, 0.1);
+      /* Hidden by default — shown briefly on interaction, then fade out so they don't
+         cover the on-video captions. */
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
     }
 
     .video-controls.visible {
-      display: flex;
-      align-items: center;
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
     }
 
     .video-controls button {
@@ -969,9 +1002,9 @@
 <body>
   <div class="container">
     <section id="welcomeSection" class="section">
-      <header>
-        <div class="subtitle">Thanks for choosing</div>
-        <h1>GOT YOU<br>A LITTLE<br>SOMETHING</h1>
+      <header class="welcome-hero">
+        <h1 id="welcomeHeadline">Turn your gift into a<br>video message they'll <span class="hl">love</span></h1>
+        <p class="welcome-valueprops" id="welcomeValueProps">✨ Free · ⏱️ Takes a minute · 📱 No app needed</p>
       </header>
       <div class="welcome-video-container" onclick="unmuteWelcome()">
         <video id="welcomeVideo" playsinline muted autoplay loop>
@@ -983,12 +1016,12 @@
           <button onclick="event.stopPropagation(); toggleMute();" id="muteBtn">🔊</button>
         </div>
       </div>
-      <p class="section-description">Create Your Own Video 👇</p>
+      <p class="section-description welcome-prompt">Let's start — who are you? 👇</p>
       <div class="hero-choices">
         <button type="button" class="choice-card" onclick="selectBranch('receiver')">
           <span class="emoji">🎀</span>
           <span class="label">I Received This Gift</span>
-          <span class="sub-label">Send a thank you video</span>
+          <span class="sub-label">Send a thank-you video</span>
         </button>
         <button type="button" class="choice-card" onclick="selectBranch('buyer')">
           <span class="emoji">🎁</span>
@@ -1596,15 +1629,16 @@
               Not in your inbox? Check your spam folder.
             </p>
             <p style="margin: 0; font-size: 0.85rem; color: rgba(255,255,255,0.55); font-weight: 500; text-transform: uppercase; letter-spacing: 1.5px;">While you wait...</p>
-            <p style="margin: 4px 0 0; font-size: 2rem; font-weight: 800; color: var(--accent-neon); line-height: 1.15; text-shadow: 0 0 20px rgba(255, 209, 102, 0.3);">Let's Make Your<br>Crochet Friend Talk!</p>
-            <p style="margin: 8px 0 0; font-size: 0.88rem; color: rgba(255,255,255,0.45); font-weight: 400;">Perfect for saying thank you or sending as a greeting card.</p>
+            <p style="margin: 4px 0 0; font-size: 1.9rem; font-weight: 800; color: var(--accent-neon); line-height: 1.15; text-shadow: 0 0 20px rgba(255, 209, 102, 0.3);">Turn your gift into a<br>video they'll love</p>
+            <p style="margin: 8px 0 0; font-size: 0.9rem; color: rgba(255,255,255,0.6); font-weight: 600;">✨ Free · ⏱️ Takes a minute · 📱 No app needed</p>
           `;
           headerEl.style.padding = '0.5rem 0 0.75rem';
         }
 
-        // Below video: original simple CTA text
+        // Below video: clear "who are you?" prompt (value-prop is now in the header above).
         if (descEl) {
-          descEl.innerHTML = 'Create Your Own Video 👇';
+          descEl.innerHTML = 'Let\'s start — who are you? 👇';
+          descEl.classList.add('welcome-prompt');
         }
 
         // Let claim users start at welcome screen (character selection)
@@ -1753,18 +1787,33 @@
         posthog.capture('Email Submitted', { email: email, user_type: userType, product: selectedProduct });
       }
       logFunnel('email_entered');
+      runRateCheckAndGenerate(email);
+    }
+
+    // Run the rate-limit check, then start generation. Shared by the email screen (validateEmail)
+    // AND the email-skip path for users we already have an email for (claim users).
+    // `showRateUI` = true when the email screen is visible (so we can disable its Continue button).
+    async function runRateCheckAndGenerate(email, showRateUI = true) {
       try {
         const res = await fetch('/api/user', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, userType, product: selectedProduct }) });
         const data = await res.json();
         if (!data.allowed) {
           if (window.posthog) posthog.capture('User Rate Limited', { email: email });
+          // If we skipped the email screen, fall back to showing it so the rate-limit message is visible.
+          if (!showRateUI) goToStep('email');
           document.getElementById('rateLimitWarning').classList.remove('hidden');
-          document.getElementById('continueToCreateBtn').disabled = true;
+          const btn = document.getElementById('continueToCreateBtn');
+          if (btn) btn.disabled = true;
           return;
         }
         videosRemaining = data.videosRemaining;
         startVideoGeneration();
       } catch (err) { console.error('Rate limit check failed:', err); startVideoGeneration(); }
+    }
+
+    // True when we already have a usable email (e.g. from the claim page) → we can skip the email screen.
+    function hasValidEmail() {
+      return typeof userEmail === 'string' && userEmail.includes('@') && userEmail.trim().length > 3;
     }
     function setupFormHandlers() {
       const form = document.getElementById('form');
@@ -1870,7 +1919,16 @@
       pendingMessage = text;
       // PostHog: Track message submitted
       if (window.posthog) posthog.capture('Message Written', { message_length: text.length, product: selectedProduct, user_type: userType });
-      goToStep('email');
+      // Email-skip (Lever 3, Fix B): if we already have a valid email (claim users gave it on the
+      // claim page), DON'T show the redundant email screen — run the rate-check silently and go
+      // straight to generation. Users with NO email on file still see the email screen.
+      if (hasValidEmail()) {
+        if (window.posthog) posthog.capture('Email Step Skipped', { reason: 'already_have_email', user_type: userType, product: selectedProduct });
+        logFunnel('email_entered', { properties: { skipped_screen: true } });
+        runRateCheckAndGenerate(userEmail, false);
+      } else {
+        goToStep('email');
+      }
     }
     let generationInProgress = false;
     async function startVideoGeneration() {
@@ -2111,6 +2169,16 @@
         product: selectedProduct
       });
     }
+    // The video controls overlap the on-video captions, so auto-hide them shortly after each
+    // interaction (standard player behavior). Tapping the video brings them back briefly.
+    let controlsHideTimer = null;
+    function flashControls() {
+      const controls = document.getElementById('videoControls');
+      if (!controls) return;
+      controls.classList.add('visible');
+      clearTimeout(controlsHideTimer);
+      controlsHideTimer = setTimeout(() => controls.classList.remove('visible'), 2500);
+    }
     function unmuteWelcome() {
       const video = document.getElementById('welcomeVideo');
       const overlay = document.getElementById('welcomeSoundOverlay');
@@ -2133,11 +2201,12 @@
           };
         }
         if (overlay) overlay.style.display = 'none';
-        if (controls) controls.classList.add('visible');
+        flashControls(); // show briefly, then auto-hide so captions stay visible
         videoUnmuted = true;
         return;
       }
-      togglePlay();
+      // Already unmuted → a tap on the video reveals the controls again (then they auto-hide).
+      flashControls();
     }
     function togglePlay() {
       const video = document.getElementById('welcomeVideo');
@@ -2149,10 +2218,12 @@
         video.pause();
         btn.textContent = '▶️';
       }
+      flashControls(); // keep controls visible briefly after interacting
     }
     function toggleMute() {
       const video = document.getElementById('welcomeVideo');
       const btn = document.getElementById('muteBtn');
+      flashControls(); // keep controls visible briefly after interacting
       if (video.muted) {
         video.muted = false;
         btn.textContent = '🔊';
