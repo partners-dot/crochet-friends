@@ -1876,6 +1876,19 @@
       }));
       form.addEventListener('submit', handleVideoGeneration);
     }
+    // Never let a bare "NAME" placeholder reach the user or block a submit —
+    // a ready-to-send message beats a blank box or a dead-end alert.
+    function swapNamePlaceholder(text) {
+      return (text || '').replace(/\bNAME\b/g, 'friend');
+    }
+    // A good default so the message box is never empty. Reuse the on-brand
+    // example copy for this role + character (fallback to the general set).
+    function defaultMessageFor(type, product) {
+      const cfg = PRODUCT_CONFIG[product] || PRODUCT_CONFIG.general;
+      const examples = (type === 'receiver' ? cfg.receiverExamples : cfg.buyerExamples) || [];
+      const first = examples[0] && examples[0].template;
+      return swapNamePlaceholder(first || "Thanks so much for this — it truly made my day. Sending you a big hug!");
+    }
     let pendingTemplate = null;
     function useTemplate(btn) {
       const container = btn.closest('.video-example');
@@ -1888,12 +1901,15 @@
       goToStep('create');
     }
     function applyPendingTemplate() {
-      if (pendingTemplate) {
-        const messageArea = document.getElementById('message');
-        messageArea.value = pendingTemplate;
-        document.getElementById('charCount').textContent = pendingTemplate.length;
-        pendingTemplate = null;
-      }
+      const messageArea = document.getElementById('message');
+      if (!messageArea) return;
+      // Use the tapped template if there is one; otherwise pre-fill a default
+      // so the create screen never shows an empty box. Either way, no "NAME".
+      let text = pendingTemplate || (messageArea.value.trim() ? messageArea.value : defaultMessageFor(userType, selectedProduct));
+      text = swapNamePlaceholder(text);
+      messageArea.value = text;
+      document.getElementById('charCount').textContent = text.length;
+      pendingTemplate = null;
     }
     let pendingMessage = null;
     async function handleVideoGeneration(e) {
@@ -1904,18 +1920,13 @@
         product: selectedProduct,
         used_template: pendingTemplate !== null
       });
-      const text = document.getElementById('message').value.trim();
-      if (!text) return;
-      if (text.includes('NAME')) {
-        // Analytics: Track validation error for NAME placeholder
-        if (window.posthog) posthog.capture('Message Validation - NAME Not Replaced', {
-          user_type: userType,
-          product: selectedProduct,
-          template_used: pendingTemplate !== null
-        });
-        alert('Please replace NAME with your friend\'s name before creating the video!');
-        return;
-      }
+      const messageEl = document.getElementById('message');
+      let text = messageEl.value.trim();
+      // Never dead-end on an empty box — fall back to a ready-to-send default.
+      if (!text) text = defaultMessageFor(userType, selectedProduct);
+      // Never block on a leftover placeholder — silently make it sendable.
+      if (text.includes('NAME')) text = swapNamePlaceholder(text);
+      messageEl.value = text;
       pendingMessage = text;
       // PostHog: Track message submitted
       if (window.posthog) posthog.capture('Message Written', { message_length: text.length, product: selectedProduct, user_type: userType });
