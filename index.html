@@ -1920,6 +1920,7 @@
         product: selectedProduct,
         used_template: pendingTemplate !== null
       });
+      logFunnel('create_clicked', { properties: { used_template: pendingTemplate !== null } });
       const messageEl = document.getElementById('message');
       let text = messageEl.value.trim();
       // Never dead-end on an empty box — fall back to a ready-to-send default.
@@ -1930,6 +1931,7 @@
       pendingMessage = text;
       // PostHog: Track message submitted
       if (window.posthog) posthog.capture('Message Written', { message_length: text.length, product: selectedProduct, user_type: userType });
+      logFunnel('message_written', { properties: { message_length: text.length } });
       // Email-skip (Lever 3, Fix B): if we already have a valid email (claim users gave it on the
       // claim page), DON'T show the redundant email screen — run the rate-check silently and go
       // straight to generation. Users with NO email on file still see the email screen.

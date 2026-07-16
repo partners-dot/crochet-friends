@@ -1,17 +1,28 @@
 // funnel-report.mjs — the one command a future agent runs to analyze the video funnel.
 // Reads log_video_funnel_events (the agent source of truth) + video_sessions (true video counts).
 //
-//   node scripts/funnel-report.mjs            # all-time
-//   node scripts/funnel-report.mjs 30         # last 30 days
+//   node tools/funnel-report.mjs            # all-time
+//   node tools/funnel-report.mjs 30         # last 30 days
 //
 // Prints: funnel by phase, review clicks by phase × role × source (every button),
 // role split, and true vs logged video counts. No PostHog, no ad-hoc HogQL needed.
+//
+// Env: SUPABASE_URL + SUPABASE_ANON_KEY (crochet project) — read from process.env
+// first, then from a root .env file if present (fresh clones may have neither file).
 import { createClient } from '@supabase/supabase-js';
 import { readFileSync } from 'fs';
 
-const env = readFileSync(new URL('../.env', import.meta.url), 'utf8');
-const E = {};
-for (const l of env.split('\n')) { const m = l.match(/^([A-Z_]+)=(.*)$/); if (m) E[m[1]] = m[2].trim().replace(/^["']|["']$/g, ''); }
+const E = { SUPABASE_URL: process.env.SUPABASE_URL, SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY };
+if (!E.SUPABASE_URL || !E.SUPABASE_ANON_KEY) {
+  try {
+    const env = readFileSync(new URL('../.env', import.meta.url), 'utf8');
+    for (const l of env.split('\n')) { const m = l.match(/^([A-Z_]+)=(.*)$/); if (m && !E[m[1]]) E[m[1]] = m[2].trim().replace(/^["']|["']$/g, ''); }
+  } catch { /* no .env file — process.env was the only chance */ }
+}
+if (!E.SUPABASE_URL || !E.SUPABASE_ANON_KEY) {
+  console.error('Missing SUPABASE_URL / SUPABASE_ANON_KEY (set env vars or create a root .env).');
+  process.exit(1);
+}
 const sb = createClient(E.SUPABASE_URL, E.SUPABASE_ANON_KEY);
 
 const days = parseInt(process.argv[2] || '0', 10);
@@ -45,7 +56,7 @@ async function fetchAll(table, cols) {
   console.log('1. EVENTS (count):');
   const byEvent = {};
   for (const r of ev) byEvent[r.event] = (byEvent[r.event] || 0) + 1;
-  const order = ['email_entered','role_selected','template_used','video_started','video_created','preview_opened','share_clicked','share_completed','share_page_opened','review_clicked'];
+  const order = ['page_viewed','email_entered','cta_clicked','role_selected','template_used','message_written','create_clicked','video_started','video_created','preview_opened','share_clicked','share_completed','share_page_opened','review_clicked'];
   tbl(order.filter(e => byEvent[e] != null).map(e => `${e.padEnd(20)} ${byEvent[e]}`));
   const extra = Object.keys(byEvent).filter(e => !order.includes(e));
   if (extra.length) tbl(extra.map(e => `${e.padEnd(20)} ${byEvent[e]}  (non-canonical!)`));

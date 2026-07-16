@@ -65,6 +65,26 @@ message**.
 
 ## Changes
 
+### 2026-07-16 · Complete the Supabase log + env-based PostHog tool — `INFRA`
+**Files:** `claim.html`, `index.html`, `analytics-events.js`, `tools/*` · **Targets:** measurement, not conversion
+
+**What & why.** Groundwork for the biweekly automated optimizer (runs as a ROS cron):
+1. **Four missing funnel steps now land in `log_video_funnel_events`:** `page_viewed` +
+   `cta_clicked` (phase=claim — the top-of-funnel denominator was PostHog-only) and
+   `message_written` + `create_clicked` (phase=in_app). Our own log can now compute
+   land→video end-to-end without PostHog. Rates from these events start 2026-07-16.
+2. **`tools/posthog-funnel.mjs`** — PostHog query tool with the key from env (no hardcoded
+   keys); `presets` mode runs the two canonical funnels test-filtered. NOTE: in the in-app
+   ordered funnel, `Create Video Button Clicked` fires just BEFORE `Message Written` (same
+   handler since the Jul-6 change) — funnel steps must be in that order or the create step
+   silently undercounts (17 vs 41 in the same 14d window).
+3. **All tools read env vars first, `.env` file second** — they now run on a fresh clone.
+
+**Result:** n/a (measurement infra; no user-facing change). Verified live in a local browser:
+all 4 new events landed in the table with correct phase/role/properties; test rows deleted.
+
+---
+
 ### 2026-07-06 · Kill the message-step friction — `SHIPPED`
 **File:** `index.html` · **Targets:** into-app → started video (esp. role → message → create)
 
