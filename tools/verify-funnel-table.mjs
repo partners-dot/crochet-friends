@@ -1,12 +1,21 @@
 // Verifies log_video_funnel_events exists and is writable with the app's anon key.
 // Run AFTER applying sql/001_log_video_funnel_events.sql in the Supabase SQL editor.
-//   node scripts/verify-funnel-table.mjs
+//   node tools/verify-funnel-table.mjs
+// Env: SUPABASE_URL + SUPABASE_ANON_KEY — process.env first, root .env file fallback.
 import { createClient } from '@supabase/supabase-js';
 import { readFileSync } from 'fs';
 
-const env = readFileSync(new URL('../.env', import.meta.url), 'utf8');
-const E = {};
-for (const l of env.split('\n')) { const m = l.match(/^([A-Z_]+)=(.*)$/); if (m) E[m[1]] = m[2].trim().replace(/^["']|["']$/g, ''); }
+const E = { SUPABASE_URL: process.env.SUPABASE_URL, SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY };
+if (!E.SUPABASE_URL || !E.SUPABASE_ANON_KEY) {
+  try {
+    const env = readFileSync(new URL('../.env', import.meta.url), 'utf8');
+    for (const l of env.split('\n')) { const m = l.match(/^([A-Z_]+)=(.*)$/); if (m && !E[m[1]]) E[m[1]] = m[2].trim().replace(/^["']|["']$/g, ''); }
+  } catch { /* no .env file */ }
+}
+if (!E.SUPABASE_URL || !E.SUPABASE_ANON_KEY) {
+  console.error('Missing SUPABASE_URL / SUPABASE_ANON_KEY (set env vars or create a root .env).');
+  process.exit(1);
+}
 const sb = createClient(E.SUPABASE_URL, E.SUPABASE_ANON_KEY);
 
 const TABLE = 'log_video_funnel_events';

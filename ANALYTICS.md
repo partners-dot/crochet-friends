@@ -30,8 +30,12 @@ Lives in the **crochet Supabase project** (`nhplsjtnvujwvspnbweo`) alongside `vi
 Columns: `event, phase, role, email, operation_id, source, product, properties (jsonb), user_agent, created_at`.
 
 - **`event`** — one of (canonical, defined in `analytics-events.js`):
-  `email_entered, role_selected, template_used, video_started, video_created, preview_opened,
-  share_clicked, share_completed, share_page_opened, review_clicked`
+  `page_viewed, email_entered, cta_clicked, role_selected, template_used, message_written,
+  create_clicked, video_started, video_created, preview_opened, share_clicked, share_completed,
+  share_page_opened, review_clicked`
+  (`page_viewed`/`cta_clicked` phase=claim and `message_written`/`create_clicked` phase=in_app
+  were added 2026-07-16 — before that date those steps exist ONLY in PostHog, so top-of-funnel
+  rates from this table start then.)
 - **`phase`** — `claim | in_app | preview | share | email_redirect`
 - **`role`** — `buyer | receiver | unknown` (never null, never guessed; resolved from `video_sessions`)
 - **`source`** — the specific button: `thankyou, strong, video_preview_buyer, video_preview_receiver,
@@ -54,7 +58,10 @@ Columns: `event, phase, role, email, operation_id, source, product, properties (
 node tools/funnel-report.mjs        # all-time funnel + review-by-phase×role×source + true video counts
 node tools/funnel-report.mjs 30     # last 30 days
 node tools/verify-funnel-table.mjs  # confirm the table exists + is writable
+node tools/posthog-funnel.mjs presets 14   # PostHog side: the two canonical funnels + weekly trend
 ```
+All tools read `SUPABASE_URL`/`SUPABASE_ANON_KEY` (and `POSTHOG_API_KEY` for the PostHog one)
+from process.env first, root `.env` file second — so they run on a fresh clone with env vars only.
 Or query `log_video_funnel_events` directly for custom slices (e.g. "do email-sourced buyers
 convert to review better than share-page receivers?" = filter `event='review_clicked'` group by
 `phase, role`).

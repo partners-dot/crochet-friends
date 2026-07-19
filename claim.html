@@ -1171,6 +1171,18 @@
                     has_discount: !!state.discountCode
                 });
             }
+            // Supabase funnel log (agent source of truth) — top-of-funnel denominator.
+            try {
+                fetch('/api/track', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        event: 'page_viewed', phase: 'claim',
+                        role: 'unknown', product: state.sku || null,
+                        source: 'claim_page',
+                        properties: { sku: state.sku || null, has_discount: !!state.discountCode, qr_source: state.qrSource || null }
+                    })
+                }).catch(() => { });
+            } catch (e) { /* never block */ }
 
             // Fetch product info from Supabase via API
             if (state.sku) {
@@ -1459,6 +1471,18 @@
                     sku: state.sku
                 });
             }
+            // Supabase funnel log (agent source of truth) — phase=claim
+            try {
+                fetch('/api/track', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        event: 'cta_clicked', phase: 'claim',
+                        role: (state.userType === 'buyer' || state.userType === 'receiver') ? state.userType : 'unknown',
+                        email: state.email || null, product: state.sku || null,
+                        source: 'claim_page', properties: { sku: state.sku || null }
+                    })
+                }).catch(() => { });
+            } catch (e) { /* never block */ }
         }
 
         function trackReviewClick() {
