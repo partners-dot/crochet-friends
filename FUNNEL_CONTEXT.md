@@ -30,9 +30,16 @@ Products actually scanning in (last ~5 weeks, by volume): PTT-GREEN1 (64), PTT-F
 The claim page offers **30% off (the hero) + a free personalized video (the bonus)**. Both
 are delivered by email:
 
-- **The discount code is not on the page and not in the QR link.** The page says "code sent
-  to your inbox" — Klaviyo sends it after the email is submitted. There is no code to show
-  on screen today.
+- **The discount code is not on the page and not in the QR link.** The page shows the
+  *offer* ("30% OFF") and a popup, but never a code string — `showPrize()` plays a
+  transition and forwards to the video app. Klaviyo sends the code after the email is
+  submitted.
+- **The codes are UNIQUE and single-use, not one shared code** (verified against the
+  Klaviyo API 2026-07-19). Two coupon pools exist: `AMAZON` (Amazon promo format, e.g.
+  `4W2R-SVS6E8-5UV8A5` — ~809 of the first 1,200 already assigned to profiles) and
+  `PrizeForms` (e.g. `TNCU99U9` — almost entirely unassigned). Klaviyo assigns a code to a
+  *profile*, which is why an email is required before a code can be issued today.
+  ⇒ **You cannot simply print "the code" on screen.** There isn't one.
 - **The video is delivered by email too** (since the email-first change of 2026-06-16: the
   create app shows "Check your email" and stops; the server emails the finished video).
 
@@ -67,7 +74,7 @@ remaining moves are **structural**, and each has a real cost:
 
 | Direction | What it would need | What it might cost |
 |---|---|---|
-| Show a discount code on screen immediately, ask for email only for the video | A code that can be shown to everyone (multi-use). **We do not know if one exists — this is an owner question, not an assumption.** | Fewer emails ⇒ fewer review reminders; possible discount abuse |
+| **Issue a unique code at scan time and show it on screen instantly**, then ask for the email to send the video (and a copy of the code) | Pull an UNASSIGNED code from the Klaviyo pool server-side and display it — a change in `api/` plus `claim.html`. There is a real pool to draw on (`PrizeForms` is almost entirely unassigned). Klaviyo assigns codes to profiles, so the assignment mechanism without an email needs designing and confirming with the owner. | Burns codes on people who never convert (pool depletion is measurable — check unassigned counts); removes the leverage that currently drives email capture, so review-reminder emails and the Klaviyo list shrink |
 | Ask for the email later — after the video is created or previewed | Video delivery would have to work without an email up front (reversing part of the email-first change) | Re-introduces the delivery fragility email-first was built to fix |
 | Reduce what the email ask costs the user (fewer fields, clearer why, instant proof) | Modest, inside the current mechanics | Low risk, but presentation-shaped — and presentation already failed once |
 
