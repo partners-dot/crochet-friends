@@ -17,8 +17,13 @@ crocheted gift on Amazon. This is the exact wording (owner-supplied, 2026-07-19)
 > [ QR code ]
 > **there's a spud for anybud**
 
+There is **also a printed insert card carrying similar content** (same offer, same voice),
+so most scanners meet this promise twice — once on the box, once on the card. Treat the
+promise as well-established in the customer's mind by the time they scan.
+
 **This print CANNOT be changed in the near term.** It is a fixed input. Every optimization
-must adapt the *page* to the box — never assume the box can be reworded to match a page.
+must adapt the *page* to the box — never assume the box or card can be reworded to match a
+page.
 
 What the box establishes, and what it does not:
 
@@ -32,14 +37,17 @@ What the box establishes, and what it does not:
 - **The tone is warm, playful and light** ("there's a spud for anybud"). A page that answers
   that voice with a formal-feeling form is a tonal break as well as a friction point.
 
-> 🚨 **OPEN CONTRADICTION — the box says 15%, the page and email say 30%.**
-> `claim.html` shows "You've Got 30% Off" / "30% off your order — code sent to your inbox",
-> and `email-7-discount-reminder.html` says "30% off code". The box promises 15%.
-> This is unresolved and must NOT be silently "fixed" by an optimization cycle: if the
-> real Amazon promo is 15%, the page is over-promising and customers are being let down at
-> the moment of redemption; if it is genuinely 30%, the page is fine but inconsistent with
-> the print. **Raise it in the cycle report as an owner question. Do not guess which
-> number is correct, and do not change either one without the owner's answer.**
+> ✅ **RESOLVED (owner, 2026-07-19): the real promo is 30%.** The print says 15%, so the
+> box **under-promises and we over-deliver**. Nobody is let down — the opposite. Do NOT
+> "fix" the page down to 15%, and do not treat the mismatch as a bug.
+>
+> **This is an unused asset.** Today the page simply announces "You've Got 30% Off" as if
+> that were the deal all along, so the pleasant surprise is silently thrown away. Someone
+> who scanned for 15% and is handed *double* has been given a reason to trust us in the
+> first three seconds — the strongest possible answer to a promise, and currently invisible.
+> Naming the gap out loud (in the box's own playful voice) is a live, untried candidate for
+> the biggest leak in the funnel. It is untried ground, not a repeat of PR #8, because it
+> changes what is SAID and WHEN value arrives, not how the page is laid out.
 
 The QR link carries **only `?sku=<PRODUCT>`** (verified across all claim traffic: no
 `code`, no `source` parameter ever arrives). Everything else — which discount, how it's
@@ -92,12 +100,17 @@ the largest single loss in the funnel, ~115 people). They scanned because they w
 promised a discount, and the page answers by asking for something before giving anything.
 
 **Read that against the box.** Someone was told "scan to enjoy 15% off your next order" —
-a small, casual, no-strings offer. What they meet is a page leading with a bigger number
-they were not promised, plus a personalized video they never heard of, and an email field
-standing between them and the thing they came for. The gap between the promise made and
-the page that answers it is the most plausible explanation for the single biggest loss in
-this funnel, and it is a far better hypothesis than "the layout needs work" (which was
-tried, in PR #8, and did nothing).
+a small, casual, no-strings offer, seen twice (box and insert card). What they meet is:
+
+| They were promised | The page gives them |
+|---|---|
+| 15% off — small, casual, no strings | "You've Got 30% Off" — a *different, bigger* number, presented as if it were always the deal (the surprise is wasted, and an unexplained bigger number can read as a catch) |
+| (nothing about a video) | A personalized video as a co-headline — an unannounced bonus arriving before the thing they came for |
+| A warm, playful voice | An email field standing between them and their discount |
+
+The gap between the promise made and the page that answers it is the most plausible
+explanation for the single biggest loss in this funnel — and a far better hypothesis than
+"the layout needs work", which was tried in PR #8 and did nothing.
 
 A **presentation** fix has already been tried and failed: PR #8 rebuilt the claim page with
 a two-reward layout and clearer hierarchy — capture stayed flat (44.5% → 39.0%). So the
