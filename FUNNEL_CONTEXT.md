@@ -10,12 +10,23 @@
 ## The journey starts OFF the website
 
 The promise is **printed on the product box**. The customer reads it after buying a
-crocheted gift on Amazon. This is the exact wording (owner-supplied, 2026-07-19):
+crocheted gift on Amazon. A representative example of the wording (owner-supplied,
+2026-07-19):
 
 > **did this potato make you smile?**
 > **scan to enjoy 15% off your next order**
 > [ QR code ]
 > **there's a spud for anybud**
+
+> 🚨 **THE PERCENTAGE VARIES BETWEEN BOXES.** Some print 15%, some print 30%. We cannot
+> know which number any given scanner saw. This example is here so you understand the
+> VOICE and the STRUCTURE of the promise — it is **not** a fact about what the customer
+> was told.
+>
+> **Therefore the page must NEVER reference, quote, compare to, or "reveal" the printed
+> percentage.** Anything of the form "your box said X — actually it's Y" is wrong for most
+> visitors and has been explicitly rejected by the owner (see Rejected attempts). The
+> on-page offer stands on its own.
 
 There is **also a printed insert card carrying similar content** (same offer, same voice),
 so most scanners meet this promise twice — once on the box, once on the card. Treat the
@@ -37,17 +48,11 @@ What the box establishes, and what it does not:
 - **The tone is warm, playful and light** ("there's a spud for anybud"). A page that answers
   that voice with a formal-feeling form is a tonal break as well as a friction point.
 
-> ✅ **RESOLVED (owner, 2026-07-19): the real promo is 30%.** The print says 15%, so the
-> box **under-promises and we over-deliver**. Nobody is let down — the opposite. Do NOT
-> "fix" the page down to 15%, and do not treat the mismatch as a bug.
->
-> **This is an unused asset.** Today the page simply announces "You've Got 30% Off" as if
-> that were the deal all along, so the pleasant surprise is silently thrown away. Someone
-> who scanned for 15% and is handed *double* has been given a reason to trust us in the
-> first three seconds — the strongest possible answer to a promise, and currently invisible.
-> Naming the gap out loud (in the box's own playful voice) is a live, untried candidate for
-> the biggest leak in the funnel. It is untried ground, not a repeat of PR #8, because it
-> changes what is SAID and WHEN value arrives, not how the page is laid out.
+> ✅ **The live promo is 30%** (owner, 2026-07-19), while print varies (15% or 30%). Some
+> scanners are therefore offered more than they were promised, some exactly what they were
+> promised. Do NOT "fix" the page down to a printed number, do not treat the difference as
+> a bug, and — per the rule above — **do not build anything that references the printed
+> number**, because you cannot know which one this visitor saw.
 
 The QR link carries **only `?sku=<PRODUCT>`** (verified across all claim traffic: no
 `code`, no `source` parameter ever arrives). Everything else — which discount, how it's
@@ -99,18 +104,35 @@ where possible, not just the local rate you are improving.
 the largest single loss in the funnel, ~115 people). They scanned because they were
 promised a discount, and the page answers by asking for something before giving anything.
 
-**Read that against the box.** Someone was told "scan to enjoy 15% off your next order" —
-a small, casual, no-strings offer, seen twice (box and insert card). What they meet is:
+**We do not actually know why they leave.** That is the honest starting point, and the
+owner's explicit instruction (2026-07-19) is to **find out what makes someone scan and then
+not enter an email, and what would make them want to** — not to reach for a copy idea and
+hope. Reasonable competing explanations, none yet tested:
 
-| They were promised | The page gives them |
-|---|---|
-| 15% off — small, casual, no strings | "You've Got 30% Off" — a *different, bigger* number, presented as if it were always the deal (the surprise is wasted, and an unexplained bigger number can read as a catch) |
-| (nothing about a video) | A personalized video as a co-headline — an unannounced bonus arriving before the thing they came for |
-| A warm, playful voice | An email field standing between them and their discount |
+1. **They never intended to.** The discount is for a *next* order; a one-off gift buyer may
+   simply not want one. (If so this leak has a ceiling and the effort belongs elsewhere.)
+2. **They don't want to give an email** to get something that was pitched as no-strings.
+3. **They don't understand what they get, or don't trust it** — an unfamiliar page asking
+   for an address before giving anything.
+4. **They never even reach the field** — bounced, confused, distracted, slow load.
+5. **They tried and failed** — typo, validation, keyboard, form friction.
 
-The gap between the promise made and the page that answers it is the most plausible
-explanation for the single biggest loss in this funnel — and a far better hypothesis than
-"the layout needs work", which was tried in PR #8 and did nothing.
+These have *different* fixes, and four of the five are not copy problems. Distinguishing
+them is the job before proposing anything.
+
+**Evidence available for that diagnosis** (use it — do not speculate):
+- **PostHog session replay is ENABLED** and recording claim-page sessions. Watching what
+  people actually do is the most direct evidence we have. Sample real sessions that
+  bounced without submitting.
+- Time-on-page and bounce timing: a 5-second exit and a 90-second exit are different
+  problems.
+- Device, SKU, and traffic mix (top scanners: PTT-GREEN1, PTT-FRIENDFUN, PTT-CPCK1).
+- **Instrumentation gap worth fixing:** the claim page currently logs a page view and a
+  submit — nothing in between. There is no field-focus, scroll-depth, or time-to-first-
+  interaction event, so we cannot yet separate "never engaged" from "tried and gave up".
+  **Adding that instrumentation is a legitimate and often superior cycle output** — a
+  cycle that makes the next three cycles able to see is worth more than a guess shipped
+  today.
 
 A **presentation** fix has already been tried and failed: PR #8 rebuilt the claim page with
 a two-reward layout and clearer hierarchy — capture stayed flat (44.5% → 39.0%). So the
@@ -126,6 +148,19 @@ remaining moves are **structural**, and each has a real cost:
 recommendation with the trade-off stated plainly, flag it as business-impacting in the
 cycle report, and let the owner decide. Do not quietly ship a change that alters what the
 customer is promised or how they receive it.
+
+## Rejected attempts — do not re-propose
+
+Same weight as a failed experiment: these were considered and turned down by the owner.
+A future cycle may not re-propose them, or a smaller version of them, and must say
+explicitly how any new idea differs.
+
+| Date | Proposal | Why rejected |
+|---|---|---|
+| 2026-07-19 | **Name the printed-vs-actual discount gap on the claim hero** ("Your box said ~~15% off~~ — Surprise: it's 30%") | The printed percentage **varies between boxes**, so the claim would be wrong for many visitors. Beyond that, the owner does not want the page drawing attention to the print at all. The printed wording is background context for understanding the customer's mindset — **never material to quote back at them.** |
+
+**Also standing:** claim-page **layout/hierarchy** redesigns for email capture (PR #8 —
+tried, capture stayed flat). Presentation reshuffles of that page are spent ground.
 
 ## Hard constraints (do not violate)
 
