@@ -4,6 +4,7 @@
 // (tools/funnel-report.mjs) is the durable second source. Cross-check both.
 //
 //   node tools/posthog-funnel.mjs presets 14                       # the two canonical funnels + review trend, last 14d
+//   node tools/posthog-funnel.mjs presets 14 --until=2026-07-05    # the 14 days ENDING Jul 5 (frozen window)
 //   node tools/posthog-funnel.mjs funnel 14 claim_page_view claim_email_submitted "Video Creation Started"
 //   node tools/posthog-funnel.mjs trend 14 claim_page_view "Amazon Review Link Clicked"
 //   node tools/posthog-funnel.mjs hogql "select event, count() from events where timestamp > now() - interval 14 day group by event order by count() desc limit 20"
@@ -40,15 +41,30 @@ async function phQuery(query) {
 
 const pct = (a, b) => (b ? `${Math.round((100 * a) / b)}%` : '—');
 
+// --until=YYYY-MM-DD freezes the window end so a window is exactly reproducible
+// (backtesting: "what would this have looked like as of Jul 5?"). Omitted = now.
+const UNTIL = (process.argv.find((a) => a.startsWith('--until=')) || '').split('=')[1] || null;
+if (UNTIL && Number.isNaN(Date.parse(UNTIL))) { console.error(`Bad --until=${UNTIL} (use YYYY-MM-DD).`); process.exit(1); }
+// PostHog date_from is relative to now, so a frozen window needs absolute dates.
+const dateRange = (days) => {
+  if (!UNTIL) return { date_from: `-${days}d` };
+  const end = new Date(`${UNTIL}T23:59:59Z`);
+  const start = new Date(end.getTime() - days * 864e5);
+  return { date_from: start.toISOString().slice(0, 10), date_to: UNTIL };
+};
+const windowLabel = (days) => `last ${days}d${UNTIL ? ` ending ${UNTIL}` : ''}`;
+// Positional args must ignore flags.
+const positional = process.argv.slice(2).filter((a) => !a.startsWith('--'));
+
 async function runFunnel(days, events, title = null) {
   const res = await phQuery({
     kind: 'FunnelsQuery',
     series: events.map((e) => ({ kind: 'EventsNode', event: e })),
-    dateRange: { date_from: `-${days}d` },
+    dateRange: dateRange(days),
     filterTestAccounts: true,
     funnelsFilter: { funnelWindowInterval: 14, funnelWindowIntervalUnit: 'day' },
   });
-  console.log(`\n== FUNNEL${title ? ` · ${title}` : ''} (last ${days}d, test accounts filtered, 14d window) ==`);
+  console.log(`\n== FUNNEL${title ? ` · ${title}` : ''} (${windowLabel(days)}, test accounts filtered, 14d conv window) ==`);
   const steps = Array.isArray(res.results) ? res.results : [];
   if (!steps.length) { console.log('  (no results)'); console.log(JSON.stringify(res).slice(0, 400)); return; }
   const first = steps[0]?.count ?? 0;
@@ -62,11 +78,11 @@ async function runTrend(days, events) {
   const res = await phQuery({
     kind: 'TrendsQuery',
     series: events.map((e) => ({ kind: 'EventsNode', event: e, math: 'dau' })), // unique users
-    dateRange: { date_from: `-${days}d` },
+    dateRange: dateRange(days),
     interval: 'week',
     filterTestAccounts: true,
   });
-  console.log(`\n== TREND — unique users/week (last ${days}d, test accounts filtered) ==`);
+  console.log(`\n== TREND — unique users/week (${windowLabel(days)}, test accounts filtered) ==`);
   for (const s of res.results || []) {
     const label = s.label || s.action?.name || '?';
     const pairs = (s.days || []).map((d, i) => `${d.slice(5)}:${s.data[i]}`).join('  ');
@@ -94,7 +110,7 @@ const PRESETS = (days) => [
 ];
 
 (async () => {
-  const [mode, ...rest] = process.argv.slice(2);
+  const [mode, ...rest] = positional;
   if (mode === 'presets') {
     const days = parseInt(rest[0] || '14', 10);
     for (const p of PRESETS(days)) await p;
