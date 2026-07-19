@@ -9,18 +9,41 @@
 
 ## The journey starts OFF the website
 
-A physical insert card ships inside every product. The customer finds it after buying a
-crocheted gift on Amazon. **The card's call-to-action is the discount** — that is the
-promise that makes someone pull out their phone and scan. The video is not the hook; the
-discount is.
+The promise is **printed on the product box**. The customer reads it after buying a
+crocheted gift on Amazon. This is the exact wording (owner-supplied, 2026-07-19):
+
+> **did this potato make you smile?**
+> **scan to enjoy 15% off your next order**
+> [ QR code ]
+> **there's a spud for anybud**
+
+**This print CANNOT be changed in the near term.** It is a fixed input. Every optimization
+must adapt the *page* to the box — never assume the box can be reworded to match a page.
+
+What the box establishes, and what it does not:
+
+- **The call-to-action is the discount** — that is the promise that makes someone pull out
+  a phone and scan. It is the only reason anyone enters this funnel.
+- **The discount is "15% off your next order"** — a repeat-purchase offer, and framed as
+  small and easy, not as a prize to be won.
+- **The personalized video is NOT mentioned anywhere on the box.** Nobody scans expecting
+  it. On the page it is an unannounced bonus — which may be delightful, or may read as a
+  bait-and-switch when it appears *before* the thing they actually came for.
+- **The tone is warm, playful and light** ("there's a spud for anybud"). A page that answers
+  that voice with a formal-feeling form is a tonal break as well as a friction point.
+
+> 🚨 **OPEN CONTRADICTION — the box says 15%, the page and email say 30%.**
+> `claim.html` shows "You've Got 30% Off" / "30% off your order — code sent to your inbox",
+> and `email-7-discount-reminder.html` says "30% off code". The box promises 15%.
+> This is unresolved and must NOT be silently "fixed" by an optimization cycle: if the
+> real Amazon promo is 15%, the page is over-promising and customers are being let down at
+> the moment of redemption; if it is genuinely 30%, the page is fine but inconsistent with
+> the print. **Raise it in the cycle report as an owner question. Do not guess which
+> number is correct, and do not change either one without the owner's answer.**
 
 The QR link carries **only `?sku=<PRODUCT>`** (verified across all claim traffic: no
 `code`, no `source` parameter ever arrives). Everything else — which discount, how it's
 delivered — is decided by our own pages and by Klaviyo.
-
-> ⚠️ **Unknown, needs the owner:** we do not have the card artwork or its exact wording in
-> this repo. If you are reasoning about promise-versus-delivery, say so explicitly rather
-> than assuming what the card says. Ask for it in the report.
 
 Products actually scanning in (last ~5 weeks, by volume): PTT-GREEN1 (64), PTT-FRIENDFUN
 (28), PTT-CPCK1 (23), PTT-GREEN-DAD (19), PTT-SISFUN (11), then a long tail.
@@ -67,6 +90,14 @@ where possible, not just the local rate you are improving.
 ~59% of people who scan never submit an email (41%, 80 of 195 in a typical fortnight —
 the largest single loss in the funnel, ~115 people). They scanned because they were
 promised a discount, and the page answers by asking for something before giving anything.
+
+**Read that against the box.** Someone was told "scan to enjoy 15% off your next order" —
+a small, casual, no-strings offer. What they meet is a page leading with a bigger number
+they were not promised, plus a personalized video they never heard of, and an email field
+standing between them and the thing they came for. The gap between the promise made and
+the page that answers it is the most plausible explanation for the single biggest loss in
+this funnel, and it is a far better hypothesis than "the layout needs work" (which was
+tried, in PR #8, and did nothing).
 
 A **presentation** fix has already been tried and failed: PR #8 rebuilt the claim page with
 a two-reward layout and clearer hierarchy — capture stayed flat (44.5% → 39.0%). So the
