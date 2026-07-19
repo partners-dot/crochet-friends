@@ -83,11 +83,21 @@ async function runTrend(days, events) {
     filterTestAccounts: true,
   });
   console.log(`\n== TREND — unique users/week (${windowLabel(days)}, test accounts filtered) ==`);
+  // The final bucket is almost always a WEEK IN PROGRESS, not a finished week. Left
+  // unmarked it reads as a cliff: a Sunday run once showed "07-19:5" against a ~77/week
+  // baseline and was reported as a traffic collapse — it was one day of data.
+  const endMs = UNTIL ? Date.parse(`${UNTIL}T23:59:59Z`) : Date.now();
   for (const s of res.results || []) {
     const label = s.label || s.action?.name || '?';
-    const pairs = (s.days || []).map((d, i) => `${d.slice(5)}:${s.data[i]}`).join('  ');
+    const dayList = s.days || [];
+    const pairs = dayList.map((d, i) => {
+      const partial = Date.parse(d) + 7 * 864e5 > endMs;
+      return `${d.slice(5)}:${s.data[i]}${partial ? ' (partial week)' : ''}`;
+    }).join('  ');
     console.log(`  ${label}\n    ${pairs}   (total ${s.count})`);
   }
+  console.log('  NOTE: a bucket marked "(partial week)" is still in progress — never');
+  console.log('        compare it against completed weeks or read it as a decline.');
 }
 
 async function runHogql(q) {
