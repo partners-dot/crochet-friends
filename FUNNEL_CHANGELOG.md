@@ -29,6 +29,28 @@ under-reports in PostHog (it lost its client-side trigger when we moved to email
 delivery) — server-side, almost everyone who *starts* a video completes it. Use
 `Video Creation Started` as the honest finish line.
 
+### The noise floor — read this before grading anything
+
+At ~12–16 landers/day a two-week window holds only ~100–200 people per step. **At that
+size, only swings of roughly 13–20 points can be told apart from luck.** Proving a
+6-point change would need ~1,000 people per window — over two months of traffic.
+
+Consequences, learned the hard way (2026-07-16, an automated cycle graded a noise-level
+swing as a win using an unreproducible baseline):
+
+1. **Never write "worked" or "worse" without running the test:**
+   `node tools/significance.mjs <before_conv> <before_total> <after_conv> <after_total>`
+   Paste its output next to the verdict. No stats, no verdict.
+2. **Always quote raw counts with a rate** — "42% (38 of 91)", never a bare percentage.
+3. **Freeze both windows** with `--until=YYYY-MM-DD` so any number can be re-derived
+   exactly by anyone who wants to check you.
+4. **"Not yet measurable" is a respected verdict.** Entries may stay pending for several
+   cycles; forcing a verdict to look productive is the worst thing you can do here,
+   because a false ✅ becomes the next cycle's baseline.
+5. **Prefer bold, structural changes** — remove a step, change what's asked and when.
+   A small copy tweak can never be proven to work at this traffic. Polish is allowed,
+   but must be labelled *unmeasurable by design* and never later claimed as a tested win.
+
 ### How to re-measure
 - **App funnel (rates):** PostHog → `query-funnel` on the events above, `filterTestAccounts: true`.
 - **Email flow (open/click per email):** `node scripts/klaviyo-metrics.js`.
@@ -99,8 +121,32 @@ gave email, promised a free video). Two friction landmines removed:
 **Baseline it starts from:** into-app → started video **~41%** (post-Jun-16); end-to-end
 land → video **~15%**.
 
-**Result (fill in ~2026-07-20):** _pending — re-run the app funnel and compare `Message Written`
-and `Video Creation Started` vs baseline._
+**Result — `NOT YET MEASURABLE` (graded 2026-07-19, stays pending):**
+
+| Metric (PostHog, test-filtered, frozen windows) | Before (14d → Jul 5) | After (14d → Jul 19) | Change |
+|---|---|---|---|
+| Arrived in app → started a video | 35.7% (40 of 112) | 41.8% (38 of 91) | +6.1 pts |
+| Wrote message → started a video | 97.6% (40 of 41) | 100% (38 of 38) | +2.4 pts |
+
+```
+$ node tools/significance.mjs 40 112 38 91
+change : +6.0 points   (95% range: -7.4 to 19.5 points)
+p-value: 0.379
+VERDICT: NOT SIGNIFICANT — indistinguishable from noise (p = 0.38).
+         These samples could only have detected a swing of ~19 points or more.
+         To call a 6-point difference, you'd need ~1016 per window (have 112 / 91).
+```
+
+**Verdict: not yet measurable — and possibly never.** The direction is encouraging but the
+swing is well inside the noise floor. Two honest caveats: the "message-writers now finish"
+story does **not** hold up — that step was already at 97.6% before the change, so it was
+never the leak; and the real in-app drop is *arrival → pressing Create* (45%, 34 of 76 in
+the Jul-5 window), which contains the role-pick and message steps together.
+
+⚠️ **Precedent for every future grading:** an automated cycle first graded this entry
+"WORKED, 31%→43%". The 31% baseline could not be reproduced (the real figure was 35.7%),
+which doubled the apparent win, and the +6 points was noise either way. **No verdict of
+worked/worse may be written without `tools/significance.mjs` output pasted beside it.**
 
 ---
 
