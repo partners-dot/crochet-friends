@@ -47,9 +47,12 @@ swing as a win using an unreproducible baseline):
 4. **"Not yet measurable" is a respected verdict.** Entries may stay pending for several
    cycles; forcing a verdict to look productive is the worst thing you can do here,
    because a false ✅ becomes the next cycle's baseline.
-5. **Prefer bold, structural changes** — remove a step, change what's asked and when.
-   A small copy tweak can never be proven to work at this traffic. Polish is allowed,
-   but must be labelled *unmeasurable by design* and never later claimed as a tested win.
+5. **Know what size of change is knowable.** A small tweak can never be *proven* to work
+   at this traffic — that is arithmetic, not a preference about what to build. It tells
+   you what you will learn from a change, not which change to make: something too small
+   to measure can still be worth shipping, and something big enough to measure can still
+   be a bad idea. Say which you shipped; label the unmeasurable ones *unmeasurable by
+   design* and never later claim one as a tested win.
 
 ### How to re-measure
 - **App funnel (rates):** PostHog → `query-funnel` on the events above, `filterTestAccounts: true`.
