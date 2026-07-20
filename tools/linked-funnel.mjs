@@ -17,6 +17,12 @@
 // UNLINKABLE and are reported separately — never silently dropped into the denominator.
 // The "to" event counts only if it happens at or after the "from" event for that person.
 //
+// --link-by=<propsField>: identify a person by properties.<propsField> instead (e.g.
+//   --link-by=visitor_id for claim-page events that have no email yet). This is the ONLY
+//   way to link pre-email claim steps (page_viewed, email_field_engaged, email_entered),
+//   which all carry a per-visit properties.visitor_id but no operation_id. Rows missing
+//   that field are UNLINKABLE. Default (no flag) = email || operation_id, unchanged.
+//
 // Env: SUPABASE_URL + SUPABASE_ANON_KEY (crochet project); process.env first, .env second.
 
 import { createClient } from '@supabase/supabase-js';
@@ -39,6 +45,7 @@ const [fromEvent, toEvent] = positional;
 const days = parseInt(positional[2] || '14', 10);
 const COMPARE = argv.includes('--compare');
 const KEEP_TEST = argv.includes('--keep-test');
+const LINK_BY = flag('link-by'); // e.g. 'visitor_id' → identify by properties.visitor_id
 if (!fromEvent || !toEvent) {
   console.error('Usage: node tools/linked-funnel.mjs <from_event> <to_event> <days> [--until=YYYY-MM-DD] [--compare]');
   process.exit(1);
@@ -49,13 +56,16 @@ if (until && Number.isNaN(untilMs)) { console.error(`Bad --until=${until}`); pro
 
 const TEST_EMAILS = new Set(['ori@mtlbrands.com', 'partners@gotyoualittlesomething.com']);
 const isTest = (r) => { const e = (r.email || '').toLowerCase(); return TEST_EMAILS.has(e) || /^(o@n\.|k@k\.|probe@test\.local)/.test(e); };
-const who = (r) => (r.email ? `e:${r.email.toLowerCase()}` : (r.operation_id ? `o:${r.operation_id}` : null));
+const who = (r) => {
+  if (LINK_BY) { const v = r.properties && r.properties[LINK_BY]; return v ? `p:${LINK_BY}:${v}` : null; }
+  return r.email ? `e:${r.email.toLowerCase()}` : (r.operation_id ? `o:${r.operation_id}` : null);
+};
 
 async function fetchWindow(startMs, endMs) {
   let out = [], from = 0, page;
   do {
     const { data, error } = await sb.from('log_video_funnel_events')
-      .select('event,email,operation_id,created_at')
+      .select('event,email,operation_id,properties,created_at')
       .gte('created_at', new Date(startMs).toISOString())
       .lt('created_at', new Date(endMs).toISOString())
       .range(from, from + 999);
@@ -91,7 +101,8 @@ async function analyse(endMs, label) {
   console.log(`  raw event counts (DO NOT divide these): ${fromEvent}=${rawFrom}  ${toEvent}=${rawTo}`);
   if (unlinkableFrom) {
     const pctUn = Math.round((100 * unlinkableFrom) / (rawFrom || 1));
-    console.log(`  ⚠️  ${unlinkableFrom} ${fromEvent} rows (${pctUn}%) had no email/operation_id — excluded, not counted as failures.`);
+    const keyDesc = LINK_BY ? `properties.${LINK_BY}` : 'email/operation_id';
+    console.log(`  ⚠️  ${unlinkableFrom} ${fromEvent} rows (${pctUn}%) had no ${keyDesc} — excluded, not counted as failures.`);
   }
   return { num, den, unlinkable: unlinkableFrom, rawFrom };
 }

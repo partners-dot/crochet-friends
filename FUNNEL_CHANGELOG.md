@@ -118,6 +118,59 @@ smaller. **Impact and novelty both count; neither alone is the answer.**
 
 ## Changes
 
+### 2026-07-20 · Durable claim-page diagnostic instrumentation (+ per-visitor linking) — `INFRA`
+**Files:** `claim.html`, `analytics-events.js`, `tools/linked-funnel.mjs`, `ANALYTICS.md` · **Targets:** measurement of the email gate, NOT conversion
+
+**What & why.** The biggest leak is the email gate: ~56% of QR scanners never submit an
+email (cached PostHog funnel 1864→826 = 44.3% capture; session-replay metadata shows ~67%
+never type a key, stable across windows). We could not say *why* from durable truth — the
+claim page logged a page view and a submit with **nothing in between**, and this cycle the
+PostHog query API was down (403 `query:read` scope), so the leak had no reproducible
+frozen-window denominator at all. This change makes it measurable/diagnosable from Supabase:
+
+1. **New durable event `email_field_engaged`** (phase=claim, source=claim_page), fired ONCE
+   when the user first focuses the claim email input (before typing). With `page_viewed` and
+   `email_entered` this turns the single gap into two person-linked sub-steps:
+   `page_viewed → email_field_engaged` (did they engage the field at all? isolates
+   never-reached) and `email_field_engaged → email_entered` (of those who engaged, who
+   submitted? isolates tried-and-gave-up from considered-and-declined).
+2. **Per-visitor id (`properties.visitor_id`) on all three claim events.** This is the
+   AUDIT-REQUIRED FIX: `page_viewed` and `email_field_engaged` carry no email and no
+   `operation_id`, so `linked-funnel.mjs` was returning **0-of-0** (100% unlinkable) — the
+   promised sub-funnels literally could not be computed. A client-generated UUID (sessionStorage,
+   per visit) now tags all three; `tools/linked-funnel.mjs` gained `--link-by=visitor_id` to
+   link on it. Default keying (email/operation_id) is unchanged, so cross-app funnels and the
+   `email_entered → video_started` verdict funnel are unaffected.
+3. **`keepalive: true`** on the two existing claim POSTs (page_viewed, email_entered) and the
+   new one, so <5s bounces (~15% of sessions) still record and the denominator is trustworthy.
+
+**No conversion change expected or claimed** — this is measurement infra (`measurable:false`).
+It will NEVER be given a worked/worse verdict. It ships ZERO presentation/layout change (not
+PR #8's spent-ground redesign) and references nothing about the printed discount (not the
+owner-rejected proposal).
+
+**Baseline it starts from:** none — these are new signals with no history (no backfill).
+`email_field_engaged` and `visitor_id`-tagged rows start 2026-07-20.
+
+**Re-measure ~2026-08-03** (needs ~2 weeks of accumulation), from durable truth:
+```
+node --experimental-websocket tools/linked-funnel.mjs page_viewed email_field_engaged 14 --until=2026-08-03 --link-by=visitor_id --compare
+node --experimental-websocket tools/linked-funnel.mjs email_field_engaged email_entered 14 --until=2026-08-03 --link-by=visitor_id --compare
+```
+then significance-test each. These quantify how much of the ~56% loss is never-engaged vs
+engaged-and-declined — independent of the PostHog query scope that 403'd this cycle.
+
+**Result:** n/a (measurement infra; no user-facing change). **Verified live:** booted the app
+(`PORT=3939 node --experimental-websocket server.js`), fetched `claim.html?sku=PTT-GREEN1`
+→ 200 with all three changes present (getVisitorId, focus listener, 3× keepalive, visitor_id
+in both existing POSTs). POSTed synthetic page_viewed/email_field_engaged/email_entered rows
+sharing one visitor_id; both promised sub-funnels then returned non-zero linked denominators
+(1/1 each, incl. the email-boundary case where email_entered carries both an email and a
+visitor_id), while default keying stayed 0/0 (no regression). Deleted the 3 test rows by id
+(confirmed 0 remaining).
+
+---
+
 ### 2026-07-16 · Complete the Supabase log + env-based PostHog tool — `INFRA`
 **Files:** `claim.html`, `index.html`, `analytics-events.js`, `tools/*` · **Targets:** measurement, not conversion
 

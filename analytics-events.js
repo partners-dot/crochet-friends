@@ -11,7 +11,8 @@
 
 // Canonical funnel events written to Supabase log_video_funnel_events.
 export const EVENTS = {
-  PAGE_VIEWED:       'page_viewed',       // top-of-funnel: a funnel page rendered (phase says which)
+  PAGE_VIEWED:        'page_viewed',       // top-of-funnel: a funnel page rendered (phase says which)
+  EMAIL_FIELD_ENGAGED:'email_field_engaged', // claim: user first focused the email input (before typing)
   EMAIL_ENTERED:     'email_entered',
   CTA_CLICKED:       'cta_clicked',       // claim page "create your video" button
   ROLE_SELECTED:     'role_selected',
