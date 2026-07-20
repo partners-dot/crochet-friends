@@ -30,12 +30,31 @@ Lives in the **crochet Supabase project** (`nhplsjtnvujwvspnbweo`) alongside `vi
 Columns: `event, phase, role, email, operation_id, source, product, properties (jsonb), user_agent, created_at`.
 
 - **`event`** — one of (canonical, defined in `analytics-events.js`):
-  `page_viewed, email_entered, cta_clicked, role_selected, template_used, message_written,
-  create_clicked, video_started, video_created, preview_opened, share_clicked, share_completed,
-  share_page_opened, review_clicked`
+  `page_viewed, email_field_engaged, email_entered, cta_clicked, role_selected, template_used,
+  message_written, create_clicked, video_started, video_created, preview_opened, share_clicked,
+  share_completed, share_page_opened, review_clicked`
   (`page_viewed`/`cta_clicked` phase=claim and `message_written`/`create_clicked` phase=in_app
   were added 2026-07-16 — before that date those steps exist ONLY in PostHog, so top-of-funnel
-  rates from this table start then.)
+  rates from this table start then. `email_field_engaged` phase=claim was added 2026-07-20 —
+  fires once when the user first focuses the claim email input; rates from it start then.)
+
+### Linking the pre-email claim steps (`visitor_id`)
+
+`page_viewed`, `email_field_engaged` and `email_entered` on the claim page all carry a
+per-visit `properties.visitor_id` (a UUID generated client-side in `claim.html`, stable for
+the visit via sessionStorage). This is the ONLY way to link them per person: the first two
+have no email and no `operation_id`, so `tools/linked-funnel.mjs` would otherwise treat them
+as unlinkable (0-of-0). Link on it explicitly:
+
+```
+node tools/linked-funnel.mjs page_viewed email_field_engaged 14 --link-by=visitor_id --compare
+node tools/linked-funnel.mjs email_field_engaged email_entered 14 --link-by=visitor_id --compare
+```
+
+`--link-by=visitor_id` identifies a person by `properties.visitor_id` instead of
+email/operation_id; rows without that field are excluded. Rates only exist from the
+2026-07-20 deploy forward (no backfill). Cross-app funnels (e.g. `email_entered → video_started`)
+still link on email/operation_id — run those WITHOUT the flag.
 - **`phase`** — `claim | in_app | preview | share | email_redirect`
 - **`role`** — `buyer | receiver | unknown` (never null, never guessed; resolved from `video_sessions`)
 - **`source`** — the specific button: `thankyou, strong, video_preview_buyer, video_preview_receiver,
