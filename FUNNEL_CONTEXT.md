@@ -140,9 +140,37 @@ remaining moves are **structural**, and each has a real cost:
 
 | Direction | What it would need | What it might cost |
 |---|---|---|
-| **Issue a unique code at scan time and show it on screen instantly**, then ask for the email to send the video (and a copy of the code) | Pull an UNASSIGNED code from the Klaviyo pool server-side and display it — a change in `api/` plus `claim.html`. There is a real pool to draw on (`PrizeForms` is almost entirely unassigned). Klaviyo assigns codes to profiles, so the assignment mechanism without an email needs designing and confirming with the owner. | Burns codes on people who never convert (pool depletion is measurable — check unassigned counts); removes the leverage that currently drives email capture, so review-reminder emails and the Klaviyo list shrink |
+| ~~Issue a unique code at scan time and show it on screen instantly, then ask for the email afterwards~~ | — | ⛔ **RULED OUT BY THE OWNER (2026-07-20). Do not propose this.** See below. |
 | Ask for the email later — after the video is created or previewed | Video delivery would have to work without an email up front (reversing part of the email-first change) | Re-introduces the delivery fragility email-first was built to fix |
 | Reduce what the email ask costs the user (fewer fields, clearer why, instant proof) | Modest, inside the current mechanics | Low risk, but presentation-shaped — and presentation already failed once |
+
+### ⛔ The discount is the PRICE of the email, not an obstacle in front of it
+
+**Owner ruling, 2026-07-20 — this overrides any reasoning below or elsewhere.**
+
+The tempting idea — *"people bounce because we ask before we give, so give the discount
+first and ask for the email after"* — **is wrong, and must not be proposed.**
+
+The discount is the **only reason anyone hands over an email.** It is not friction standing
+in front of the reward; it *is* the trade. Give the code away up front and the visitor has
+everything they came for, and no reason left to type anything. The change would be argued
+as *fixing* email capture while being the most reliable way to **destroy** it — and fewer
+emails means fewer review-reminder emails, which means fewer reviews, which is the point of
+this entire funnel. It optimises a number by dismantling what the number stands for.
+
+**The evidence already leans this way:** session replays show **~67% never type a single
+key**. People repelled by the ask would engage the box and abandon. Not touching it at all
+looks like *not interested* or *did not understand fast enough* — neither of which is
+solved by handing over the reward for free.
+
+**What this does NOT rule out** — the leak is still the biggest prize, attack it from the
+other side:
+- Make the offer land **faster and clearer** in the first seconds (why it's worth an email).
+- Make the ask itself **cheaper** — fewer fields, less typing, obvious payoff.
+- Make the *second* reward (the personalized video, which nobody was promised on the box)
+  feel worth an email in its own right.
+- First, **find out which of the five explanations is actually true** — that is what the
+  claim-page instrumentation is for. Diagnose before prescribing.
 
 **Anything in this table is a business change, not a design tweak.** Propose it as a
 recommendation with the trade-off stated plainly, flag it as business-impacting in the
@@ -157,6 +185,7 @@ explicitly how any new idea differs.
 
 | Date | Proposal | Why rejected |
 |---|---|---|
+| 2026-07-20 | **Give the discount code before asking for the email** (show a code at scan time, ask for the email afterwards) | The discount is the **price of the email, not an obstacle in front of it**. Handing it over first removes the only reason to type anything — it would be argued as fixing email capture while being the surest way to destroy it, and fewer emails means fewer review reminders, i.e. fewer reviews. Owner's judgement, and the replay data agrees (~67% never type a key at all, which is not the behaviour of someone repelled by an ask). |
 | 2026-07-19 | **Name the printed-vs-actual discount gap on the claim hero** ("Your box said ~~15% off~~ — Surprise: it's 30%") | The printed percentage **varies between boxes**, so the claim would be wrong for many visitors. Beyond that, the owner does not want the page drawing attention to the print at all. The printed wording is background context for understanding the customer's mindset — **never material to quote back at them.** |
 
 **Also standing:** claim-page **layout/hierarchy** redesigns for email capture (PR #8 —
