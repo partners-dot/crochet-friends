@@ -125,11 +125,12 @@ weakens review generation may be a net loss, and a change that lifts video start
 skipping email may cost reviews downstream.** Always state the downstream cost, measured
 where possible, not just the local rate you are improving.
 
-## The tension worth solving (the biggest open prize)
+## The claim-page step — the largest single drop
 
-~59% of people who scan never submit an email (41%, 80 of 195 in a typical fortnight —
-the largest single loss in the funnel, ~115 people). They scanned because they were
-promised a discount, and the page answers by asking for something before giving anything.
+**[FACT]** ~59% of people who scan never submit an email (41%, 80 of 195 in a typical
+fortnight — ~115 people). That is the largest single drop in the funnel by headcount. How
+much it is *worth* depends on what those people would have gone on to do, which is a
+question about reviews, not about this rate — work that out rather than assuming.
 
 **[FACT] We do not actually know why they leave.** That is the honest starting point, and the
 owner's explicit instruction (2026-07-19) is to **find out what makes someone scan and then
@@ -147,27 +148,23 @@ hope. Reasonable competing explanations, none yet tested:
 These have *different* fixes, and four of the five are not copy problems. Distinguishing
 them is the job before proposing anything.
 
-**Evidence available for that diagnosis** (use it — do not speculate):
+**[FACT] What you can actually observe here** — the instruments, not the conclusions:
 - **[FACT] PostHog session replay is ENABLED** and recording claim-page sessions. Watching what
   people actually do is the most direct evidence we have. Sample real sessions that
   bounced without submitting.
 - Time-on-page and bounce timing: a 5-second exit and a 90-second exit are different
   problems.
 - Device, SKU, and traffic mix (top scanners: PTT-GREEN1, PTT-FRIENDFUN, PTT-CPCK1).
-- **Instrumentation gap worth fixing:** the claim page currently logs a page view and a
-  submit — nothing in between. There is no field-focus, scroll-depth, or time-to-first-
-  interaction event, so we cannot yet separate "never engaged" from "tried and gave up".
-  **Adding that instrumentation is a legitimate and often superior cycle output** — a
-  cycle that makes the next three cycles able to see is worth more than a guess shipped
-  today.
+- **[FACT] Where the instruments are blind:** the claim page records a page view and a
+  submit, with nothing in between — no field-focus, scroll-depth, or time-to-first-
+  interaction. So the data cannot currently separate "never engaged with the box" from
+  "engaged and gave up", which are different behaviours with different causes. Check what
+  events exist before assuming a question is answerable from this data.
 
-A **presentation** fix has already been tried and failed: PR #8 rebuilt the claim page with
-a two-reward layout and clearer hierarchy — capture stayed flat (44.5% → 39.0%). So the
-remaining moves are **structural**, and each has a real cost:
-
-| Direction | What it would need | What it might cost |
-|---|---|---|
-| ~~Issue a unique code at scan time and show it on screen instantly, then ask for the email afterwards~~ | — | ⛔ **RULED OUT BY THE OWNER (2026-07-20). Do not propose this.** See below. |
+**[FACT] What has already been tried here:** PR #8 rebuilt the claim page with a two-reward
+layout and clearer hierarchy — capture stayed flat (44.5% → 39.0%). That is one data point
+about one kind of change, recorded so it is not unknowingly repeated. It is not a proof
+about every other kind.
 | Ask for the email later — after the video is created or previewed | Video delivery would have to work without an email up front (reversing part of the email-first change) | Re-introduces the delivery fragility email-first was built to fix |
 | Reduce what the email ask costs the user (fewer fields, clearer why, instant proof) | Modest, inside the current mechanics | Low risk, but presentation-shaped — and presentation already failed once |
 
@@ -190,14 +187,17 @@ key**. People repelled by the ask would engage the box and abandon. Not touching
 looks like *not interested* or *did not understand fast enough* — neither of which is
 solved by handing over the reward for free.
 
-**What this does NOT rule out** — the leak is still the biggest prize, attack it from the
-other side:
-- Make the offer land **faster and clearer** in the first seconds (why it's worth an email).
-- Make the ask itself **cheaper** — fewer fields, less typing, obvious payoff.
-- Make the *second* reward (the personalized video, which nobody was promised on the box)
-  feel worth an email in its own right.
-- First, **find out which of the five explanations is actually true** — that is what the
-  claim-page instrumentation is for. Diagnose before prescribing.
+**What this ruling does and does not settle.** It rules out *one specific move* — handing
+over the reward before asking for the email — and the reasoning behind it: a step where
+people give something to get something is an **exchange**, and its rate is the price being
+accepted, so removing what they were getting removes the reason to pay. That reasoning is
+worth carrying to any step that works the same way.
+
+It says **nothing** about what the right change here is. The step remains the largest
+single drop in the funnel and is entirely open to attack — by any mechanism that does not
+dismantle the exchange. Nobody has established what would work, and no list in this
+document should be read as candidates: **that is the cycle's job to work out from the
+evidence, not to pick from a menu written by someone who guessed earlier.**
 
 **Anything in this table is a business change, not a design tweak.** Propose it as a
 recommendation with the trade-off stated plainly, flag it as business-impacting in the
