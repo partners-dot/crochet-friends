@@ -1,5 +1,32 @@
 # Funnel Context — what this funnel is FOR, and what it costs to change it
 
+> ## ⚠️ Read this first: FACT vs GUESS
+>
+> This file mixes two very different kinds of statement, and treating them alike caused a
+> real failure. Every claim here is one of:
+>
+> - **[FACT]** — verified against code, the database, an API, or stated by the owner.
+>   Rely on it. If you find one that is wrong, correcting it is a legitimate cycle output.
+> - **[GUESS]** — a hypothesis some past agent (or the assistant) wrote down. It carries
+>   **no authority whatsoever.** It has not been tested and may be plainly wrong.
+>
+> **What went wrong:** a previous version of this file listed "issue the discount code at
+> scan time, ask for the email afterwards" as *the* leading structural option for the
+> biggest leak. That was a **[GUESS]**, written in the same table, same tone, same
+> confidence as the verified mechanics beside it. The owner killed it on sight — the
+> discount is the *price* of the email, so giving it away first removes the only reason to
+> hand one over. A guess in authoritative clothing became a plan.
+>
+> **So:** never treat a [GUESS] as a premise. If a cycle wants to act on one, it must first
+> gather evidence FOR it and say so, exactly as it would for any other hypothesis.
+>
+> ## 🎯 And the goal, before any of the numbers
+>
+> **The objective is MORE HONEST AMAZON REVIEWS.** Email capture, video starts and share
+> clicks are **means**, and their percentages are **proxies**. A change that improves a
+> proxy while damaging the machinery that produces reviews is a **loss**, no matter how
+> good the funnel arithmetic looks.
+
 > `ANALYTICS.md` says where the data lives. `FUNNEL_CHANGELOG.md` says what we tried and
 > what happened. **This file says what the business is actually doing** — the promise the
 > customer was made before they ever reached us, the mechanics behind each reward, and
@@ -9,7 +36,7 @@
 
 ## The journey starts OFF the website
 
-The promise is **printed on the product box**. The customer reads it after buying a
+**[FACT]** The promise is **printed on the product box**. The customer reads it after buying a
 crocheted gift on Amazon. A representative example of the wording (owner-supplied,
 2026-07-19):
 
@@ -66,17 +93,17 @@ Products actually scanning in (last ~5 weeks, by volume): PTT-GREEN1 (64), PTT-F
 The claim page offers **30% off (the hero) + a free personalized video (the bonus)**. Both
 are delivered by email:
 
-- **The discount code is not on the page and not in the QR link.** The page shows the
+- **[FACT] The discount code is not on the page and not in the QR link.** The page shows the
   *offer* ("30% OFF") and a popup, but never a code string — `showPrize()` plays a
   transition and forwards to the video app. Klaviyo sends the code after the email is
   submitted.
-- **The codes are UNIQUE and single-use, not one shared code** (verified against the
+- **[FACT] The codes are UNIQUE and single-use, not one shared code** (verified against the
   Klaviyo API 2026-07-19). Two coupon pools exist: `AMAZON` (Amazon promo format, e.g.
   `4W2R-SVS6E8-5UV8A5` — ~809 of the first 1,200 already assigned to profiles) and
   `PrizeForms` (e.g. `TNCU99U9` — almost entirely unassigned). Klaviyo assigns a code to a
   *profile*, which is why an email is required before a code can be issued today.
   ⇒ **You cannot simply print "the code" on screen.** There isn't one.
-- **The video is delivered by email too** (since the email-first change of 2026-06-16: the
+- **[FACT] The video is delivered by email too** (since the email-first change of 2026-06-16: the
   create app shows "Check your email" and stops; the server emails the finished video).
 
 **So the email gate is not a growth-hack bolted on — it is currently the delivery mechanism
@@ -104,24 +131,24 @@ where possible, not just the local rate you are improving.
 the largest single loss in the funnel, ~115 people). They scanned because they were
 promised a discount, and the page answers by asking for something before giving anything.
 
-**We do not actually know why they leave.** That is the honest starting point, and the
+**[FACT] We do not actually know why they leave.** That is the honest starting point, and the
 owner's explicit instruction (2026-07-19) is to **find out what makes someone scan and then
 not enter an email, and what would make them want to** — not to reach for a copy idea and
 hope. Reasonable competing explanations, none yet tested:
 
-1. **They never intended to.** The discount is for a *next* order; a one-off gift buyer may
+1. **[GUESS] They never intended to.** The discount is for a *next* order; a one-off gift buyer may
    simply not want one. (If so this leak has a ceiling and the effort belongs elsewhere.)
-2. **They don't want to give an email** to get something that was pitched as no-strings.
-3. **They don't understand what they get, or don't trust it** — an unfamiliar page asking
+2. **[GUESS] They don't want to give an email** to get something that was pitched as no-strings.
+3. **[GUESS] They don't understand what they get, or don't trust it** — an unfamiliar page asking
    for an address before giving anything.
-4. **They never even reach the field** — bounced, confused, distracted, slow load.
-5. **They tried and failed** — typo, validation, keyboard, form friction.
+4. **[GUESS] They never even reach the field** — bounced, confused, distracted, slow load.
+5. **[GUESS] They tried and failed** — typo, validation, keyboard, form friction.
 
 These have *different* fixes, and four of the five are not copy problems. Distinguishing
 them is the job before proposing anything.
 
 **Evidence available for that diagnosis** (use it — do not speculate):
-- **PostHog session replay is ENABLED** and recording claim-page sessions. Watching what
+- **[FACT] PostHog session replay is ENABLED** and recording claim-page sessions. Watching what
   people actually do is the most direct evidence we have. Sample real sessions that
   bounced without submitting.
 - Time-on-page and bounce timing: a 5-second exit and a 90-second exit are different
