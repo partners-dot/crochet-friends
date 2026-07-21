@@ -58,7 +58,7 @@ still link on email/operation_id — run those WITHOUT the flag.
 - **`phase`** — `claim | in_app | preview | share | email_redirect`
 - **`role`** — `buyer | receiver | unknown` (never null, never guessed; resolved from `video_sessions`)
 - **`source`** — the specific button: `thankyou, strong, video_preview_buyer, video_preview_receiver,
-  video_share_buyer, video_share_receiver, email, claim_page`
+  video_share_buyer, video_share_receiver, email, video_email, claim_page`
 
 ### Every review-click touchpoint (full coverage)
 
@@ -69,7 +69,14 @@ still link on email/operation_id — run those WITHOUT the flag.
 | preview | receiver button | `video_preview_receiver` |
 | share | buyer button | `video_share_buyer` |
 | share | receiver button | `video_share_receiver` |
-| email_redirect | from Email 5/6 link | `email` |
+| email_redirect | from Klaviyo Email 5/6 link | `email` |
+| email_redirect | from the "your video is ready" delivery email | `video_email` |
+
+`/api/review-redirect` accepts `email` plus, optionally, `asin` (explicit), `sku` (resolved via
+`master_products` when the ROS Supabase env is present), `character` (self-contained fallback map →
+correct ASIN for potato/cupcake/nursePotato with no DB call), and `source` (only `email` or
+`video_email` are logged; anything else falls back to `email`). ASIN precedence:
+`asin → sku lookup → character map → default (potato B0DVR6VBRR)`.
 
 ## How to analyze (do this, not ad-hoc queries)
 

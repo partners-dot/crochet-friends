@@ -158,7 +158,7 @@ async function sendVideoEmail(operationId) {
     try {
         const { data: session } = await supabase
             .from('video_sessions')
-            .select('email, product, user_type, email_sent')
+            .select('email, product, user_type, sku, email_sent')
             .eq('operation_id', operationId)
             .single();
 
@@ -166,6 +166,15 @@ async function sendVideoEmail(operationId) {
 
         const BASE_URL = 'https://video.gotyoualittlesomething.com';
         const videoPageUrl = `${BASE_URL}/video-preview.html?id=${encodeURIComponent(operationId)}`;
+
+        // Tracked "leave an honest review" link. Routes through /api/review-redirect so the
+        // click is logged (Supabase phase=email_redirect, source=video_email) and lands on the
+        // CORRECT per-product Amazon listing: sku resolves the full catalog when available, and
+        // the character (product) resolves the top products even without that lookup.
+        const reviewParams = new URLSearchParams({ email: session.email, source: 'video_email' });
+        if (session.sku) reviewParams.set('sku', session.sku);
+        if (session.product) reviewParams.set('character', session.product);
+        const reviewUrl = `${BASE_URL}/api/review-redirect?${reviewParams.toString()}`;
 
         const emailHtml = `<!DOCTYPE html>
 <html>
@@ -185,6 +194,19 @@ async function sendVideoEmail(operationId) {
                     <a href="${videoPageUrl}" style="display: inline-block; background: #ffd166; color: #1a1a1a; text-decoration: none; padding: 16px 32px; border-radius: 50px; font-size: 16px; font-weight: 700;">
                         👀 Watch & Share Your Video
                     </a>
+                </td></tr>
+                <tr><td align="center" style="padding: 0 40px 32px;">
+                    <table width="100%" cellpadding="0" cellspacing="0"><tr><td style="border-top: 1px solid #eeeeee; padding-top: 24px;" align="center">
+                        <p style="margin: 0 0 6px; color: #555555; font-size: 15px; line-height: 1.6;">
+                            If it made you smile, would you tell others?
+                        </p>
+                        <p style="margin: 0 0 16px; color: #888888; font-size: 13px; line-height: 1.6;">
+                            An honest review on Amazon helps another gift-giver find a little something too. No pressure at all.
+                        </p>
+                        <a href="${reviewUrl}" style="display: inline-block; color: #1a1a1a; text-decoration: underline; font-size: 14px; font-weight: 600;">
+                            Leave an honest review
+                        </a>
+                    </td></tr></table>
                 </td></tr>
                 <tr><td align="center" style="padding: 20px 30px; background: #fafafa; border-radius: 0 0 16px 16px;">
                     <p style="margin: 0; color: #aaaaaa; font-size: 12px;">

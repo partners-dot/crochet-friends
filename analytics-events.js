@@ -51,7 +51,8 @@ export const SOURCES = {
   PREVIEW_RECEIVER: 'video_preview_receiver',
   SHARE_BUYER:      'video_share_buyer',
   SHARE_RECEIVER:   'video_share_receiver',
-  EMAIL:            'email',   // generic; email_5 vs email_6 split deferred
+  EMAIL:            'email',        // generic Klaviyo reminder emails (Email 5/6)
+  VIDEO_EMAIL:      'video_email',  // the repo-owned "your video is ready" delivery email
 };
 
 // Normalize a raw user_type into a valid ROLE (defensive).

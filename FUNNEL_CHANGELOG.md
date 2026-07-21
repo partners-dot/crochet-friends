@@ -115,6 +115,7 @@ this vs. done nothing) to pick a smarter next try — never as a reason to leave
 | Pressed Create → video started | 0 | 94–100% — not a leak, never attacked | — |
 | Review ask: in-app thank-you screen | 1 | Made the hero of that screen in June; it now produces **almost all** review clicks | 2026-06-16 |
 | Review ask: preview + share surfaces | 1 | Reworked in June (non-destructive post-share highlight) → still produces **~0 clicks** despite real traffic. Attacked once, no effect. | 2026-06-16 |
+| Review ask: video-delivery email (repo-owned Resend, `resolve-video.js`) | 1 | Had **no review ask at all** (only "Watch & Share"). 2026-07-21 added a tracked, secondary "leave an honest review" link routed through `/api/review-redirect` (source=`video_email`) landing on the correct per-product ASIN. Ships measurement + correctness; conversion **not expected to clear noise**. | 2026-07-21 |
 | Review ask: Klaviyo reminder emails (5 & 6) | 0 | **Never attacked from this repo** — currently out of the cycle's scope (email flow is managed separately) | — |
 
 > ⚠️ This map is only as honest as the cycle that last edited it. If you find it disagrees
@@ -122,6 +123,61 @@ this vs. done nothing) to pick a smarter next try — never as a reason to leave
 > say so in your report.
 
 ## Changes
+
+### 2026-07-21 · Honest-review ask on the "your video is ready" delivery email — `SHIPPED`
+**Files:** `api/resolve-video.js`, `api/review-redirect.js`, `analytics-events.js`, `ANALYTICS.md` · **Targets:** post-video review capture (a surface that previously had NO review ask and NO tracking)
+
+**What & why.** The live video-delivery email (`resolve-video.js` `sendVideoEmail`) is sent to
+every finisher (~36/fortnight = `video_created`) and had **one CTA ("Watch & Share") and no
+review ask at all**. All review clicks this window (10/10) came from the in-app thank-you
+screen; the delivery email, preview, and share surfaces produced 0. This adds a **secondary,
+visually subordinate** "Leave an honest review" link below the unchanged primary CTA, routed
+through `/api/review-redirect` so the click is (a) **tracked** (Supabase `phase=email_redirect`,
+new `source=video_email`; PostHog; Klaviyo) and (b) sent to the **correct per-product Amazon
+listing**.
+
+`review-redirect` was extended to resolve the ASIN by precedence `asin → sku (master_products,
+when ROS env present) → character map (self-contained) → default potato`, plus an allow-listed
+`source` param (defaults to `email`, so Klaviyo Email 5/6 links are byte-for-byte unchanged).
+`resolve-video.js` now selects `sku` and passes both `sku` and `character` (the stored
+`product`), so a cupcake buyer reaches the cupcake listing **even without the ROS env** (verified
+locally: `master_products` is unreachable in this deploy's env, yet cupcake/nursePotato resolve
+correctly via the character map — so the realistic behaviour is NOT "potato for everyone").
+
+**Honest expectation (per the plan audit).** This is a secondary link on the path to the
+preview page, which structurally resembles the preview/share asks that already convert ~0 — NOT
+the captive full-screen thank-you interstitial that works. So the durable, defensible value is
+**tracking + correct-ASIN routing**, not a conversion win. The audience also skews receiver-heavy
+(~73% of identified roles this window), and receivers can't leave verified-purchase reviews —
+a real headwind on any ceiling. Labeled **`measurable:false`** — it will NOT be given a
+worked/worse verdict; any true effect is far inside the ~13–20pt noise floor at this traffic.
+
+**Baseline it starts from:** review clicks from `source=video_email` = **0** (surface was
+untracked and had no link). `source=email` (Klaviyo 5/6) = 0 this window / 2 prior — unchanged
+by this ship. `share_completed` = 9 (9 prior), `share_page_opened` = 21 (19 prior) — watch these
+don't dip from the added secondary link.
+
+**Re-measure ~2026-08-11** (needs ~2–3 weeks accumulation):
+```
+node --experimental-websocket tools/funnel-report.mjs 14 --until=2026-08-11   # review clicks by source; isolate source=video_email
+```
+Significance-test only if `video_email` counts ever grow enough to matter. Also confirm
+`share_completed` / `share_page_opened` did not fall.
+
+**Deploy dependency (for the owner):** full-catalog correct ASINs need the ROS Supabase env
+(`ROS_SUPABASE_URL` / `ROS_SUPABASE_*_KEY`) configured in the live deploy — the same dependency
+the in-app review links already rely on. Without it, potato/cupcake/nursePotato are still correct
+(character map); other products fall back to potato, exactly as the in-app does today.
+
+**Result:** _pending — re-measure ~2026-08-11._ **Verified live:** booted the app
+(`PORT=3939 node --experimental-websocket server.js`), drove `/api/review-redirect` with
+character/sku/asin/source combinations — cupcake→B0DVGVHSZV, nursePotato→B0DFMXPQKH,
+potato→B0DVR6VBRR, unknown→default, explicit asin honored, Email 5/6 (email-only) unchanged →
+potato+`source=email`, bad source rejected → `email`. Rendered the delivery email and confirmed
+the tracked review link is present below the primary CTA. Deleted all 27 test rows created
+during verification (0 remaining).
+
+---
 
 ### 2026-07-20 · Durable claim-page diagnostic instrumentation (+ per-visitor linking) — `INFRA`
 **Files:** `claim.html`, `analytics-events.js`, `tools/linked-funnel.mjs`, `ANALYTICS.md` · **Targets:** measurement of the email gate, NOT conversion
