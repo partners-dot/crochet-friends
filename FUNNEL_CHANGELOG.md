@@ -47,9 +47,12 @@ swing as a win using an unreproducible baseline):
 4. **"Not yet measurable" is a respected verdict.** Entries may stay pending for several
    cycles; forcing a verdict to look productive is the worst thing you can do here,
    because a false ✅ becomes the next cycle's baseline.
-5. **Prefer bold, structural changes** — remove a step, change what's asked and when.
-   A small copy tweak can never be proven to work at this traffic. Polish is allowed,
-   but must be labelled *unmeasurable by design* and never later claimed as a tested win.
+5. **Know what size of change is knowable.** A small tweak can never be *proven* to work
+   at this traffic — that is arithmetic, not a preference about what to build. It tells
+   you what you will learn from a change, not which change to make: something too small
+   to measure can still be worth shipping, and something big enough to measure can still
+   be a bad idea. Say which you shipped; label the unmeasurable ones *unmeasurable by
+   design* and never later claim one as a tested win.
 
 ### How to re-measure
 - **App funnel (rates):** PostHog → `query-funnel` on the events above, `filterTestAccounts: true`.
@@ -84,6 +87,34 @@ Inside the create app, every step roughly halves: arrived → role (56%) → wro
 message**.
 
 ---
+
+## Coverage map — where effort has gone, and what came of it
+
+**Keep this current. Every cycle updates it: when a change ships, and again when it is
+graded.** The entries below are the diary; this is the index. It exists to answer the
+question a diary answers slowly: *which steps have we already worked on, how did it go,
+and which have we never touched at all?*
+
+A step that has absorbed three attempts and stayed flat is worth less than an untouched
+step of the same size — the reachable wins there are likely already taken. A step nobody
+has ever attacked may be the largest real opportunity even if its percentage loss is
+smaller. **Impact and novelty both count; neither alone is the answer.**
+
+| Funnel step | Attempts | What happened | Last touched |
+|---|---|---|---|
+| Box / insert card (before the scan) | 0 | **Never attacked — and cannot be**: the print is fixed for now | — |
+| Claim page: landed → gave email | 1 real attempt | PR #8 rebuilt the layout/hierarchy → **flat** (44.5% → 39.0%). One further idea was **rejected by the owner before build** (see FUNNEL_CONTEXT rejected attempts). 2026-07-20 shipped *measurement only*, no conversion attempt. | 2026-07-20 (instrumentation) |
+| Gave email → into the app | 0 | ~97% auto-forward — not a leak, never attacked | — |
+| In-app: arrived → picked a role | 1 | Part of the 2026-06-16 bundle (value-prop hero on the welcome screen) → that bundle **worked**, though the hero's individual contribution was never isolated | 2026-06-16 |
+| In-app: role → pressed Create (incl. the examples/occasion screen and the message box) | 1 | 2026-07-06 message-step friction fix → **not yet measurable** (inside the noise floor; may never clear it). The examples/occasion screen itself has **never been attacked**. | 2026-07-06 |
+| Pressed Create → video started | 0 | 94–100% — not a leak, never attacked | — |
+| Review ask: in-app thank-you screen | 1 | Made the hero of that screen in June; it now produces **almost all** review clicks | 2026-06-16 |
+| Review ask: preview + share surfaces | 1 | Reworked in June (non-destructive post-share highlight) → still produces **~0 clicks** despite real traffic. Attacked once, no effect. | 2026-06-16 |
+| Review ask: Klaviyo reminder emails (5 & 6) | 0 | **Never attacked from this repo** — currently out of the cycle's scope (email flow is managed separately) | — |
+
+> ⚠️ This map is only as honest as the cycle that last edited it. If you find it disagrees
+> with the entries below or with the code, the entries and the code win — fix the map and
+> say so in your report.
 
 ## Changes
 
