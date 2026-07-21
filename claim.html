@@ -1155,6 +1155,29 @@
             product: null
         };
 
+        // Per-visit id so the claim-page funnel events (page_viewed → email_field_engaged →
+        // email_entered) can be linked PER PERSON on the durable Supabase log even before an
+        // email exists. Without this, page_viewed/email_field_engaged carry no email and no
+        // operation_id, so tools/linked-funnel.mjs treats them as unlinkable (0-of-0) — the
+        // exact defect the plan audit flagged. Kept in `properties.visitor_id` on all three
+        // claim events; linked-funnel links on it via `--link-by=visitor_id`.
+        // Stable for the visit (sessionStorage), fresh per new scan/tab.
+        function getVisitorId() {
+            try {
+                let v = sessionStorage.getItem('cf_visitor_id');
+                if (!v) {
+                    v = (window.crypto && crypto.randomUUID)
+                        ? crypto.randomUUID()
+                        : 'v-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2);
+                    sessionStorage.setItem('cf_visitor_id', v);
+                }
+                return v;
+            } catch (e) {
+                // storage blocked (private mode) — event still logs, just unlinkable
+                return null;
+            }
+        }
+
         // ============================================
         // INIT — Read URL params, fetch product data
         // ============================================
@@ -1175,11 +1198,12 @@
             try {
                 fetch('/api/track', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    keepalive: true,
                     body: JSON.stringify({
                         event: 'page_viewed', phase: 'claim',
                         role: 'unknown', product: state.sku || null,
                         source: 'claim_page',
-                        properties: { sku: state.sku || null, has_discount: !!state.discountCode, qr_source: state.qrSource || null }
+                        properties: { sku: state.sku || null, has_discount: !!state.discountCode, qr_source: state.qrSource || null, visitor_id: getVisitorId() }
                     })
                 }).catch(() => { });
             } catch (e) { /* never block */ }
@@ -1305,11 +1329,12 @@
                 try {
                     fetch('/api/track', {
                         method: 'POST', headers: { 'Content-Type': 'application/json' },
+                        keepalive: true,
                         body: JSON.stringify({
                             event: 'email_entered', phase: 'claim',
                             role: (state.userType === 'buyer' || state.userType === 'receiver') ? state.userType : 'unknown',
                             email: email || null, product: state.sku || null,
-                            source: 'claim_page', properties: { sku: state.sku || null }
+                            source: 'claim_page', properties: { sku: state.sku || null, visitor_id: getVisitorId() }
                         })
                     }).catch(() => { });
                 } catch (e) { /* never block */ }
@@ -1522,6 +1547,35 @@
         // INIT
         // ============================================
         init();
+
+        // Fire `email_field_engaged` ONCE, the first time the user focuses the email input
+        // (before typing anything). Combined with page_viewed and email_entered, this splits
+        // the single "view → submit" gap into: page_viewed → email_field_engaged (did they
+        // engage the field at all?) and email_field_engaged → email_entered (of those who
+        // engaged, who submitted?). Diagnostic only; no conversion change. {once:true}
+        // guarantees a single fire even on re-focus; keepalive:true so a quick bounce still
+        // records the row.
+        (function wireEmailFieldEngaged() {
+            const emailInputEl = document.getElementById('claimEmail');
+            if (!emailInputEl) return;
+            emailInputEl.addEventListener('focus', function () {
+                if (typeof posthog !== 'undefined') {
+                    posthog.capture('claim_email_field_engaged', { sku: state.sku });
+                }
+                try {
+                    fetch('/api/track', {
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
+                        keepalive: true,
+                        body: JSON.stringify({
+                            event: 'email_field_engaged', phase: 'claim',
+                            role: 'unknown', product: state.sku || null,
+                            source: 'claim_page',
+                            properties: { sku: state.sku || null, visitor_id: getVisitorId() }
+                        })
+                    }).catch(() => { });
+                } catch (e) { /* never block */ }
+            }, { once: true });
+        })();
 
         // Confetti + discount popup on page load
         launchConfetti();

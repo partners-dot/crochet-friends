@@ -1,0 +1,35 @@
+{
+  "verdict": "revise",
+  "summary": "The plan is honest, low-risk, and correctly avoids repeating the rejected layout/printed-percentage ideas - but as designed it does not actually make the biggest leak measurable, which is its entire purpose. The two new claim events carry no email and no operation_id, so the person-linking tool the plan promises to run next cycle returns 0-of-0; a durable per-visitor identifier must be added to all three claim events before this is worth building.",
+  "findings": [
+    {
+      "severity": "critical",
+      "issue": "The plan's headline deliverable - two 'person-linked, frozen, significance-tested' sub-funnels via tools/linked-funnel.mjs (page_viewed -> email_field_engaged, and email_field_engaged -> email_entered) - cannot be computed with the events as designed. linked-funnel.mjs identifies a person ONLY by email, falling back to operation_id; rows with neither are UNLINKABLE and are excluded from the denominator. On the claim page, page_viewed (claim.html:1178-1183) and the proposed email_field_engaged (fired at email-field FOCUS, before any email is typed) both carry email=null and no operation_id. So both 'from' events are 100% unlinkable and every promised command resolves to 0/0.",
+      "evidence": "Read tools/linked-funnel.mjs lines 17, 52 (who = email || operation_id || null), 76 (unlinkableFrom++ when no id), 87 (den = firstFrom.size). Read claim.html: page_viewed POST (1176-1184) sends only event/phase/role:unknown/product/source/properties - no email, no operationId; email_entered POST (1306-1314) sends email. Grep of claim.html for operationId/session_id/visitorId/uuid: none exist at page-view or focus time (only state.sku). PROOF - ran the plan's own next-cycle command against live Supabase: `node --experimental-websocket tools/linked-funnel.mjs page_viewed email_entered 14 --until=2026-07-20 --compare` -> 'page_viewed -> email_entered, linked per person: 0 of 0 = -%' and '14 page_viewed rows (100%) had no email/operation_id - excluded'. email_field_engaged fires even earlier (empty field) so it will be identically unlinkable.",
+      "required_fix": "Attach a durable, stable per-visitor identifier to ALL THREE claim events (page_viewed, email_field_engaged, email_entered) in a field linked-funnel keys on - e.g. set operationId to a client-generated UUID persisted for the visit, or to posthog.get_session_id()/get_distinct_id() (already available in the claim.html PostHog stub), OR extend linked-funnel to link on a session id in properties. Then dry-run the two promised commands and confirm they return non-zero linked denominators BEFORE shipping. Without this, the events can only be divided as raw counts - the exact ratio-of-two-event-counts anti-pattern the changelog and linked-funnel were built to forbid."
+    },
+    {
+      "severity": "minor",
+      "issue": "The plan states the top-of-funnel is unmeasurable this cycle only because page_viewed is 2 days old and PostHog is 403 - but omits that page_viewed is ALSO permanently unlinkable in linked-funnel for lack of any person key. Even after it accumulates two weeks, it still cannot be person-linked as currently emitted. The freshness caveat masks the linking defect.",
+      "evidence": "plan.json measurement_caveats[2] and leaks_ranked[0].prior_rate attribute the gap to the 2-day age of durable page_viewed; they never mention that page_viewed carries no email/operation_id. Confirmed by the live 0/0 run above (100% unlinkable, independent of window age).",
+      "required_fix": "Acknowledge the linking defect explicitly and fix it (same identifier fix as the critical finding); do not carry forward the implication that time alone makes page_viewed measurable in a person-linked way."
+    }
+  ],
+  "numbers_checked": [
+    {"claim": "gave-email -> started-video 36.4% (24/66) -> 46.8% (29/62), +10.4pts, p=0.232, NOT SIGNIFICANT",
+     "your_result": "Re-ran `node tools/significance.mjs 24 66 29 62`: 36.4% -> 46.8%, +10.4 pts, p=0.232, NOT SIGNIFICANT - exact match",
+     "agrees": true},
+    {"claim": "2026-07-06 change: arrived-in-app -> started-video 35.7% (40/112) -> 41.8% (38/91), +6.0pts, p=0.379, NOT SIGNIFICANT (changelog basis)",
+     "your_result": "Re-ran `node tools/significance.mjs 40 112 38 91`: 35.7% -> 41.8%, +6.0 pts, p=0.379, NOT SIGNIFICANT - exact match",
+     "agrees": true},
+    {"claim": "api/track.js needs no change - it inserts any event string with no whitelist",
+     "your_result": "Read api/track.js: handler inserts body.event verbatim (line 135 logFunnelEvent), only guard is `if (!event)` at line 123; no allow-list. A new event constant still belongs in analytics-events.js per convention (it is in the plan's files list). True.",
+     "agrees": true},
+    {"claim": "page_viewed and email_entered claim POSTs currently lack keepalive, so <5s bounces can drop (adding keepalive is a real hardening)",
+     "your_result": "Read claim.html 1176-1185 and 1306-1315: both are plain fetch('/api/track', {method:'POST'...}).catch(); no keepalive option. Adding it is genuine, not a no-op. True.",
+     "agrees": true},
+    {"claim": "Next cycle can run linked-funnel on page_viewed/email_field_engaged and get real per-person rates with significance",
+     "your_result": "FALSE. Live run `node --experimental-websocket tools/linked-funnel.mjs page_viewed email_entered 14 --until=2026-07-20 --compare` returns '0 of 0' with '14 page_viewed rows (100%) had no email/operation_id - excluded'. page_viewed and the proposed email_field_engaged carry no linkable key, so both promised sub-funnels resolve to 0/0.",
+     "agrees": false}
+  ]
+}
