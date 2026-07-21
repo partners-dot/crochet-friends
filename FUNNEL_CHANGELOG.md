@@ -47,12 +47,14 @@ swing as a win using an unreproducible baseline):
 4. **"Not yet measurable" is a respected verdict.** Entries may stay pending for several
    cycles; forcing a verdict to look productive is the worst thing you can do here,
    because a false ✅ becomes the next cycle's baseline.
-5. **Know what size of change is knowable.** A small tweak can never be *proven* to work
-   at this traffic — that is arithmetic, not a preference about what to build. It tells
-   you what you will learn from a change, not which change to make: something too small
-   to measure can still be worth shipping, and something big enough to measure can still
-   be a bad idea. Say which you shipped; label the unmeasurable ones *unmeasurable by
-   design* and never later claim one as a tested win.
+5. **Ship small experiments freely — that's the game.** At this traffic almost nothing
+   clears the ~13–20pt significance bar, so "unprovable" is the normal case, not a reason
+   to hold. The value is *volume compounding*: many small, well-judged changes, most
+   individually unmeasurable, adding up. So ship the change and label it *unmeasurable by
+   design* — a respected, normal category. The line that never moves: you may **ship** an
+   unprovable change, but you may **never later claim it worked** without a SIGNIFICANT
+   result. Ship freely; grade ruthlessly. (Bigger, measurable changes are welcome too when
+   a real one exists — but never *wait* for one.)
 
 ### How to re-measure
 - **App funnel (rates):** PostHog → `query-funnel` on the events above, `filterTestAccounts: true`.
@@ -95,10 +97,13 @@ graded.** The entries below are the diary; this is the index. It exists to answe
 question a diary answers slowly: *which steps have we already worked on, how did it go,
 and which have we never touched at all?*
 
-A step that has absorbed three attempts and stayed flat is worth less than an untouched
-step of the same size — the reachable wins there are likely already taken. A step nobody
-has ever attacked may be the largest real opportunity even if its percentage loss is
-smaller. **Impact and novelty both count; neither alone is the answer.**
+This is HISTORY to learn from, not a ceiling. **One flat attempt does not close a step** —
+it means one *approach* did nothing, not that the step is optimised. This process is won
+the way all conversion work is: by trying many things and compounding the ones that stick,
+so a different angle on a "flat" step is fair game and often the right move. The only things
+actually off-limits are re-running the **same failed mechanism** on the same step, and ideas
+the owner has **rejected**. Read the map for the *pattern* (what kinds of change have moved
+this vs. done nothing) to pick a smarter next try — never as a reason to leave a step alone.
 
 | Funnel step | Attempts | What happened | Last touched |
 |---|---|---|---|
