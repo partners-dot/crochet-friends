@@ -123,6 +123,57 @@ this vs. done nothing) to pick a smarter next try — never as a reason to leave
 
 ## Changes
 
+### 2026-07-22 · Harden the claim-page email-gate diagnostic (autofill/paste + storage-blocked linking) — `SHIPPED` · `INFRA`
+**Files:** `claim.html`, `tools/funnel-report.mjs`, `ANALYTICS.md` · **Targets:** measurement fidelity of the email gate, NOT conversion
+
+**What & why.** Repairs two code-level defects in the 2026-07-20 diagnostic that would have
+corrupted its first real read (~2026-08-03). Evidence: in the 07-20..07-22 deploy window
+`funnel-report` showed `email_field_engaged`=4 vs `email_entered`=6 — impossible for a true
+superset (you must engage the field to submit); grouping raw `phase=claim` rows by
+`visitor_id` showed 4 clean chains plus one submitter with NO field-engaged event and
+`visitor_id='(none)'`.
+
+1. **`email_field_engaged` now fires on `input` as well as `focus`** (claim.html), guarded by
+   a shared `fired` boolean so it still fires at most once per visit. `focus` alone misses
+   autofill/paste submissions (common on mobile with saved emails), which submit an email
+   without ever focusing the field — so the event was undercounting below `email_entered`.
+   `input` fires on autofill, paste and first keystroke, making field-engagement a true
+   superset of `email_entered`.
+2. **`getVisitorId()` in-memory fallback** (claim.html): when `sessionStorage` is blocked
+   (private mode / in-app webviews, a large share of QR traffic) it now returns a
+   per-page-load in-memory UUID instead of `null`, so those sessions' three claim events stay
+   person-linkable. The id is never persisted, so it cannot over-link two separate visits.
+3. **Tooling fix** (tools/funnel-report.mjs): added `email_field_engaged` to the ordered event
+   list so it stops being falsely flagged `(non-canonical!)`.
+
+No user-facing / UI change; no conversion event, cross-app link, or verdict funnel touched.
+`measurable:false` — this will NEVER be given a worked/worse verdict.
+
+**Baseline it starts from:** the 2026-07-20 instrument, which undercounted. ⚠️ **Discontinuity:**
+`email_field_engaged` counts rise after this fix (autofill/paste now captured) and
+`visitor_id`-null rows drop, so pre-2026-07-22 rows are a LOWER BOUND and are NOT comparable
+to post-fix rows. For a like-for-like read, both windows must sit on/after 2026-07-22.
+
+**Re-measure ~2026-08-05** (needs ~2 weeks of post-fix accumulation), from durable truth:
+```
+node --experimental-websocket tools/linked-funnel.mjs page_viewed email_field_engaged 14 --until=2026-08-05 --link-by=visitor_id --compare
+node --experimental-websocket tools/linked-funnel.mjs email_field_engaged email_entered 14 --until=2026-08-05 --link-by=visitor_id --compare
+```
+then significance-test each. These split the ~56% email-gate loss into never-engaged vs
+engaged-and-declined — the read the next cycle needs to aim a mechanism-level conversion fix.
+
+**Result:** n/a (measurement infra; no user-facing change). **Verified live:** booted the app
+(`PORT=3939 node --experimental-websocket server.js`), fetched
+`claim.html?sku=PTT-GREEN1&code=GOTYOU30&source=insert` → 200 with all three changes present.
+Drove the real edited code under a mocked DOM: (A) `input`-only (autofill/paste, no focus)
+fired exactly ONE `email_field_engaged`; (B) focus+type+type still fired exactly ONE
+(shared once-guard holds), with a stable non-null `visitor_id`; (C) with storage blocked, all
+claim events shared one non-null in-memory `visitor_id`. Ran `funnel-report 14 --until=2026-07-22`
+→ `email_field_engaged` now listed in canonical order, no `(non-canonical!)` flag. No Supabase
+test rows were created (the behavioral test mocked the network).
+
+---
+
 ### 2026-07-20 · Durable claim-page diagnostic instrumentation (+ per-visitor linking) — `INFRA`
 **Files:** `claim.html`, `analytics-events.js`, `tools/linked-funnel.mjs`, `ANALYTICS.md` · **Targets:** measurement of the email gate, NOT conversion
 

@@ -83,7 +83,7 @@ async function fetchAll(table, cols) {
   console.log('1. EVENTS (count):');
   const byEvent = {};
   for (const r of ev) byEvent[r.event] = (byEvent[r.event] || 0) + 1;
-  const order = ['page_viewed','email_entered','cta_clicked','role_selected','template_used','message_written','create_clicked','video_started','video_created','preview_opened','share_clicked','share_completed','share_page_opened','review_clicked'];
+  const order = ['page_viewed','email_field_engaged','email_entered','cta_clicked','role_selected','template_used','message_written','create_clicked','video_started','video_created','preview_opened','share_clicked','share_completed','share_page_opened','review_clicked'];
   tbl(order.filter(e => byEvent[e] != null).map(e => `${e.padEnd(20)} ${byEvent[e]}`));
   const extra = Object.keys(byEvent).filter(e => !order.includes(e));
   if (extra.length) tbl(extra.map(e => `${e.padEnd(20)} ${byEvent[e]}  (non-canonical!)`));
