@@ -114,7 +114,7 @@ this vs. done nothing) to pick a smarter next try — never as a reason to leave
 | In-app: role → pressed Create (incl. the examples/occasion screen and the message box) | 1 | 2026-07-06 message-step friction fix → **not yet measurable** (inside the noise floor; may never clear it). The examples/occasion screen itself has **never been attacked**. | 2026-07-06 |
 | Pressed Create → video started | 0 | 94–100% — not a leak, never attacked | — |
 | Review ask: in-app thank-you screen | 1 | Made the hero of that screen in June; it now produces **almost all** review clicks | 2026-06-16 |
-| Review ask: preview + share surfaces | 1 | Reworked in June (non-destructive post-share highlight) → still produces **~0 clicks** despite real traffic. Attacked once, no effect. | 2026-06-16 |
+| Review ask: preview + share surfaces | 2 | Reworked in June (non-destructive post-share highlight) → still ~0 clicks. 2026-07-22: **delight/pride-anchored honest-review copy** (new mechanism, not the June attention pulse) on all 3 render paths + ride-along `review_section_viewed` instrument to tell "never scrolled into view" (H1b) from "seen, ignored" (H3). `SHIPPED`, unmeasurable by design; re-measure ~2026-08-19. | 2026-07-22 |
 | Review ask: Klaviyo reminder emails (5 & 6) | 0 | **Never attacked from this repo** — currently out of the cycle's scope (email flow is managed separately) | — |
 
 > ⚠️ This map is only as honest as the cycle that last edited it. If you find it disagrees
@@ -122,6 +122,58 @@ this vs. done nothing) to pick a smarter next try — never as a reason to leave
 > say so in your report.
 
 ## Changes
+
+### 2026-07-22 · Delight-anchored honest review ask on the video-preview page (+ ride-along review_section_viewed instrument) — `SHIPPED`
+**Files:** `video-preview.html`, `analytics-events.js` · **Targets:** preview-page review clicks (`source=video_preview_buyer`/`video_preview_receiver`), leak #3 — the ~0-converting preview/share review ask
+
+**What & why.** The video-preview page is the peak-delight moment (the creator just watched their
+finished video), yet it produces **~0 review clicks** (0 this window, 2 prior) while the in-app
+thank-you screen produces almost all of them (11/11 this window). The old preview ask was generic and
+seller-oriented ("⭐ Made You Smile? / We would really appreciate a quick review") and contained **no
+"honest review" wording** (an Amazon-TOS gap). Two scoped changes:
+
+1. **Copy reframe on all THREE render paths.** Reworded the ask to anchor on the creation and the
+   maker's pride, and to explicitly invite an *honest* review (TOS-aligned): heading
+   "Proud of the video you just made?", body "If it brought a smile, a quick honest review helps
+   other gift-givers find us.", button "Leave an honest review". Applied to `renderBuyerPreview`,
+   `renderReceiverPreview`, **and** the post-share heading override in `highlightReviewAsk`
+   (now "Sent! Proud of what you made?") — so sharers no longer fall back to the old generic
+   post-share text. Drops the stacked ⭐/❤️ emoji. Copy-only, inside the existing review-section
+   *below* the share button; the primary Send CTA and layout are untouched.
+2. **Ride-along diagnostic `review_section_viewed`** (new event in `analytics-events.js`, phase=preview,
+   source=video_preview_buyer/receiver). An IntersectionObserver fires it **exactly once** the first
+   time the review ask scrolls into view. No user-facing effect. It lets a future cycle separate
+   *"the ask is never scrolled into view"* (H1b) from *"seen and ignored"* (H3) on this dead surface.
+
+**Baseline it starts from:** preview-sourced review clicks ~0 (0 in the 14d window ending 2026-07-22,
+2 in the prior window). `review_section_viewed` is a brand-new signal with no history (starts 2026-07-22).
+
+**Measurable?** No — `measurable:false`. At ~28 preview opens/fortnight against a ~13–20pt significance
+bar this copy bet will read "not yet measurable" for many cycles; the value is compounding. This entry
+must **never** be given a worked/worse verdict without a SIGNIFICANT `tools/significance.mjs` print.
+Downside is bounded at ~0 (the surface already converts ~0; share CTA untouched).
+
+**Re-measure ~2026-08-19** (≥4 weeks):
+```
+node --experimental-websocket tools/linked-funnel.mjs video_started review_clicked 14 --until=2026-08-19 --compare
+```
+then count `review_clicked` by source in funnel-report and significance-test preview-sourced clicks.
+ALSO count `review_section_viewed` vs `preview_opened` — the diagnostic that resolves H1b vs H3:
+if the section IS widely seen yet clicks stay ~0, that is a legitimate H3 read (copy, when seen, does
+not motivate); if `review_section_viewed` itself stays ~0, the ask is never scrolled into view (H1b) and
+copy was never the lever — attack visibility/placement next, not copy. Until that read exists, a bare ~0
+on review clicks is an **uninformative** null and must not retire the delight-copy mechanism.
+
+**Verified live:** booted the app (`PORT=3939 node --experimental-websocket server.js`), fetched
+`/video-preview.html?id=test` → 200 with the new buyer + receiver copy, the post-share heading override,
+the `review_section_viewed` constant, and `observeReviewSection` wired into both renders; old copy gone.
+Drove the real edited code under a mocked DOM: the observer fired `review_section_viewed` **exactly once**
+per session for both buyer (source `video_preview_buyer`) and receiver (`video_preview_receiver`) even when
+the intersection callback ran twice; `highlightReviewAsk` set the post-share heading to
+"Sent! Proud of what you made?"; `trackReviewClick` still logged `review_clicked` with the correct source
+and returned false. No Supabase test rows were created (the behavioral test mocked the network).
+
+---
 
 ### 2026-07-22 · Harden the claim-page email-gate diagnostic (autofill/paste + storage-blocked linking) — `SHIPPED` · `INFRA`
 **Files:** `claim.html`, `tools/funnel-report.mjs`, `ANALYTICS.md` · **Targets:** measurement fidelity of the email gate, NOT conversion

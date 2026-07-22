@@ -22,6 +22,7 @@ export const EVENTS = {
   VIDEO_STARTED:     'video_started',
   VIDEO_CREATED:     'video_created',
   PREVIEW_OPENED:    'preview_opened',
+  REVIEW_SECTION_VIEWED: 'review_section_viewed', // preview: the review ask first scrolled into view (diagnostic: seen vs never-seen)
   SHARE_CLICKED:     'share_clicked',
   SHARE_COMPLETED:   'share_completed',
   SHARE_PAGE_OPENED: 'share_page_opened',

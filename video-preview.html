@@ -282,6 +282,30 @@
             } catch (e) { /* never block */ }
         }
 
+        // Mirrors EVENTS.REVIEW_SECTION_VIEWED in analytics-events.js (source of truth).
+        const REVIEW_SECTION_VIEWED = 'review_section_viewed';
+
+        // Ride-along diagnostic: fire review_section_viewed exactly ONCE the first time the
+        // review ask scrolls into view. Lets a future cycle separate "never scrolled into
+        // view" (H1b) from "seen and ignored" (H3) on this ~0-converting surface. No
+        // user-facing effect. `source` = video_preview_buyer | video_preview_receiver.
+        function observeReviewSection(source) {
+            const section = document.querySelector('.review-section');
+            if (!section) return;
+            if (!('IntersectionObserver' in window)) return; // graceful no-op on old browsers
+            let fired = false;
+            const obs = new IntersectionObserver((entries) => {
+                for (const entry of entries) {
+                    if (entry.isIntersecting && !fired) {
+                        fired = true;
+                        logFunnel(REVIEW_SECTION_VIEWED, { source });
+                        obs.disconnect(); // fire once, never re-fire on re-scroll
+                    }
+                }
+            }, { threshold: 0.5 });
+            obs.observe(section);
+        }
+
         async function fetchVideoFromDb(operationId) {
             try {
                 const res = await fetch(`/api/get-video?id=${encodeURIComponent(operationId)}`);
@@ -329,10 +353,10 @@
                 <hr class="divider">
                 
                 <div class="review-section">
-                    <h3>⭐ Made You Smile?</h3>
-                    <p>We would really appreciate a quick review - it only takes 30 seconds. Thank You! ❤️</p>
+                    <h3>Proud of the video you just made?</h3>
+                    <p>If it brought a smile, a quick honest review helps other gift-givers find us.</p>
                     <a href="#" target="_blank" class="review-btn" id="reviewLinkBuyer" onclick="return trackReviewClick('video_preview_buyer')">
-                        Leave a Review ⭐
+                        Leave an honest review
                     </a>
                 </div>
                 
@@ -364,10 +388,10 @@
                 <hr class="divider">
                 
                 <div class="review-section">
-                    <h3>⭐ Made You Smile?</h3>
-                    <p>We would really appreciate a quick review - it only takes 30 seconds. Thank You! ❤️</p>
+                    <h3>Proud of the video you just made?</h3>
+                    <p>If it brought a smile, a quick honest review helps other gift-givers find us.</p>
                     <a href="#" target="_blank" class="review-btn" id="reviewLinkReceiver" onclick="return trackReviewClick('video_preview_receiver')">
-                        Leave a Review ⭐
+                        Leave an honest review
                     </a>
                 </div>
                 
@@ -438,7 +462,7 @@
             if (!section) return;
             // Soften the heading to a post-share, higher-intent ask (the card itself stays in place).
             const h3 = section.querySelector('h3');
-            if (h3 && !section.dataset.shared) h3.textContent = '🎉 Sent! Made you smile?';
+            if (h3 && !section.dataset.shared) h3.textContent = 'Sent! Proud of what you made?';
             section.dataset.shared = '1';
             section.scrollIntoView({ behavior: 'smooth', block: 'center' });
             // Pulse to draw the eye, then settle.
@@ -486,8 +510,10 @@
 
                 if (videoData.userType === 'buyer') {
                     renderBuyerPreview(videoData.videoUrl);
+                    observeReviewSection('video_preview_buyer');
                 } else {
                     renderReceiverPreview(videoData.videoUrl);
+                    observeReviewSection('video_preview_receiver');
                 }
 
                 // Fetch dynamic ASIN for review link. Generic fallback (NOT a random specific product)
