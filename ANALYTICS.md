@@ -36,7 +36,12 @@ Columns: `event, phase, role, email, operation_id, source, product, properties (
   (`page_viewed`/`cta_clicked` phase=claim and `message_written`/`create_clicked` phase=in_app
   were added 2026-07-16 — before that date those steps exist ONLY in PostHog, so top-of-funnel
   rates from this table start then. `email_field_engaged` phase=claim was added 2026-07-20 —
-  fires once when the user first focuses the claim email input; rates from it start then.)
+  fires once when the user first engages the claim email input; rates from it start then.
+  **From 2026-07-22 it fires on `input` as well as `focus`** (a shared once-flag keeps it to
+  one row per visit), so it now also captures autofill/paste submitters who never fire
+  `focus`. Before that fix it undercounted — pre-2026-07-22 `email_field_engaged` counts are a
+  LOWER BOUND and are NOT comparable to counts after it, so a like-for-like read of the
+  page_viewed→email_field_engaged→email_entered sub-funnel needs both windows on/after 07-22.)
 
 ### Linking the pre-email claim steps (`visitor_id`)
 
@@ -44,7 +49,11 @@ Columns: `event, phase, role, email, operation_id, source, product, properties (
 per-visit `properties.visitor_id` (a UUID generated client-side in `claim.html`, stable for
 the visit via sessionStorage). This is the ONLY way to link them per person: the first two
 have no email and no `operation_id`, so `tools/linked-funnel.mjs` would otherwise treat them
-as unlinkable (0-of-0). Link on it explicitly:
+as unlinkable (0-of-0). **From 2026-07-22, when sessionStorage is blocked (private mode /
+in-app webviews) `getVisitorId()` falls back to a per-page-load in-memory UUID instead of
+returning `null`, so those sessions stay linkable** (all three claim events fire within one
+page load; the id is never persisted, so it can't over-link two separate visits). Link on it
+explicitly:
 
 ```
 node tools/linked-funnel.mjs page_viewed email_field_engaged 14 --link-by=visitor_id --compare

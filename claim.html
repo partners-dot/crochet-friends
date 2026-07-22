@@ -1162,19 +1162,30 @@
         // exact defect the plan audit flagged. Kept in `properties.visitor_id` on all three
         // claim events; linked-funnel links on it via `--link-by=visitor_id`.
         // Stable for the visit (sessionStorage), fresh per new scan/tab.
+        // In-memory fallback for when sessionStorage is unavailable (private mode /
+        // in-app messaging-app webviews, a large share of QR traffic). All three claim
+        // events fire within ONE page load, so a per-page-load id kept in memory keeps
+        // them person-linkable instead of dropping to null (unlinkable). It is NOT
+        // persisted, so it can never over-link two separate visits.
+        let inMemoryVisitorId = null;
+        function newVisitorId() {
+            return (window.crypto && crypto.randomUUID)
+                ? crypto.randomUUID()
+                : 'v-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2);
+        }
         function getVisitorId() {
             try {
                 let v = sessionStorage.getItem('cf_visitor_id');
                 if (!v) {
-                    v = (window.crypto && crypto.randomUUID)
-                        ? crypto.randomUUID()
-                        : 'v-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2);
+                    v = newVisitorId();
                     sessionStorage.setItem('cf_visitor_id', v);
                 }
                 return v;
             } catch (e) {
-                // storage blocked (private mode) — event still logs, just unlinkable
-                return null;
+                // storage blocked — fall back to a per-page-load in-memory id so the
+                // three claim events stay linkable rather than becoming null/unlinkable.
+                if (!inMemoryVisitorId) inMemoryVisitorId = newVisitorId();
+                return inMemoryVisitorId;
             }
         }
 
@@ -1548,17 +1559,26 @@
         // ============================================
         init();
 
-        // Fire `email_field_engaged` ONCE, the first time the user focuses the email input
-        // (before typing anything). Combined with page_viewed and email_entered, this splits
-        // the single "view → submit" gap into: page_viewed → email_field_engaged (did they
-        // engage the field at all?) and email_field_engaged → email_entered (of those who
-        // engaged, who submitted?). Diagnostic only; no conversion change. {once:true}
-        // guarantees a single fire even on re-focus; keepalive:true so a quick bounce still
-        // records the row.
+        // Fire `email_field_engaged` ONCE, the first time the user engages the email input.
+        // Combined with page_viewed and email_entered, this splits the single "view → submit"
+        // gap into: page_viewed → email_field_engaged (did they engage the field at all?) and
+        // email_field_engaged → email_entered (of those who engaged, who submitted?).
+        // Diagnostic only; no conversion change.
+        //
+        // We listen on BOTH 'focus' and 'input'. 'focus' catches a manual tap; 'input' also
+        // fires on autofill and paste (common on mobile with saved emails), which do NOT
+        // fire 'focus' — so without it those submitters would enter an email while never
+        // firing email_field_engaged, making the event undercount below email_entered (the
+        // 4<6 impossibility observed in the 07-20 deploy window). A shared `fired` boolean
+        // guards a single fire per visit no matter which event (or both) trips first.
+        // keepalive:true so a quick bounce still records the row.
         (function wireEmailFieldEngaged() {
             const emailInputEl = document.getElementById('claimEmail');
             if (!emailInputEl) return;
-            emailInputEl.addEventListener('focus', function () {
+            let fired = false;
+            function fireEmailFieldEngaged() {
+                if (fired) return;   // shared once-guard across focus + input
+                fired = true;
                 if (typeof posthog !== 'undefined') {
                     posthog.capture('claim_email_field_engaged', { sku: state.sku });
                 }
@@ -1574,7 +1594,9 @@
                         })
                     }).catch(() => { });
                 } catch (e) { /* never block */ }
-            }, { once: true });
+            }
+            emailInputEl.addEventListener('focus', fireEmailFieldEngaged);
+            emailInputEl.addEventListener('input', fireEmailFieldEngaged);
         })();
 
         // Confetti + discount popup on page load
