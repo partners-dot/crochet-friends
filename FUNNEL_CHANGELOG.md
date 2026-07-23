@@ -108,7 +108,7 @@ this vs. done nothing) to pick a smarter next try — never as a reason to leave
 | Funnel step | Attempts | What happened | Last touched |
 |---|---|---|---|
 | Box / insert card (before the scan) | 0 | **Never attacked — and cannot be**: the print is fixed for now | — |
-| Claim page: landed → gave email | 1 real attempt | PR #8 rebuilt the layout/hierarchy → **flat** (44.5% → 39.0%). One further idea was **rejected by the owner before build** (see FUNNEL_CONTEXT rejected attempts). 2026-07-20 shipped *measurement only*, no conversion attempt. | 2026-07-20 (instrumentation) |
+| Claim page: landed → gave email | 2 real attempts | PR #8 rebuilt the layout/hierarchy → **flat** (44.5% → 39.0%). 2026-07-23 rewrote the opening VOICE (warm first-paint line before the reward ask) → **shipped, unmeasurable by design** (pending, likely inside noise floor). One further idea was **rejected by the owner before build** (see FUNNEL_CONTEXT rejected attempts). 2026-07-20/07-22 shipped *measurement only*, no conversion attempt. | 2026-07-23 (opening voice) |
 | Gave email → into the app | 0 | ~97% auto-forward — not a leak, never attacked | — |
 | In-app: arrived → picked a role | 1 | Part of the 2026-06-16 bundle (value-prop hero on the welcome screen) → that bundle **worked**, though the hero's individual contribution was never isolated | 2026-06-16 |
 | In-app: role → pressed Create (incl. the examples/occasion screen and the message box) | 1 | 2026-07-06 message-step friction fix → **not yet measurable** (inside the noise floor; may never clear it). The examples/occasion screen itself has **never been attacked**. | 2026-07-06 |
@@ -122,6 +122,59 @@ this vs. done nothing) to pick a smarter next try — never as a reason to leave
 > say so in your report.
 
 ## Changes
+
+### 2026-07-23 · Answer the box: open the claim page in a warm voice — `SHIPPED`
+**File:** `claim.html` · **Targets:** claim page: landed → gave email (first-paint engagement) · **Attacks the biggest, least-worked leak**
+
+**What & why.** The box that earns the scan is warm and playful ("did this make you smile? …
+there's a spud for anybud"). The claim page answered that at first paint with a cold coupon
+header ("You've Got 30% Off" → "Enter your email to receive"), breaking the emotional thread
+right when the visitor decides whether to engage. Session-recording metadata this window shows
+the loss is dominated by first-paint **non-engagement**: 23 of 44 claim sessions (52%) never
+typed a key, 8 of those clicked nothing, and 6 stayed ≥60s yet still never typed — so it is NOT
+form friction and NOT the ~1.2s opening blur. This change rewords **two lines only** — the gold
+headline and the small lead-in above the rewards — to keep the box's warmth continuous BEFORE
+the reward is stated:
+
+1. Headline (`.kicker`): "You've Got 30% Off" → **"Hope it made you smile"** (completes the
+   box's beat; product-agnostic — no potato/spud/cat noun; never references the printed %).
+2. Lead-in (`.reward-intro`): "Enter your email to receive" → **"Add your email and we'll send"**
+   (collaborative, warm; keeps the email-for-reward exchange explicit).
+
+No layout, reward list, email field, gate, delivery, or code path changed — the 30%-off reward
+and free-video bonus are still shown in the reward list directly below, so nothing promised is
+removed. Distinct from PR #8 (that was layout/hierarchy — spent ground; this is opening voice, a
+motivation mechanism) and from both owner-rejected ideas (never hands the code over first; never
+quotes the printed %).
+
+**Baseline it starts from:** the email gate ~40–44% capture (documented; not cleanly
+reproducible this cycle — PostHog query API 403'd and page_viewed has no comparable prior
+window). The durable gate split (page_viewed → email_field_engaged → email_entered) becomes
+readable ~2026-08-05 (both windows must sit on/after the 07-22 instrument fix).
+
+**`measurable: false` — unmeasurable by design.** At ~12–16 landers/day a two-line copy change
+will almost certainly stay inside the ~13–20pt noise floor. This is a small, reversible,
+on-brand compounding bet, NOT a provable win. It will NEVER be given a worked/worse verdict
+without a SIGNIFICANT `tools/significance.mjs` result.
+
+**Re-measure ~2026-08-05** (needs ~2 weeks of post-fix accumulation), from durable truth:
+```
+node --experimental-websocket tools/linked-funnel.mjs page_viewed email_field_engaged 14 --until=2026-08-05 --link-by=visitor_id --compare
+node --experimental-websocket tools/linked-funnel.mjs email_field_engaged email_entered 14 --until=2026-08-05 --link-by=visitor_id --compare
+```
+then significance-test each. The never-engaged-vs-declined read should inform the NEXT, larger
+swing at this leak (and the plan's admitted limit: metadata cannot separate tonal-break vs
+ceiling vs distrust — this bets on tonal-break at near-zero cost).
+
+**Result:** pending (`SHIPPED` 2026-07-23). **Verified live:** booted the app
+(`PORT=3939 node --experimental-websocket server.js`), fetched
+`claim.html?sku=PTT-GREEN1` and `?sku=PTT-CAT` → both 200 with the new headline + lead-in
+present, old copy gone, "30% off" reward and "Send Me My Code" button intact, no product noun
+and no printed % near the kicker. Rendered mobile BEFORE (live site) / AFTER (local) PNGs under
+`cycle-artifacts/2026-07-23/`. Two `page_viewed` rows created by the screenshot browser loads
+were deleted by id (0 remaining).
+
+---
 
 ### 2026-07-22 · Harden the claim-page email-gate diagnostic (autofill/paste + storage-blocked linking) — `SHIPPED` · `INFRA`
 **Files:** `claim.html`, `tools/funnel-report.mjs`, `ANALYTICS.md` · **Targets:** measurement fidelity of the email gate, NOT conversion
