@@ -1040,8 +1040,10 @@
             <section id="welcomeSection" class="section page-blurred">
                 <div class="kicker" style="margin-bottom: 16px;">Hope it made you smile</div>
 
-                <!-- Product image + name — hidden by design, data used internally -->
-                <div class="product-showcase" style="display:none;">
+                <!-- Product image + name — the handmade friend the visitor is holding, shown as a
+                     warm first-paint anchor. Revealed by init() only when the SKU maps to a real
+                     character portrait; stays hidden (renders nothing) for SKUs without one. -->
+                <div class="product-showcase hidden">
                     <img id="productImage" class="product-image hidden" alt="Your product">
                     <div id="productNameDisplay" class="product-label hidden"></div>
                 </div>
@@ -1226,12 +1228,16 @@
                     if (res.ok) {
                         state.product = await res.json();
 
-                        // Show product image
+                        // Show product image — un-hide the showcase container so the character
+                        // portrait renders as a first-paint hero. Only for SKUs that resolve to a
+                        // real character image; others keep the container hidden (render nothing).
                         const imgEl = document.getElementById('productImage');
                         if (state.product.characterImage) {
                             imgEl.src = state.product.characterImage;
                             imgEl.alt = state.product.productName || 'Your product';
                             imgEl.classList.remove('hidden');
+                            const showcaseEl = document.querySelector('.product-showcase');
+                            if (showcaseEl) showcaseEl.classList.remove('hidden');
                         }
 
                         // Show product name

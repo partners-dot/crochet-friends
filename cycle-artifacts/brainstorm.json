@@ -1,85 +1,93 @@
 {
   "chosen_leak": "Claim page: landed → gave email (the QR-scan email gate; ~40% capture, ~57–60% lost, ~115 people per fortnight)",
-  "why_highest_impact": "This is the single largest drop in the funnel by headcount AND it sits at the very top, so everything downstream multiplies off it. Trace to REVIEWS: an email is the ONLY key that unlocks both review-producing engines — (1) it delivers the code+video, funnelling the person toward the in-app thank-you screen that today produces almost ALL in-app review clicks, and (2) it enrolls them in Klaviyo, whose reminder Emails 5/6 produce a real, separate share of review clicks (phase=email_redirect). Every other leak is DOWNSTREAM of this one and can only act on the ~40% who got through. The in-app 'arrived→started video' leak (~60% of warm users) was genuinely attacked twice recently (2026-06-16 hero bundle = worked; 2026-07-06 message-friction = shipped), so it is recently-touched; the preview/share review asks (~0%) and the in-app thank-you screen are lower total-review contributors and the thank-you screen just drew an owner rejection (2026-07-22). By contrast the email gate is the biggest, feeds reviews on two paths, and has had only ONE real conversion attempt (PR #8, a layout/hierarchy rebuild that went flat) plus one owner-rejected idea (discount-first); everything since (2026-07-20, 2026-07-22) was measurement-only, which does not count as trying. The owner's 2026-07-22 rejection explicitly asked us to attack a bigger, un-tried leak — this is it.",
+  "why_highest_impact": "It is the single largest drop by headcount AND sits at the very top of the funnel, so everything downstream multiplies off it. Trace to REVIEWS: an email is the ONLY key that unlocks BOTH review-producing engines — (1) it delivers the code + video and forwards the person into the create app toward the in-app thank-you screen, which produces ~ALL in-app review clicks (11 of 11 this window), and (2) it enrolls them in Klaviyo, whose reminder Emails 5/6 produce a separate share of review clicks (phase=email_redirect). Every other leak is DOWNSTREAM and can only act on the ~40% who already cleared this gate. The in-app 'arrived→started video' leak (~59% of warm users) was genuinely attacked twice recently (2026-06-16 hero bundle = worked; 2026-07-06 message friction = pending) so it is recently-touched and its reading isn't in yet; the preview/share review asks (~0 clicks) are tiny in absolute reviews and were reworked once in June with no effect; the Klaviyo reminder emails are out of this repo's scope. By contrast the email gate is the biggest, feeds reviews on two paths, and has had only TWO single-mechanism attempts ever — PR #8 (layout/hierarchy rebuild → flat) and 2026-07-23 (opening-voice copy → shipped, unmeasurable) — plus two owner-rejected ideas (discount-first, printed-% gap). Per the rules a single mechanism fences only itself, and 4+ distinct causes here (distrust, an invisible emotional hook, single-value dependency, no-reason-to-act-now, felt cost) have NEVER been attacked. So it remains the highest-leverage, least-worked leak.",
+  "why_still_fair_game_today": "Today's shipped change touched ONE mechanism only — the opening voice/copy of two lines (kicker + reward-intro). That fences the copy mechanism, not the leak. PR #8 fenced the layout/hierarchy-reshuffle mechanism. Neither closes the step, and NONE of the angles below is a copy-reword or a clarity-reshuffle — they are trust, imagery, flow, button, form and timing DESIGN mechanisms aimed at distinct causes the two prior attempts never addressed. The honest tension — that the never-engaged-vs-declined instrument reads ~2026-08-05 — is noted, but this is an ideation MENU for the planner, and the top pick (surfacing an emotional hook that the code currently hides) is a verified page defect worth fixing regardless of that read.",
   "angles": [
     {
-      "angle": "Answer the box",
-      "mechanism": "Open the page by completing the emotional beat the box started ('did this potato make you smile?') in the same warm voice, acknowledging the gift/the smile BEFORE stating the reward — so the visitor stays in the delighted mindset that made them pull out a phone and scan, instead of hitting a cold coupon-form header and pattern-matching 'marketing form → bounce'. It keeps the emotional thread continuous from box → page so more people lean in and engage the field at all.",
-      "cause_addressed": "Thin motivation / tonal break: the box that MADE them scan is warm and playful; the page greets that warmth with a transactional 'You've Got 30% Off / Enter your email to receive / Send Me My Code'. The emotional pull evaporates before they engage.",
-      "evidence_hint": "Session replays show ~67% never type a single key — the loss is overwhelmingly at 'never engaged', not form friction. The box voice is documented as warm/playful; the current hero is transactional. Points to people not feeling pulled in at first paint.",
-      "why_untried_and_different": "PR #8 rebuilt LAYOUT/HIERARCHY (structure) and went flat; this touches the opening VOICE/first line, a motivation mechanism, not a reshuffle of the same elements. It is not the discount-first rejection and never references the printed percentage.",
-      "on_brand_fit": "It IS the brand voice — warm, human, playful-but-refined; maximally on-brand, no emoji soup, no push.",
+      "angle": "Bring the crochet friend on-screen",
+      "mechanism": "The actual crochet character — the exact object in the visitor's hands that 'made them smile' — is already fetched from /api/product-lookup but the whole .product-showcase is display:none (claim.html line 1044), so it is invisible above the fold; the page instead leads with a coupon. Un-hide and position that character image (with its product name) as a warm emotional hero at the top, so the first thing a scanner sees is their friend, not a marketing form. This re-connects the box→page emotional thread with a real IMAGE (a far stronger lever than words), pulling more people to lean in and reach the email ask instead of pattern-matching 'coupon form → close tab'.",
+      "cause_addressed": "Broken emotional thread / the delight is invisible: the thing that earned the scan is affection for the handmade gift, yet the page hides the gift and greets that affection with a discount + email field.",
+      "evidence_hint": "Verified in code: .product-showcase is display:none while init() fetches and sets the character image and name — the asset exists but never renders above the fold. Replays show the loss is at first paint (52% never type, 8/23 never click), i.e. people disengage before weighing the trade — exactly where a warm, recognizable image would earn a second beat of attention.",
+      "why_untried_and_different": "PR #8 reshuffled the reward/form TEXT blocks for hierarchy and never surfaced this hidden image; today's change reworded two lines. Surfacing a real product IMAGE as the hero is a new imagery mechanism, not a reshuffle and not copy. It never hands the code over first and never references the printed %, so it is neither owner rejection.",
+      "on_brand_fit": "Maximally on-brand: the handmade character IS the brand equity — warm, premium, human, zero emoji, no push. It shows care, not marketing.",
+      "expected_value": "high",
+      "confidence": "high",
+      "lever": "imagery",
+      "size": "Reversible and focused: remove the display:none on the existing .product-showcase and place the already-fetched character image + name above the rewards in claim.html; no new asset, infra, gate or reward touched."
+    },
+    {
+      "angle": "Calm the scam-signal first paint",
+      "mechanism": "On load the page blurs itself (~1.8s) UNDER a full-screen 'You Won a Prize! / 30% OFF / Your Next Order' popup plus a 180-piece confetti burst — a sweepstakes-style razzle that both delays the real content and pattern-matches to spam/scam at the precise moment a scanner decides whether to trust the page. Retire or heavily soften that opener so first paint is an immediate, clear, calm, trustworthy hero (real product, plain warm headline, obvious single action). The 30%-off reward is NOT removed — it still stands in the reward list — only the theatrical overlay/blur/confetti that reads as a gimmick is toned down.",
+      "cause_addressed": "Distrust + delay: a promo-lottery overlay over a blurred page on an unfamiliar QR domain triggers 'this is a spam trap' and hides the content for the first seconds, so suspicious or impatient scanners bounce before engaging.",
+      "evidence_hint": "Verified in code: launchConfetti(180 pieces) + a fixed 30% OFF discount-popup + page-blurred→revealed run for ~1.8–3s on load. Replays: 52% never type, 8 of 23 never click at all, and several stay ≥60s yet never type — consistent with 'looked like a gimmick / couldn't act, left', not form friction.",
+      "why_untried_and_different": "No prior attempt touched the first-paint reveal sequence; PR #8 was a static-layout reshuffle and today's change was voice copy. This is a FLOW/experience change to the opening moment. It removes NO gate and NO reward (the discount stays in the list), so it is not the rejected discount-first move, and it never references the printed %.",
+      "on_brand_fit": "A calm, confident, premium first paint is MORE on-brand than confetti-and-lottery theater; refined and warm rather than childish — exactly the owner's design bar.",
       "expected_value": "high",
       "confidence": "medium",
-      "size": "SMALL: rewrite the kicker + reward-intro copy (one headline + one subhead) in claim.html; no layout, fully reversible."
+      "lever": "flow",
+      "size": "Reversible and focused: soften/remove the on-load discount-popup + confetti + blur reveal in claim.html so content shows immediately; no gate, reward, field or delivery path changed."
     },
     {
-      "angle": "Reserved-for-you (honest freshness cue)",
-      "mechanism": "Add a gentle, truthful cue that their code is set aside and waiting for them right now (not a fake countdown) — giving a reason to finish the email in THIS session rather than mentally deferring it and never returning. Turns a single-visit 'I'll do it later' into 'I'll do it now'.",
-      "cause_addressed": "No reason to act NOW: this is a one-visit funnel with no scarcity or timeliness; people intend to claim later and never come back.",
-      "evidence_hint": "The claim funnel is effectively single-session (QR scan, no return path), and ~67% leave without acting — the classic signature of no-urgency drift. Unsettled on magnitude — a bet.",
-      "why_untried_and_different": "The page has ZERO urgency mechanism today (grep confirms no expire/reserved/limited/today copy). Never attempted; distinct from PR #8's structure work and unrelated to the rejected discount-first / printed-% ideas.",
-      "on_brand_fit": "Must stay warm and honest (reserved/waiting, not 'HURRY 10:00 LEFT'); framed as care, not pressure — keeps the premium, non-pushy bar.",
-      "expected_value": "medium",
-      "confidence": "low",
-      "size": "SMALL: one honest line near the CTA in claim.html; no timer infra, reversible."
-    },
-    {
-      "angle": "Real maker, real shop (legitimacy proof)",
-      "mechanism": "Replace the generic trust bar ('No spam, ever / Code sent by email / Unsubscribe anytime') with a small, concrete signal that this is the genuine handmade shop behind the gift — the maker/brand identity and a light proof-of-realness — so a suspicious scanner on an unfamiliar domain believes the email is safe to give and the reward is real.",
-      "cause_addressed": "Distrust / legitimacy: an unfamiliar QR-destination page asking for an email BEFORE giving anything reads as a possible scam or spam-trap to a fraction of scanners, who bounce on suspicion.",
-      "evidence_hint": "QR traffic lands on an unfamiliar domain with a thin, generic trust bar; a share of the ~67% never-engage is consistent with 'looks sketchy, close tab'. Unsettled split (never-engaged vs declined data lands ~Aug) — a bet.",
-      "why_untried_and_different": "The existing trust bar is boilerplate reassurance; establishing genuine MAKER legitimacy/social proof is a different mechanism, not PR #8's hierarchy rebuild, and not a rejected idea.",
-      "on_brand_fit": "Handmade-with-love identity is core brand equity; showing the real maker is premium and warm, not pushy.",
+      "angle": "Real-maker legitimacy block",
+      "mechanism": "Replace the generic, boilerplate trust bar ('No spam, ever / Code sent by email / Unsubscribe anytime') with a small, concrete proof that this is the genuine handmade shop behind the gift — a real maker/brand mark and a light social-proof signal (e.g. the Amazon storefront the box came from) — so a suspicious scanner on an unfamiliar domain believes the email is safe to give and the reward is real. Trust is delivered as a designed VISUAL block, not just reworded microcopy.",
+      "cause_addressed": "Legitimacy distrust: an unfamiliar QR-destination asking for an email BEFORE giving anything reads as a possible scam/spam-trap to a share of scanners, who bounce on suspicion.",
+      "evidence_hint": "QR traffic lands on an unfamiliar domain with a thin generic trust bar; 8 of 23 never-typed sessions had ZERO clicks (looked, didn't act). The never-engaged-vs-declined split isn't measurable until ~Aug 5, so magnitude is a bet — but the distrust cause is structurally live for QR-to-unknown-domain traffic.",
+      "why_untried_and_different": "The current trust bar is generic reassurance never redesigned; establishing genuine MAKER legitimacy/social proof is a different (trust) mechanism, not PR #8's hierarchy rebuild nor today's voice copy, and neither owner rejection.",
+      "on_brand_fit": "'Handmade with love' is core brand equity; showing the real maker/shop is premium and warm, not pushy.",
       "expected_value": "medium",
       "confidence": "medium",
-      "size": "SMALL: swap/augment the trust-bar copy + optional small maker line in claim.html; reversible."
+      "lever": "trust",
+      "size": "Reversible and focused: swap the trust-bar for a small maker/legitimacy block (brand mark + storefront proof) in claim.html; no gate, reward or field changed."
     },
     {
-      "angle": "Worth-it-even-once value reframe",
-      "mechanism": "Recast '30% off your NEXT order' so it lands for a one-and-done gift buyer who wasn't planning to reorder — anchor it to near-term, giftable relevance ('there's a spud for anybud' → treat someone else / the next occasion) so the discount reads as usable value rather than an irrelevant loyalty perk they'll never redeem.",
-      "cause_addressed": "Weak/unclear value: the reward is a repeat-purchase discount, and a gift buyer may simply not want a next order — the 'ceiling' hypothesis — so there's nothing worth an email.",
-      "evidence_hint": "FUNNEL_CONTEXT flags 'they never intended to reorder' as the top competing explanation with a possible ceiling; the offer is explicitly framed as a next-order repeat-purchase. Unsettled — a bet that directly tests the ceiling.",
-      "why_untried_and_different": "Never reframed; PR #8 changed layout, not the meaning of the offer. It never quotes or compares the printed percentage (not the rejected gap idea) and never gives the code away first (not the rejected discount-first idea).",
-      "on_brand_fit": "Uses the box's own playful gifting voice; warm, generous framing — on-brand.",
-      "expected_value": "medium",
-      "confidence": "low",
-      "size": "SMALL: reframe the reward-list copy for the 30% line in claim.html; reversible."
-    },
-    {
-      "angle": "Speak to who actually scanned (giver vs receiver)",
-      "mechanism": "Add a light, optional acknowledgment of who is holding the phone — the person who was GIVEN the gift vs. the buyer — and let the value speak to each (a receiver just got something lovely; a buyer might reorder). A receiver who scans at unwrapping is not the purchaser, so undifferentiated 'your next order' misfires; naming them keeps them engaged.",
-      "cause_addressed": "Wrong-audience / timing: the box is on a GIFT, so the scanner is often the recipient, not the buyer, yet the claim page treats everyone identically and pitches a buyer-shaped offer.",
-      "evidence_hint": "Role (buyer/receiver) is only asked LATER in the create app, meaning the claim page is role-agnostic today; the product is literally a gift, so recipient-scanners are structurally common. Unsettled — a bet.",
-      "why_untried_and_different": "The claim page has never segmented by audience; this is a new mechanism, not PR #8's structural rebuild, and unrelated to either owner rejection.",
-      "on_brand_fit": "Warm personal recognition ('this landed with you because someone thought of you') fits the gifting, human tone.",
-      "expected_value": "medium",
-      "confidence": "low",
-      "size": "SMALL: add one optional acknowledgment line / lightweight two-path copy in claim.html; reversible."
-    },
-    {
-      "angle": "Lead with the video as a second draw",
-      "mechanism": "Elevate the 'free personalized video starring your crochet friend' from a below-the-fold 'bonus' into a co-equal curiosity hook near the top, so a scanner who doesn't care about a discount still sees a compelling, emotional reason to hand over an email. The email gate stays exactly where it is — the video remains email-delivered — we only give the discount-indifferent a second reason to give it.",
-      "cause_addressed": "Single-value dependency: if you don't want the discount, the page currently offers nothing you can see fast (the video sits below the form as an afterthought), so a whole segment has zero reason to engage.",
-      "evidence_hint": "The video is an unannounced bonus not mentioned on the box, currently placed below the email form; the discount-ceiling segment may nonetheless want a keepsake video. Unsettled — a bet.",
-      "why_untried_and_different": "Distinct from PR #8 (which reorganized the two-reward layout but kept the video as secondary bonus) — this changes which value leads for a specific segment, and crucially does NOT remove or defer the email gate, so it is not the rejected discount-first move.",
-      "on_brand_fit": "The video is delightful and personal — leaning on it is warm, not pushy, and premium in feel.",
+      "angle": "Video as co-hero above the fold",
+      "mechanism": "The personalized-video preview — a genuine emotional draw starring the visitor's crochet friend — currently autoplays at the very BOTTOM of the page, below the email form, trust bar and reward list, so a scanner who doesn't care about a next-order discount never sees it before deciding to leave. Elevate the autoplaying preview (or its poster frame) into a co-equal hero near the top, giving the discount-indifferent segment a second, emotional reason to hand over an email. The email gate stays exactly where it is and the video is still email-delivered — we only make the second reward visible earlier.",
+      "cause_addressed": "Single-value dependency: if you don't want the discount (one-off buyer / gift recipient), the only value visible above the fold is the discount, so a whole segment sees 'nothing for me' and never engages.",
+      "evidence_hint": "Verified in code: the video-bonus-wrap sits after the form/trust-bar, below the fold on mobile. The video is an unannounced bonus not on the box; the discount-ceiling segment may still want a keepsake video. Magnitude unsettled — a bet on the discount-indifferent segment's size.",
+      "why_untried_and_different": "PR #8 kept the video as a bottom 'bonus'; this changes WHICH value leads for a specific segment via placement/imagery, and crucially does NOT remove or defer the email gate — so it is not the rejected discount-first move. Not a copy reword.",
+      "on_brand_fit": "The personalized video is delightful and personal; leaning on it is warm and premium, not pushy.",
       "expected_value": "medium",
       "confidence": "medium",
-      "size": "SMALL/surgical: raise the video's framing + move its caption above the fold in claim.html without removing the form; reversible."
+      "lever": "layout",
+      "size": "Reversible and focused: move the existing video-preview element (or its poster) above the fold in claim.html without removing the form or the reward list; no gate or delivery changed."
     },
     {
-      "angle": "One tap, nothing else (lower the felt cost)",
-      "mechanism": "For the minority who DO engage, cut the perceived effort/risk of the ask itself: make explicit that it's just an email and nothing more, show the reward is one tap away, and smooth the field interaction so an engaged user doesn't stall or second-guess. Reduces 'engaged-and-gave-up' losses.",
-      "cause_addressed": "Form friction / felt cost among engagers: typing on a phone, uncertainty about how much they're committing to, or a moment of 'is this worth it' after focusing the field.",
-      "evidence_hint": "~33% do engage the field; the never-engaged-vs-declined split isn't measurable until ~Aug, so the size of the declined bucket is unknown. Unsettled — a bet, and by design the smallest-ceiling angle given ~67% never type.",
-      "why_untried_and_different": "PR #8 restructured the page; this attacks micro-friction/reassurance at the field, a different mechanism, and is neither owner rejection.",
+      "angle": "Let the button carry the reward",
+      "mechanism": "The primary CTA reads 'Send Me My Code' — generic and code-only — in gold with a pulse. Make the button itself state the full value the tap delivers (both rewards) and give it an unmistakable high-contrast treatment so, for anyone who skims, the single obvious next action also communicates the payoff. This attacks weak value + confusion right at the point of action, where the decision is actually made.",
+      "cause_addressed": "Weak/unclear value at the moment of action + confusion: skimmers who never parse the reward list still see the button; if it says only 'code' it under-sells the trade and gives thin motivation to tap.",
+      "evidence_hint": "Verified in code: btn label 'Send Me My Code' names only the discount, not the free video. Replays show many people never engage — a value-bearing, high-contrast focal CTA is a low-cost lever at the exact decision point. Ceiling unsettled — a bet.",
+      "why_untried_and_different": "No prior attempt targeted the CTA button specifically (label + prominence); PR #8 was page structure, today's change was headline/lead-in voice. This is a button-lever change, and neither owner rejection.",
+      "on_brand_fit": "A clear, confident, value-bearing button is warm and premium; no hype, no emoji soup.",
+      "expected_value": "medium",
+      "confidence": "medium",
+      "lever": "button",
+      "size": "Reversible and focused: relabel + restyle the single .btn-primary in claim.html; no gate, reward, field or flow changed."
+    },
+    {
+      "angle": "Honest 'set aside for you' cue",
+      "mechanism": "The claim funnel is effectively single-session — a QR scan with no return path — so a visitor who thinks 'I'll do it later' simply never comes back. Add one gentle, TRUTHFUL cue near the CTA that their unique code is set aside and waiting for them right now (a warm 'reserved for you', never a fake countdown), turning 'later' into 'now' in this one session. Codes really are unique/single-use per profile, so the framing is honest.",
+      "cause_addressed": "No reason to act NOW: with no scarcity, timeliness or return path, intent-to-claim-later quietly drifts to never-claimed.",
+      "evidence_hint": "Verified: the page has ZERO urgency/timeliness element today (no reserved/waiting/today copy). Single-session QR funnel with no return path; the never-typed bounces span 5s to 60s+, consistent with unhurried drift. Magnitude unsettled — a bet.",
+      "why_untried_and_different": "The page has never had any urgency/timeliness mechanism; this is a new (honest-timing) mechanism, distinct from PR #8's structure and today's voice, and unrelated to either owner rejection.",
+      "on_brand_fit": "Framed as care ('your code is waiting for you'), not pressure ('HURRY 10:00 LEFT') — keeps the premium, non-pushy bar; must stay warm and literally true.",
+      "expected_value": "medium",
+      "confidence": "low",
+      "lever": "copy",
+      "size": "Reversible and focused: one honest line/chip near the CTA in claim.html; no timer infra, no gate or reward changed."
+    },
+    {
+      "angle": "Lower the felt cost at the field",
+      "mechanism": "For the minority who DO engage, cut the perceived cost/risk of the ask itself with FORM-level design: make it visibly a one-field, one-tap commitment, reassure at the field that it's just an email and the reward is one tap away, and smooth the input interaction so an engaged user doesn't stall or second-guess after focusing. Reduces the 'engaged-then-declined' losses.",
+      "cause_addressed": "Felt cost / commitment ambiguity among engagers: typing on a phone, uncertainty about how much they're signing up for, a moment of 'is this worth it' after tapping the field.",
+      "evidence_hint": "~33% engage the field (52–67% never type); the engaged-then-declined bucket size isn't measurable until ~Aug 5, so this is deliberately the smallest-ceiling angle given how many never type at all — an unsettled bet, included for lever coverage.",
+      "why_untried_and_different": "PR #8 restructured the page; today's change was voice. Field-level reassurance and interaction polish (form lever) is a different mechanism, and neither owner rejection.",
       "on_brand_fit": "Quiet, reassuring, low-friction — fits the refined, non-pushy bar.",
       "expected_value": "low",
       "confidence": "medium",
-      "size": "SMALL: reassurance microcopy at the field + minor interaction polish in claim.html; reversible."
+      "lever": "form",
+      "size": "Reversible and focused: field-level reassurance + minor interaction polish around the email input in claim.html; no gate or reward changed."
     }
   ],
-  "recommended_pick": "Answer the box",
-  "pick_rationale": "It wins on value × confidence × on-brand fit against the runners-up. The one piece of hard evidence we have — ~67% of scanners never type a single key — says the loss is dominated by people who never ENGAGE, not by form friction, which immediately demotes 'One tap, nothing else' (only reaches the ~33% who engage) and de-risks the whole class of 'first-paint lean-in' angles. Among those, 'Answer the box' targets the most defensible cause of non-engagement: the funnel provably works when the tone is warm (the box's playful voice is what earns the scan in the first place), and the page currently answers that warmth with a cold coupon header — a tonal break we can fix at essentially zero risk. It is the highest on-brand fit by construction (the fix IS the brand voice), the most surgical (one headline + one subhead, instantly reversible), and cleanly distinct from the only thing tried here (PR #8 changed structure, not the opening voice) and from both owner rejections (no printed-% reference, no discount-first). The urgency, trust, value-reframe, audience, and video-hook angles are all genuinely worth the slate, but each is a lower-confidence bet on an unproven cause (ceiling, distrust, audience-mix) that our data can't yet confirm and some carry on-brand risk (honest-urgency can tip pushy). 'Answer the box' has the best expected lift for the least risk and the tightest brand fit, so it is the one to develop first; the planner can pair it with the maker-legitimacy or video-hook angle if a slightly larger swing is wanted."
+  "recommended_pick": "Bring the crochet friend on-screen",
+  "pick_rationale": "It wins on value × confidence × on-brand fit. Unlike every runner-up it is NOT a pure bet: it rests on a verified page defect — the character image that made the person smile is fetched but hidden by display:none, so the emotional hook is literally invisible above the fold and the page leads with a coupon instead. That is exactly aligned with the one hard piece of evidence we have (the loss is first-paint NON-engagement: 52% never type, 8/23 never click), and it advances the same emotional-thread thesis the team already endorsed today — but with a far stronger, non-copy lever (a real image) rather than another two-line reword, so it complements rather than repeats the shipped change. It is maximally on-brand (the handmade character IS the brand), the most surgical and reversible (un-hide and position an element that already exists and is already fetched — no new asset or infra), and cleanly distinct from PR #8 (which never surfaced the image) and from both owner rejections. It beats 'Calm the scam-signal first paint' (higher value but higher risk — it touches a celebratory reveal the owner may value — and lower certainty), and beats the trust/video/button/timing/form angles, which are lower-confidence bets on causes (distrust, discount-indifference, urgency) the data cannot yet confirm. The planner can pair this pick with 'Calm the scam-signal first paint' or 'Real-maker legitimacy block' if a larger single swing is wanted, since all three reinforce first-paint trust and warmth."
 }

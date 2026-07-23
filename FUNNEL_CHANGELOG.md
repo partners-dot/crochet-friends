@@ -108,7 +108,7 @@ this vs. done nothing) to pick a smarter next try — never as a reason to leave
 | Funnel step | Attempts | What happened | Last touched |
 |---|---|---|---|
 | Box / insert card (before the scan) | 0 | **Never attacked — and cannot be**: the print is fixed for now | — |
-| Claim page: landed → gave email | 2 real attempts | PR #8 rebuilt the layout/hierarchy → **flat** (44.5% → 39.0%). 2026-07-23 rewrote the opening VOICE (warm first-paint line before the reward ask) → **shipped, unmeasurable by design** (pending, likely inside noise floor). One further idea was **rejected by the owner before build** (see FUNNEL_CONTEXT rejected attempts). 2026-07-20/07-22 shipped *measurement only*, no conversion attempt. | 2026-07-23 (opening voice) |
+| Claim page: landed → gave email | 3 real attempts | PR #8 rebuilt the layout/hierarchy → **flat** (44.5% → 39.0%). 2026-07-23 rewrote the opening VOICE (warm first-paint line before the reward ask) → **shipped, unmeasurable by design** (pending). 2026-07-23 surfaced the already-fetched crochet-character portrait as a first-paint hero (imagery, not a reshuffle) → **shipped, unmeasurable by design** (pending). One further idea was **rejected by the owner before build** (see FUNNEL_CONTEXT rejected attempts). 2026-07-20/07-22 shipped *measurement only*, no conversion attempt. | 2026-07-23 (character portrait) |
 | Gave email → into the app | 0 | ~97% auto-forward — not a leak, never attacked | — |
 | In-app: arrived → picked a role | 1 | Part of the 2026-06-16 bundle (value-prop hero on the welcome screen) → that bundle **worked**, though the hero's individual contribution was never isolated | 2026-06-16 |
 | In-app: role → pressed Create (incl. the examples/occasion screen and the message box) | 1 | 2026-07-06 message-step friction fix → **not yet measurable** (inside the noise floor; may never clear it). The examples/occasion screen itself has **never been attacked**. | 2026-07-06 |
@@ -122,6 +122,68 @@ this vs. done nothing) to pick a smarter next try — never as a reason to leave
 > say so in your report.
 
 ## Changes
+
+### 2026-07-23 · Bring the crochet friend on-screen: surface the hidden character portrait as a first-paint hero — `SHIPPED`
+**File:** `claim.html` · **Targets:** claim page: landed → gave email (first-paint engagement) · **Attacks the biggest, least-worked leak**
+
+**What & why.** The box earns the scan through affection for a handmade gift, but the claim page
+opened with a coupon + email field while the gift stayed invisible: the character portrait is
+already fetched by `init()` from `/api/product-lookup` and its `src` assigned on every load, but
+its parent `.product-showcase` was hard-coded `display:none` (claim.html), so it never rendered.
+Session-recording metadata this window shows the loss lives BEFORE field engagement — 61% (19/31)
+of in-window claim sessions never typed a key and only 12/31 typed at all — so the leverage is at
+first paint / reason-to-engage, not at the input mechanics. This change un-hides that portrait
+(a 120px gold-ringed circular crop with the product name) as a compact, premium emotional anchor
+directly under the warm kicker "Hope it made you smile", above the reward list and form:
+
+1. `.product-showcase` no longer hard-coded `display:none`; it now carries the `hidden` class and
+   `init()` removes it **only when the SKU resolves to a real character image** — so character SKUs
+   show the portrait and no-character SKUs render nothing (no empty gap, no broken image).
+
+No gate, reward, delivery path, email field, or promise changed — the 30%-off reward, free-video
+bonus, "Send Me My Code" button, and the bottom video preview are all untouched. The image is
+ALREADY downloaded on load (its `src` is set regardless of `display`), so un-hiding adds zero
+network bytes — only a decode/paint. Distinct from PR #8 (that was a layout/hierarchy REBUILD of
+existing elements — spent ground; this SURFACES a new content element, imagery, matching the
+pattern that actually moved the funnel: the 2026-06-16 value-prop hero). Neither owner rejection
+applies: no discount code is handed over before the email, and nothing references the printed %.
+
+**Baseline it starts from:** the email gate ~40–44% capture — PostHog person-linked this window
+42.2% (65/154) vs prior 39.8% (64/161), flat (`significance.mjs 64 161 65 154` → +2.5pts, p=0.658,
+NOT SIGNIFICANT, ~16pt min detectable). Session-replay metadata: 61% (19/31) never type a key.
+
+**`measurable: false` — unmeasurable by design.** At ~150 landers/fortnight a few points of extra
+capture stays well inside the ~13–20pt noise floor. This is a small, reversible, on-brand
+compounding bet, NOT a provable win. It will NEVER be given a worked/worse verdict without a
+SIGNIFICANT `tools/significance.mjs` result. Its one unprovable assumption: that a non-trivial
+share of the ~58% who never engage are leaving because first paint fails to connect emotionally,
+not purely because they never wanted a next-order discount (a ceiling no image moves).
+
+**Re-measure ~2026-08-05** (needs ~2 weeks of post-fix accumulation; both windows on/after 07-22),
+from durable truth:
+```
+node --experimental-websocket tools/linked-funnel.mjs page_viewed email_field_engaged 14 --until=2026-08-05 --link-by=visitor_id --compare
+node --experimental-websocket tools/linked-funnel.mjs email_field_engaged email_entered 14 --until=2026-08-05 --link-by=visitor_id --compare
+node --experimental-websocket tools/posthog-funnel.mjs presets 14 --until=2026-08-05
+```
+then significance-test each. The never-engaged-vs-declined split should inform the NEXT swing at
+this leak (if it shows a large discount-ceiling, pivot to the discount-indifferent segment, e.g.
+the video-as-co-hero angle).
+
+**Result:** pending (`SHIPPED` 2026-07-23). **Verified live:** booted the app
+(`PORT=3939 node --experimental-websocket server.js`), fetched `claim.html?sku=PTT-GREEN1` → 200
+with the new markup (`.product-showcase hidden`, the `showcaseEl.classList.remove('hidden')`
+reveal) present and the old inline `display:none` gone. Drove the real edited page under a browser
+with `/api/product-lookup` mocked (the ROS `master_products` DB is unreachable from this clone):
+a resolvable character SKU rendered the gold-ringed portrait + product name as a hero under the
+kicker, above the rewards/form, with the reward list, button, and bottom video preview unchanged;
+a no-character SKU kept `.product-showcase` hidden (portrait not visible, layout intact). Rendered
+mobile BEFORE (live site) / AFTER (local) PNGs for potato and cupcake under
+`cycle-artifacts/2026-07-23/`. Two `page_viewed` rows created by the live BEFORE screenshot loads
+were deleted by id (confirmed 0 remaining); the local AFTER loads had `/api/track` intercepted, so
+they wrote nothing.
+
+---
 
 ### 2026-07-23 · Answer the box: open the claim page in a warm voice — `SHIPPED`
 **File:** `claim.html` · **Targets:** claim page: landed → gave email (first-paint engagement) · **Attacks the biggest, least-worked leak**
