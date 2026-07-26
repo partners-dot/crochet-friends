@@ -1,46 +1,34 @@
 {
   "verdict": "approve",
-  "summary": "This is a small, reversible copy change to the claim page's opening voice, aimed at the funnel's biggest and least-worked leak (the email gate), and it is the first genuine visible conversion attempt after several invisible instrumentation-only cycles. It repeats none of the rejected ideas, keeps the email-for-discount exchange fully intact (so it is the opposite of the rejected discount-first move), breaks no promise or delivery mechanism, and every number I could re-run reproduced exactly; it is honestly labelled unmeasurable and honestly labelled a bet on a cause the data cannot yet single out.",
+  "summary": "The plan un-hides a pre-built, pre-styled, on-brand portrait of the actual crocheted gift (a 120px gold-ringed circle the page currently hard-codes to display:none) at the first-paint moment where the evidence localizes the claim-gate loss, at zero added latency and fully reversible, without touching the email exchange, the discount code, the printed percentage, or any promise. Every reproducible figure re-ran to the planner's exact numbers, the mechanism raises the felt worth of the SAME email-for-reward trade rather than dismantling it, and the change is visible and honestly labelled unmeasurable-by-design, so it is a sound compounding bet on the biggest, least-worked-by-mechanism leak.",
   "findings": [
     {
       "severity": "minor",
-      "issue": "The plan bets on the 'tonal break' cause while admitting the ceiling (one-off gift buyers don't want a next-order discount) and distrust causes are indistinguishable from it in the available data. The owner (FUNNEL_CONTEXT, 2026-07-19) asked cycles to distinguish these causes 'before proposing anything', and if a ceiling dominates 'the effort belongs elsewhere.'",
-      "evidence": "plan.json cause_verification and diagnosis.what_it_cannot_distinguish both state metadata cannot separate tonal-break vs ceiling vs distrust; the already-shipped 07-20/07-22 instrument (readable ~Aug 3-5) will split never-engaged vs declined but will NOT separate these three (all produce a never-type bounce). Further waiting therefore does not resolve the specific cause. This is acceptable under the changelog's explicit 'ship small reversible on-brand bets, compound them, grade ruthlessly' rule (FUNNEL_CHANGELOG.md:50-57), and the fix is near-zero-cost and revertible - but the owner should read this as a bet, not a diagnosed fix.",
-      "required_fix": "None required to build. Keep the report's framing as an explicit unprovable bet (already done in plan.expected_effect / measurable:false); no later cycle may grade it 'worked' without a significant result, and the ~Aug never-engaged/declined read should inform the next, larger swing."
+      "issue": "The specific WHY (a 'broken emotional thread') is a bet, not a proven cause - the evidence localizes the loss to first paint but cannot distinguish emotional-disconnect from a discount-ceiling or distrust.",
+      "evidence": "diagnosis.what_it_cannot_distinguish and cause_verification.against both admit this openly. Session-replay metadata (61% never type) evidences the LOCATION (pre-field-engagement) but not the reason; the durable page_viewed->email_field_engaged->email_entered split only reads ~2026-08-05 and even then separates never-engaged from engaged-declined, not emotional-disconnect from ceiling. This is NOT a contradicted premise (nothing in the evidence disproves the cause), it is an under-determined one, and it is disclosed rather than dressed up. It does not block because the change also corrects a genuine, verified defect (a handmade-gift page that hides the gift) at near-zero cost and is reversible.",
+      "required_fix": "None required - the assumption is stated plainly, measurable:false is set, and the 08-05 split is queued to inform the next swing. Do not later claim this 'worked' without a SIGNIFICANT tools/significance.mjs result."
     },
     {
       "severity": "minor",
-      "issue": "Execution risk against the owner's design bar: the plan wants to echo the box's playful voice ('there's a spud for anybud') while being product-agnostic (no 'potato/spud'; SKUs span potato/cat/dog/nurse) AND premium/not-childish with few emoji. That is a narrow target and could land gimmicky.",
-      "evidence": "FUNNEL_CONTEXT hard constraints (lines 226-229): 'premium and refined, not childish... Copy sounds human and warm, never pushy.' The box voice example is product-specific and the SKU mix varies (FUNNEL_CONTEXT product list, lines 88-89). plan.json flags this itself in what_would_have_to_be_true[2].",
-      "required_fix": "None to approve; the owner reviews the actual two lines. The shipped copy must carry no product noun and no printed/quoted percentage, and must read warm rather than cute."
+      "issue": "Claim-page presentation is flagged as spent ground with rejection-level weight, so an auditor must confirm this is a distinct mechanism and not a disguised reshuffle.",
+      "evidence": "FUNNEL_CONTEXT.md lines 218-219 elevate claim-page layout/hierarchy reshuffles to standing-rejection weight. This change is distinguishable: PR #8 restructured EXISTING elements (a full layout/hierarchy rebuild -> flat 44.5%->39.0%); this SURFACES a new, already-fetched content element (imagery), which matches the pattern that actually moved the funnel (the 2026-06-16 value-prop hero, imagery+reason, +14pts in-app) rather than PR #8's reshuffle. plan.differs_from_past_attempt makes this argument explicitly and it holds. Neither owner rejection applies (verified in code: no discount code handed over pre-email; no printed-% reference - the surfaced element is a character portrait + product name only).",
+      "required_fix": "None - the mechanism distinction is adequate and the two owner rejections are not touched. Keep the differs_from_past_attempt note in the changelog entry so the distinction is on record."
     },
     {
       "severity": "minor",
-      "issue": "The 'never typed a key' figure the diagnosis leans on (52%, 23 of 44) is lower than the ~67% cited in FUNNEL_CONTEXT and the 07-20 changelog. Both support the thesis (majority never engage), but the number has moved and I could not independently reproduce the session-recording metadata (needs the PostHog recordings API, not runnable here).",
-      "evidence": "plan.json evidence_trail cites 23/44=52% this window; FUNNEL_CONTEXT line 187 and changelog 07-20 cite '~67% never type a single key'. The significance figures and the code-copy claims I COULD check reproduced exactly, which raises confidence in the planner's read, but the 44-session metadata itself is unverified by me.",
-      "required_fix": "None. Noted so the shifting figure is not later mistaken for a trend; the thesis (loss dominated by first-paint non-engagement) holds under both figures."
+      "issue": "The plan describes the asset as a 'premium 120px portrait,' but the source file is a busy 1920x1080 celebratory scene (balloons/confetti, a 'For You!' hearts placard); confirm it clears the owner's premium/not-childish bar at build time.",
+      "evidence": "Read images/potato-buyer.jpg: it is a wide, confetti-and-balloons scene of the crocheted potato holding a red-hearts 'For You!' card. Mitigant checked in code: .product-image is width/height 120px, border-radius:50%, object-fit:cover with a gold border (claim.html:181-192) - the circular center-crop keeps the smiling character + placard and crops out most balloons/confetti, so it renders as an on-brand gold-ringed portrait, not the full busy scene. Design bar (FUNNEL_CONTEXT.md:227-229, a HARD constraint) is 'premium and refined, not childish'; the how_to_verify already renders mobile before/after PNGs and checks for clutter, and the change is reversible via re-adding display:none.",
+      "required_fix": "None required to approve; at build, render the mobile PNGs for PTT-GREEN1/CPCK1 as planned and eyeball that the circular crop reads premium (not childish clutter). If it reads busy, adjust object-position rather than abandoning the change."
     }
   ],
   "numbers_checked": [
-    {
-      "claim": "email_entered->video_started flat: 39.4% (28/71) -> 41.3% (26/63), p=0.83, NOT SIGNIFICANT, detectable ~24pts",
-      "your_result": "node tools/significance.mjs 28 71 26 63 -> +1.8pts, 95% -14.8..18.5, p=0.829, NOT SIGNIFICANT, detectable ~24pts",
-      "agrees": true
-    },
-    {
-      "claim": "role_selected->video_started (verdict_last_change proxy): 62.8% (27/43) -> 56.5% (26/46), p=0.55, NOT SIGNIFICANT, detectable ~29pts",
-      "your_result": "node tools/significance.mjs 27 43 26 46 -> -6.3pts, 95% -26.6..14.1, p=0.547, NOT SIGNIFICANT, detectable ~29pts",
-      "agrees": true
-    },
-    {
-      "claim": "Current claim-page opening is a cold transactional coupon header: 'You've Got 30% Off' / 'Enter your email to receive' / 'Send Me My Code'",
-      "your_result": "claim.html:1041 kicker 'You've Got 30% Off', :1051 'Enter your email to receive', :1073 'Send Me My Code' - verbatim match; the kicker+reward-intro are copy-only and separable from the reward list, form and gate, so a two-line voice change with no layout/mechanism change is feasible as described",
-      "agrees": true
-    },
-    {
-      "claim": "Not a repeat: distinct from PR #8 (layout/hierarchy, flat), from both owner-rejected ideas (discount-first; printed-% reveal), and keeps the email-for-reward exchange intact",
-      "your_result": "Confirmed against FUNNEL_CONTEXT rejected-attempts table (lines 213-219) and owner_rejections.md: PR #8 was layout/hierarchy (this is opening voice - a different mechanism on ground with only 1 real attempt); the plan never hands over the code first and never references the printed %; email gate, code, video delivery and Klaviyo path are all untouched. Owner's 07-22 rejection note explicitly asked cycles to attack the bigger leaks - this does",
-      "agrees": true
-    }
+    {"claim": "This-window claim gate: 65 of 154 = 42.2% capture (PostHog person-linked, 14d --until=2026-07-23)", "your_result": "Re-ran posthog-funnel presets 14 --until=2026-07-23: claim_page_view 154, claim_email_submitted 65 (42%), claim_video_cta_clicked 64, Video Creation Started 29 - exact match", "agrees": true},
+    {"claim": "Prior-window claim gate: 64 of 161 = 39.8% (14d --until=2026-07-09)", "your_result": "Re-ran posthog-funnel presets 14 --until=2026-07-09: 161 / 64 (40%) / 63 / 27 - exact match", "agrees": true},
+    {"claim": "Gate change NOT SIGNIFICANT: +2.5pts, p=0.658, ~16pt minimum detectable", "your_result": "Re-ran significance.mjs 64 161 65 154: +2.5 points, 95% -8.4..13.3, p=0.658, could only detect ~16pt - exact match", "agrees": true},
+    {"claim": "In-app arrived->video flat: 32/85 vs 35/99, p=0.747 NOT SIGNIFICANT", "your_result": "Re-ran significance.mjs 35 99 32 85: +2.3pts, p=0.747, NOT SIGNIFICANT - exact match", "agrees": true},
+    {"claim": "End-to-end land->video flat: 29/154 vs 27/161, p=0.632 NOT SIGNIFICANT", "your_result": "Re-ran significance.mjs 27 161 29 154: +2.1pts, p=0.632, NOT SIGNIFICANT - exact match", "agrees": true},
+    {"claim": "In-app thank-you screen = 16 of 21 (76%) of all 30d review clicks; email_redirect 2/21", "your_result": "Re-ran funnel-report 30 --until=2026-07-23: in_app receiver thankyou 9 + buyer thankyou 7 = 16, preview receiver 3, email_redirect 2, total 21 -> 16/21 = 76% - exact match; confirms the email gate is upstream of the dominant review engine", "agrees": true},
+    {"claim": "The character image is fetched and assigned on load but its parent .product-showcase is display:none, so un-hiding adds zero network bytes", "your_result": "Confirmed in code: claim.html:1044 product-showcase div is style=display:none; init() sets imgEl.src = state.product.characterImage unconditionally (claim.html:1232) inside that container; api/product-lookup builds images/<character>-buyer.jpg (assets present). src is set regardless of display, so the byte cost is already paid - the zero-latency claim holds", "agrees": true},
+    {"claim": "Session-replay metadata: 61% (19/31) of in-window claim sessions never type a key - the loss is before field engagement", "your_result": "COULD NOT independently reproduce (requires the PostHog session_recordings API; no verified access this audit). This single figure is the linchpin evidence for WHERE the loss sits, so it is the plan's most load-bearing unverified number. It is corroborated in DIRECTION by independent historical readings in FUNNEL_CHANGELOG (~67% and 52% never-typed in earlier windows), so it is consistent with history, but this window's 19/31 is taken on the planner's word", "agrees": true}
   ]
 }
