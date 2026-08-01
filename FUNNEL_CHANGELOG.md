@@ -110,7 +110,7 @@ this vs. done nothing) to pick a smarter next try — never as a reason to leave
 | Box / insert card (before the scan) | 0 | **Never attacked — and cannot be**: the print is fixed for now | — |
 | Claim page: landed → gave email | 3 real attempts | PR #8 rebuilt the layout/hierarchy → **flat** (44.5% → 39.0%). 2026-07-23 rewrote the opening VOICE (warm first-paint line before the reward ask) → **shipped, unmeasurable by design** (pending). 2026-07-23 surfaced the already-fetched crochet-character portrait as a first-paint hero (imagery, not a reshuffle) → **shipped, unmeasurable by design** (pending). One further idea was **rejected by the owner before build** (see FUNNEL_CONTEXT rejected attempts). 2026-07-20/07-22 shipped *measurement only*, no conversion attempt. | 2026-07-23 (character portrait) |
 | Gave email → into the app | 0 | ~97% auto-forward — not a leak, never attacked | — |
-| In-app: arrived → picked a role | 1 | Part of the 2026-06-16 bundle (value-prop hero on the welcome screen) → that bundle **worked**, though the hero's individual contribution was never isolated | 2026-06-16 |
+| In-app: arrived → picked a role | 2 | Part of the 2026-06-16 bundle (value-prop hero on the welcome screen) → that bundle **worked**, though the hero's individual contribution was never isolated. 2026-08-01 re-ranked the claim-arrival header to LEAD with the create invitation and demote the "code on its way / check your spam / while you wait" block to one calm line → **shipped, unmeasurable by design** (pending) | 2026-08-01 |
 | In-app: role → pressed Create (incl. the examples/occasion screen and the message box) | 1 | 2026-07-06 message-step friction fix → **not yet measurable** (inside the noise floor; may never clear it). The examples/occasion screen itself has **never been attacked**. | 2026-07-06 |
 | Pressed Create → video started | 0 | 94–100% — not a leak, never attacked | — |
 | Review ask: in-app thank-you screen | 1 | Made the hero of that screen in June; it now produces **almost all** review clicks | 2026-06-16 |
@@ -122,6 +122,68 @@ this vs. done nothing) to pick a smarter next try — never as a reason to leave
 > say so in your report.
 
 ## Changes
+
+### 2026-08-01 · Quiet the inbox exit: lead the claim-arrival welcome with the create invitation — `SHIPPED`
+**File:** `index.html` · **Targets:** in-app entry (welcome screen), claim-forwarded users: arrived → picked a role → reached Create · **Attacks the highest-VALUE, under-worked leak (gates the 89% in-app review engine)**
+
+**What & why.** When a claim user is auto-forwarded into the create app, the welcome header was
+rewritten (JS, for `from=claim`) to LEAD with the loudest possible reason to leave: a big green
+uppercase "✅ YOUR 30% OFF CODE IS ON ITS WAY", "We sent your code to {email}", "Not in your inbox?
+Check your spam folder." (a literal instruction to switch to the email app), then a "While you
+wait..." eyebrow — all ABOVE the create invitation. The first and loudest thing a fast-glancing
+arrival processed was "you're done, go check your inbox." Session replay localizes the loss to
+exactly this moment: of 15 distinct claim-forwarded app arrivals with recordings in-window, 12 left
+within ≤6 active seconds with zero clicks/keys — a fast, pre-interaction exit at first paint. This
+re-ranks the header for claim users only:
+
+1. The create invitation ("Turn your gift into a video they'll love" + a clean value line
+   "Free · Takes a minute · No app needed") is now the first and loudest header element.
+2. The code status is demoted to ONE slim, low-emphasis confirmation line that keeps the reassurance
+   and the address — "Your 30% off code is on its way to {email}".
+3. The "Not in your inbox? Check your spam folder." competing exit CTA and the "While you wait..."
+   idle-filler eyebrow are removed from the arrival header. The spam reassurance is unchanged on the
+   final "Check your email" screen (index.html:1304), where it is actually needed.
+
+No gate, reward, delivery path, email field, or promise changed — email is captured upstream on
+claim.html BEFORE this screen, the code is still sent by Klaviyo, the video is still emailed. Distinct
+from the only prior in-app-entry attempt (2026-06-16 ADDED a value-prop hero; it never touched this
+code-status block, which in fact currently sits ABOVE that hero for claim users). This is a re-rank of
+the same screen's hierarchy — a distinct mechanism, on `index.html`, unrelated to the 07-23 claim-page
+work and PR #8. Neither owner rejection applies (no code handed over before the email — it was already
+given upstream; nothing references the printed %).
+
+**Baseline it starts from:** in-app entry this window (PostHog, test-filtered, frozen `--until=2026-08-01`):
+arrived→started 31% (28 of 90); arrived→role 55% (48 of 87) overall and 63% (38 of 60) for
+claim-forwarded users specifically vs 44% (14 of 32) non-claim. Prior window arrived→started 43%
+(41 of 96). Window-over-window arrived→started −11.6pts is NOT significant (`significance.mjs 41 96 28 90`
+→ p=0.102), so it is NOT claimed as a loss; the LEVEL is the durable structural leak being attacked.
+
+**`measurable: false` — unmeasurable by design.** At ~60 claim arrivals/fortnight a few points of extra
+role-selection stays well inside the ~13–20pt noise floor. Small, reversible, on-brand compounding bet,
+NOT a provable win. It will NEVER be given a worked/worse verdict without a SIGNIFICANT
+`tools/significance.mjs` result. Its one unprovable assumption: that a non-trivial share of the fast
+≤6s silent exiters are responding to the "you're done, go check email" signal rather than a pure
+video-interest ceiling (the instruments are blind between paint and role-select, so the two cannot be
+separated at this traffic). If it re-measures flat, the honest read is "a video-interest ceiling," not
+a copy failure.
+
+**Re-measure ~2026-08-15** (needs ~2 weeks of post-fix accumulation; both windows on/after 2026-08-01),
+PostHog in-app funnel segmented by `from_claim`:
+```
+node tools/posthog-funnel.mjs presets 14 --until=2026-08-15
+```
+(page_view page=main → picked role → Create Video Button Clicked → Video Creation Started), segment by
+`from_claim`, then significance-test. Never claim "worked" without a SIGNIFICANT result.
+
+**Result:** pending (`SHIPPED` 2026-08-01). **Verified live:** booted the app (`PORT=3939 node server.js`),
+fetched `index.html?sku=PTT-GREEN1&from=claim&branch=receiver&email=test@example.com` → 200 with the new
+markup present and the old block gone (invitation leads; "Free · Takes a minute · No app needed"; slim
+"Your 30% off code is on its way to {email}"; "YOUR 30% OFF CODE IS ON ITS WAY", "Not in your inbox?
+Check your spam folder.", "While you wait..." all absent; final-screen spam note still present). Rendered
+mobile BEFORE (live site) / AFTER (local) PNGs under `cycle-artifacts/2026-08-01/`; the real browser
+executed the header-rewrite JS and produced the correct DOM (JS parses). No `log_video_funnel_events`
+test rows were created (screenshot loads render the welcome screen with no interaction; the Supabase
+`logFunnel` calls fire only on user actions — confirmed 0 rows for test@example.com).
 
 ### 2026-07-23 · Bring the crochet friend on-screen: surface the hidden character portrait as a first-paint hero — `SHIPPED`
 **File:** `claim.html` · **Targets:** claim page: landed → gave email (first-paint engagement) · **Attacks the biggest, least-worked leak**
