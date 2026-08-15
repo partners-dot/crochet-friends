@@ -111,7 +111,7 @@ this vs. done nothing) to pick a smarter next try — never as a reason to leave
 | Claim page: landed → gave email | 3 real attempts | PR #8 rebuilt the layout/hierarchy → **flat** (44.5% → 39.0%). 2026-07-23 rewrote the opening VOICE (warm first-paint line before the reward ask) → **shipped, unmeasurable by design** (pending). 2026-07-23 surfaced the already-fetched crochet-character portrait as a first-paint hero (imagery, not a reshuffle) → **shipped, unmeasurable by design** (pending). One further idea was **rejected by the owner before build** (see FUNNEL_CONTEXT rejected attempts). 2026-07-20/07-22 shipped *measurement only*, no conversion attempt. | 2026-07-23 (character portrait) |
 | Gave email → into the app | 0 | ~97% auto-forward — not a leak, never attacked | — |
 | In-app: arrived → picked a role | 2 | Part of the 2026-06-16 bundle (value-prop hero on the welcome screen) → that bundle **worked**, though the hero's individual contribution was never isolated. 2026-08-01 re-ranked the claim-arrival header to LEAD with the create invitation and demote the "code on its way / check your spam / while you wait" block to one calm line → **shipped, unmeasurable by design** (pending) | 2026-08-01 |
-| In-app: role → pressed Create (incl. the examples/occasion screen and the message box) | 1 | 2026-07-06 message-step friction fix → **not yet measurable** (inside the noise floor; may never clear it). The examples/occasion screen itself has **never been attacked**. | 2026-07-06 |
+| In-app: role → pressed Create (incl. the examples/occasion screen and the message box) | 2 | 2026-07-06 message-step friction fix → **not yet measurable** (inside the noise floor; may never clear it). 2026-08-15 made the occasion screen's example card advance to the message step (was a play-only dead-end) and demoted "Create from Scratch" to a quiet link → **shipped, unmeasurable by design** (pending). The occasion screen had never been attacked before this. | 2026-08-15 |
 | Pressed Create → video started | 0 | 94–100% — not a leak, never attacked | — |
 | Review ask: in-app thank-you screen | 1 | Made the hero of that screen in June; it now produces **almost all** review clicks | 2026-06-16 |
 | Review ask: preview + share surfaces | 1 | Reworked in June (non-destructive post-share highlight) → still produces **~0 clicks** despite real traffic. Attacked once, no effect. | 2026-06-16 |
@@ -122,6 +122,30 @@ this vs. done nothing) to pick a smarter next try — never as a reason to leave
 > say so in your report.
 
 ## Changes
+
+### 2026-08-15 · Make the occasion screen advance: turn the example card into the primary forward tap — `SHIPPED`
+**File:** `index.html` · **Targets:** in-app occasion screen — role picked → reached the create/message screen (`#buyerSection` / `#receiverSection`) · **Attacks the larger, never-touched half of the role→Create leak, inside the funnel's only review-producing engine**
+
+**What & why.** On the occasion screen the biggest, most obvious tap target — the example video card — was a dead-end: `handleExampleClick` only played/paused the video, so a role-committed user who tapped the card to see what this is watched a clip and landed back where they started. The two ways FORWARD were visually secondary: a muted per-card "📝 Customize Template" button and a loud "Create from Scratch" primary button below an "or" separator. This flips the hierarchy so the obvious action is the forward one:
+
+1. Tapping the example **card body now ADVANCES** to the message screen with that template pre-filled (via the existing `useTemplate`/`applyPendingTemplate`/`swapNamePlaceholder` path, refactored into a shared `useTemplateFromCard`). No `NAME` leftover.
+2. Each card keeps its **explicit visible play/mute control** (with `stopPropagation`), so the example video is still watchable on demand — the payoff is preserved, just deliberate instead of accidental.
+3. The per-card button label changes from "📝 Customize Template" to a clear primary **"Use this →"** affordance.
+4. **"Create from Scratch"** is demoted from a loud gold primary button to a calm secondary text link **"or write your own message"** (the redundant "or" separator is removed), so there is one obvious forward tap and one quiet alternative. Back button unchanged.
+
+No step, gate, reward, role, template, email field, delivery path, or promise removed — the occasion screen is a pure routing screen (it only picks which template pre-fills the box); no video is generated until the user presses Create on the next screen. Distinct from every prior attempt: the 2026-07-06 fix changed the message textarea DEFAULT on a different screen (`#createSection`); PR #8 and the 07-23 ships were claim-page; the 2026-08-01 re-rank was the welcome screen. Neither owner rejection applies (nothing handed over before the email — captured upstream on claim.html; nothing references the printed %).
+
+**Baseline it starts from** (person-linked PostHog, both frozen windows): role → reached-create-screen (`Page - Create Viewed`) is **77% (43 of 56)** this window (`--until=2026-08-15`) and **75% (36 of 48)** prior (`--until=2026-08-01`) — a stable ~23–25% loss ON the occasion screen, before the create button. The smaller half, reached-create → pressed Create, is already 86% (37/43) this window. Window-over-window is NOT significant (`significance.mjs 36 48 43 56` → NOT SIGNIFICANT); the durable structural leak being attacked is the LEVEL, not the delta.
+
+**`measurable: false` — unmeasurable by design.** At ~56 role-pickers/fortnight, a few points of extra role→Create stays well inside the ~13–20pt noise floor. Small, reversible, on-brand compounding bet, NOT a provable win. It will NEVER be given a worked/worse verdict without a SIGNIFICANT `tools/significance.mjs` result. Its one unprovable assumption: that a non-trivial share of the 23% who stall on the occasion screen do so because the forward action was unclear, not because they lost interest after picking a role (the instruments are blind between role-select and Create-Viewed — no scroll-depth, play-duration, or button-focus events — so the two cannot be separated at this traffic). If it re-measures flat, the honest read is "affordance was not the binding constraint / interest ceiling," not a copy failure.
+
+**Re-measure ~2026-08-29** (both windows on/after 2026-08-15), person-linked PostHog sub-funnel:
+```
+node tools/posthog-funnel.mjs presets 14 --until=2026-08-29
+```
+plus the person-linked role → `Page - Create Viewed` → `Create Video Button Clicked` HogQL split for both frozen windows, then significance-test role→reached-create. Also watch `template_used` vs the from-scratch entries (expected to shift toward templates — harmless). Never claim "worked" without a SIGNIFICANT result.
+
+**Result:** pending (`SHIPPED` 2026-08-15). **Verified live:** booted the app (`PORT=3939 node server.js`), fetched `index.html?sku=PTT-GREEN1` → 200 with all changes present (`useTemplateFromCard` defined; `handleExampleClick` advances via it; six "Use this →" labels; two "or write your own message" links; old "Customize Template" and "Create from Scratch" button gone; play/mute control preserved). Drove the occasion screen in a headless mobile browser and rendered BEFORE (live site) / AFTER (local) PNGs for both roles under `cycle-artifacts/2026-08-15/`; the real browser executed the section-reveal JS and rendered the new card hierarchy correctly. No `log_video_funnel_events` test rows were created — the screenshot driver aborted all `/api/track` (and PostHog) requests, so nothing was written to Supabase or PostHog.
 
 ### 2026-08-01 · Quiet the inbox exit: lead the claim-arrival welcome with the create invitation — `SHIPPED`
 **File:** `index.html` · **Targets:** in-app entry (welcome screen), claim-forwarded users: arrived → picked a role → reached Create · **Attacks the highest-VALUE, under-worked leak (gates the 89% in-app review engine)**
