@@ -1,30 +1,60 @@
 {
   "verdict": "approve",
-  "summary": "Every reproducible number in the plan re-ran to the planner's exact figures, and the change is a visible, on-brand, reversible re-rank of the in-app welcome header that leads with the create invitation and demotes the 'code is on its way / check your spam / while you wait' block - fresh-by-mechanism ground on the step that gates the 89% in-app review engine, breaking no promise, exchange, or owner rejection. Its causal story (the code-status block repels warm users at first paint) is an unprovable bet the data cannot confirm and the plan says so, but the fix is asymmetric - removing a literal 'go check your email' instruction and leading with the invitation that historically moved this funnel cannot lower role-selection - so a wrong cause does not make it harmful, which is exactly the small compounding bet this process exists to ship.",
+  "summary": "The plan makes the in-app occasion screen's biggest tap target (the example video card) advance to the create step instead of dead-ending on video playback -- a fresh, never-attacked leak sitting inside the funnel's only review-producing engine, with the exchange, email gate, discount code, video delivery and printed-% rule all untouched. Its numbers reproduce exactly, it is honestly labelled unmeasurable-by-design rather than dressed as a proven win, and it preserves the video preview via an explicit play control, so I would defend it.",
   "findings": [
     {
       "severity": "minor",
-      "issue": "The assumed cause (the loud code-status/'check your spam'/'while you wait' block acts as a competing exit CTA driving the fast <=6s exits) is under-determined, not established - and the plan's own segmentation cuts weakly the other way: claim-forwarded users who SEE the block pick a role at 63% (38/60) vs 44% (14/32) for non-claim users who never see it.",
-      "evidence": "Re-ran node tools/significance.mjs 14 32 38 60 -> +19.6pts, p=0.071, NOT SIGNIFICANT. A <=6s zero-interaction exit is equally consistent with a pure video-interest ceiling; ANALYTICS.md confirms the instruments are blind between paint and role-select, so nothing can separate the two at this traffic. This is NOT a reject-level contradiction: the 63>44 gap is confounded by intent (claim users already paid the email price) and is itself non-significant, so it shows the block is not catastrophic, not that it helps. The plan foregrounds this exact limitation (diagnosis.what_it_cannot_distinguish, cause_verification.against) rather than hiding it, and rests its case on the fix being asymmetric, which holds.",
-      "required_fix": "None required to build. Keep the stated commitment: measurable:false, and never claim it 'worked' without a SIGNIFICANT tools/significance.mjs result on the from_claim-segmented in-app funnel. If it re-measures flat, the honest read is 'a video-interest ceiling', not a copy failure."
+      "issue": "Small internal inconsistency in the review-click count between the plan's two evidence sources: the Supabase REST review-by-phase query (evidence item 9) reports 10 review clicks this window / 8 prior, while funnel-report (evidence item 1) reports 9 / 9. The plan quotes '10/10 this window, 7/8 prior' in choice_reasoning.",
+      "evidence": "Re-ran `node tools/funnel-report.mjs 14 --until=2026-08-15` -> review_clicked 9 (in_app receiver thankyou 6, in_app buyer thankyou 2, in_app receiver strong 1), 0 email_redirect. `--until=2026-08-01` -> review_clicked 9. The REST slice's 10/8 differs by a window-boundary row. Immaterial: the load-bearing claim (reviews arrive ~100% from the in-app thank-you screen, 0 from email_redirect in both windows) holds under either count, so the 'no review-reminder downstream cost' argument is unaffected.",
+      "required_fix": "None required. Optionally reconcile the two counts to one frozen query at re-measure so the ~2026-08-29 grade is internally consistent."
     },
     {
       "severity": "minor",
-      "issue": "The absolute prize is tiny and permanently unmeasurable at this traffic (~1-2 extra review clicks/fortnight against 19 review clicks/30d and ~60 claim arrivals/fortnight).",
-      "evidence": "Confirmed 30d review clicks = 19 total (in_app thankyou 17, preview 1, share 1, email_redirect 0) via node tools/funnel-report.mjs 30 --until=2026-08-01. Any swing under ~13-20pts is invisible at this volume (FUNNEL_CHANGELOG noise floor). The plan labels this honestly and does not dress it as a measurable experiment; the changelog explicitly blesses shipping such unprovable compounding bets, so this is not a blocker.",
-      "required_fix": "None. Do not upgrade the language to a testable claim; leave it as the labelled compounding bet it is."
+      "issue": "The assumed cause (occasion-screen affordance confusion) is a well-grounded bet, not a proven fact: the instruments are blind between role-select and Create-Viewed (no scroll-depth, video-play-duration, or button-focus events), and only ~4 mostly-idle recordings exist in-window, so 'tapped the video, watched, missed the forward button' cannot be distinguished from a genuine post-role interest ceiling. The one reconstructable engaged replay even advanced via 'Create from Scratch', not an example card.",
+      "evidence": "The plan itself discloses this in diagnosis.what_it_cannot_distinguish and cause_verification.against, and ships as measurable:false. This is acceptable rather than a blocker because (a) the change is low-risk and fully reversible, removes no exchange or reward, so the downside is bounded even if the cause is wrong; (b) the affordance flaw is a real UX defect regardless of attribution -- verified in code: handleExampleClick (index.html:2054) only calls toggleExamplePlay, so the dominant tap target genuinely dead-ends; (c) an instrumentation-only alternative would be a fifth straight invisible cycle, which the owner rule forbids, and the owner has already rejected a cycle for being too small. Shipping the visible fix is the better move here than shipping a measurement.",
+      "required_fix": "None required. Nice-to-have: add lightweight occasion-screen instrumentation (e.g. example-card tap vs play-control tap, forward-button focus) to ride along, so the ~2026-08-29 re-measure can tell affordance-fix from interest-ceiling instead of only re-reading the aggregate role->Create rate."
     }
   ],
   "numbers_checked": [
-    {"claim": "Claim gate 66/166=39.8% -> 57/136=41.9%, +2.2pt p=0.705 NOT SIGNIFICANT", "your_result": "node tools/significance.mjs 66 166 57 136 -> +2.2pts, 95% -9.0..13.3, p=0.705, min-detectable ~16pt - exact match", "agrees": true},
-    {"claim": "In-app arrived->started 41/96 -> 28/90, -11.6pt p=0.102 (explicitly NOT claimed as a loss)", "your_result": "node tools/significance.mjs 41 96 28 90 -> -11.6pts, p=0.102, NOT SIGNIFICANT - exact match", "agrees": true},
-    {"claim": "End-to-end land->video 34/166 -> 20/136, -5.8pt p=0.192", "your_result": "node tools/significance.mjs 34 166 20 136 -> -5.8pts, p=0.192, NOT SIGNIFICANT - exact match", "agrees": true},
-    {"claim": "CLAIM->VIDEO funnel 136 -> 57 (42%) -> 56 (41%) -> 20 (15%)", "your_result": "node tools/posthog-funnel.mjs presets 14 --until=2026-08-01 -> 136/57/56/20 identically", "agrees": true},
-    {"claim": "IN-APP funnel page_view 90 -> Create clicked 28 (31%) -> Message 28 -> Video Started 28", "your_result": "Same command reproduces 90/28/28/28 exactly", "agrees": true},
-    {"claim": "30d review clicks: in-app thank-you 17 of 19 = 89%; email_redirect = 0", "your_result": "node tools/funnel-report.mjs 30 --until=2026-08-01 -> in_app receiver 10 + buyer 7 = 17, preview 1, share 1, total 19; email_redirect absent (0). 17/19 = 89.5% - match", "agrees": true},
-    {"claim": "Claim-arrival header (index.html ~1621-1634) leads with '30% OFF CODE IS ON ITS WAY' + 'Check your spam folder' + 'While you wait...' ABOVE the invitation", "your_result": "Confirmed at index.html:1622-1634; the value-prop hero ('Turn your gift into a video they'll love' + Free/Takes a minute/No app needed) sits BELOW the code block, exactly as the plan states - so this is a re-rank of the 2026-06-16 winning hero, a distinct mechanism, not a repeat of that attempt nor of PR #8's claim-page reshuffle", "agrees": true},
-    {"claim": "Spam reassurance still appears on the final 'Check your email' screen (index.html:1304, :1749), so removing it from the arrival header is safe", "your_result": "Confirmed: spam note present at index.html:1304 and 1749/1751/1754 on the final screen where it is actually needed - the reassurance/promise is retained", "agrees": true},
-    {"claim": "Claim-forwarded role-select 63% (38/60) > non-claim 44% (14/32)", "your_result": "Arithmetic reproduces (63.3% vs 43.8%). Independently significance-tested (p=0.071, non-significant); planner uses it defensively, not as a win, which is the correct read", "agrees": true},
-    {"claim": "Session replay: 12 of 15 distinct claim-forwarded app arrivals left within <=6s with zero interaction", "your_result": "COULD NOT independently reproduce (needs the PostHog session_recordings API; no verified access this audit). This is the linchpin evidence for WHERE the loss sits and is taken on the planner's word; it is consistent in direction with the changelog's independent replay readings (~67%/52%/61% never-typed in prior windows), but this window's 12/15 is unverified", "agrees": true}
+    {
+      "claim": "significance.mjs 30 95 37 91 -> +9.1 pts, p=0.197, NOT SIGNIFICANT (~20pt min detectable)",
+      "your_result": "before 30/95=31.6%; after 37/91=40.7%; +9.1 pts (95% -4.7..22.8); p=0.197; NOT SIGNIFICANT; needs ~439/window - exact match",
+      "agrees": true
+    },
+    {
+      "claim": "significance.mjs 23 39 32 47 -> +9.1 pts, p=0.381, NOT SIGNIFICANT",
+      "your_result": "before 23/39=59.0%; after 32/47=68.1%; +9.1 pts (95% -11.3..29.5); p=0.381; NOT SIGNIFICANT; needs ~436/window - exact match",
+      "agrees": true
+    },
+    {
+      "claim": "This window (until 2026-08-15): role_selected 63, template_used 20, create_clicked 38, video_started 36, review_clicked 9 all in_app, 0 email_redirect",
+      "your_result": "funnel-report reproduces exactly: role 63, template_used 20, message_written 38, create_clicked 38, video_started 36, review_clicked 9 (in_app 6+2+1), 0 email_redirect",
+      "agrees": true
+    },
+    {
+      "claim": "Prior window (until 2026-08-01): role_selected 64, template_used 32, create_clicked 49, video_started 30, review_clicked 9",
+      "your_result": "funnel-report reproduces exactly: role 64, template_used 32, message_written 49, create_clicked 49, video_started 30, review_clicked 9",
+      "agrees": true
+    },
+    {
+      "claim": "handleExampleClick (index.html:2054) only plays the video (dead-end); forward actions are the per-card 'Customize Template' button and 'Create from Scratch' below an 'or' separator",
+      "your_result": "Confirmed: handleExampleClick calls only toggleExamplePlay; cards carry onclick=handleExampleClick with a stopPropagation play button and a useTemplate 'Customize Template' button; 'Create from Scratch' (btn-primary) sits below a centered 'or' paragraph at index.html:1086",
+      "agrees": true
+    },
+    {
+      "claim": "The template pre-fill path (useTemplate/applyPendingTemplate/swapNamePlaceholder) exists and can advance a card-body tap to the create screen with the template pre-filled and no NAME leftover",
+      "your_result": "Confirmed: useTemplate (1886) sets pendingTemplate and calls goToStep('create'); applyPendingTemplate (1896) pre-fills #message via swapNamePlaceholder (1874). Mechanism reuses existing, verified code - buildable",
+      "agrees": true
+    },
+    {
+      "claim": "Occasion screen is fresh ground: never attacked; distinct from the 2026-07-06 message-step fix (#createSection), PR #8 and the 07-23 ships (claim page), the 2026-08-01 welcome re-rank, and both owner rejections",
+      "your_result": "Confirmed against coverage map ('The examples/occasion screen itself has never been attacked') and rejection tables; all listed prior work and rejections are on other surfaces - not a repeat",
+      "agrees": true
+    },
+    {
+      "claim": "Review clicks arrive ~100% from the in-app thank-you screen; email_redirect produced 0 in both windows (10/10 this, 7/8 prior)",
+      "your_result": "funnel-report confirms 0 email_redirect and all review clicks in_app in both windows; exact this-window count is 9 (not 10) and prior is 9 (not 8) per funnel-report -- a minor windowing discrepancy that does not change the conclusion",
+      "agrees": false
+    }
   ]
 }

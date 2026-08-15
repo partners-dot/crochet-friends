@@ -673,6 +673,13 @@
       color: var(--accent-neon);
     }
 
+    /* Quiet alternative to the primary "Use this" card action: still readable as a
+       real path, but calm so there is one obvious forward tap and one soft option. */
+    .write-own-link {
+      font-size: 0.95rem;
+      margin-top: 0.5rem;
+    }
+
     #resultSection video {
       width: 100%;
       max-width: 100%;
@@ -1054,7 +1061,7 @@
           </div>
           <div class="caption buyer-caption">Send on the day<br>they receive the gift</div>
           <button class="template-btn"
-            onclick="event.stopPropagation(); useTemplate(this)"><span>📝</span><span>Customize Template</span></button>
+            onclick="event.stopPropagation(); useTemplate(this)"><span>Use this</span><span>→</span></button>
         </div>
         <div class="video-example" onclick="handleExampleClick(this)"
           data-template="Hey NAME. Clear a VIP spot on your shelf! I'm cute, zero calories, and I'm on my way!">
@@ -1067,7 +1074,7 @@
           </div>
           <div class="caption buyer-caption">Send before<br>the package arrives</div>
           <button class="template-btn"
-            onclick="event.stopPropagation(); useTemplate(this)"><span>📝</span><span>Customize Template</span></button>
+            onclick="event.stopPropagation(); useTemplate(this)"><span>Use this</span><span>→</span></button>
         </div>
         <div class="video-example" onclick="handleExampleClick(this)"
           data-template="Hey NAME! Since you kill every plant you touch... good news! I don't need water. You can't kill me!">
@@ -1080,12 +1087,10 @@
           </div>
           <div class="caption buyer-caption">Send a week<br>or a month later</div>
           <button class="template-btn"
-            onclick="event.stopPropagation(); useTemplate(this)"><span>📝</span><span>Customize Template</span></button>
+            onclick="event.stopPropagation(); useTemplate(this)"><span>Use this</span><span>→</span></button>
         </div>
       </div>
-      <p style="text-align: center; color: rgba(255,255,255,0.6); font-size: 0.9em; margin: 0.25rem 0 0.5rem;">or</p>
-      <button type="button" class="btn btn-primary" onclick="trackCreateVideoClick(); goToStep('create')">Create
-        from Scratch</button>
+      <button type="button" class="btn-back write-own-link" onclick="trackCreateVideoClick(); goToStep('create')">or write your own message</button>
       <button type="button" class="btn-back" onclick="trackBackClick('buyer', 'welcome'); goToStep('welcome')">←
         Back</button>
     </section>
@@ -1112,7 +1117,7 @@
           </div>
           <div class="caption receiver-caption">For the laughs</div>
           <button class="template-btn"
-            onclick="event.stopPropagation(); useTemplate(this)"><span>📝</span><span>Customize Template</span></button>
+            onclick="event.stopPropagation(); useTemplate(this)"><span>Use this</span><span>→</span></button>
         </div>
         <div class="video-example" onclick="handleExampleClick(this)"
           data-template="Thank you, NAME! This little guy has already made himself at home on my desk. Best surprise ever!">
@@ -1125,7 +1130,7 @@
           </div>
           <div class="caption receiver-caption">From the heart</div>
           <button class="template-btn"
-            onclick="event.stopPropagation(); useTemplate(this)"><span>📝</span><span>Customize Template</span></button>
+            onclick="event.stopPropagation(); useTemplate(this)"><span>Use this</span><span>→</span></button>
         </div>
         <div class="video-example" onclick="handleExampleClick(this)"
           data-template="Thank you for the cupcake, NAME! Nice try ruining my diet... but this one has zero calories. I win!">
@@ -1138,12 +1143,10 @@
           </div>
           <div class="caption receiver-caption">With attitude</div>
           <button class="template-btn"
-            onclick="event.stopPropagation(); useTemplate(this)"><span>📝</span><span>Customize Template</span></button>
+            onclick="event.stopPropagation(); useTemplate(this)"><span>Use this</span><span>→</span></button>
         </div>
       </div>
-      <p style="text-align: center; color: rgba(255,255,255,0.6); font-size: 0.9em; margin: 0.25rem 0 0.5rem;">or</p>
-      <button type="button" class="btn btn-primary" onclick="trackCreateVideoClick(); goToStep('create')">Create
-        from Scratch</button>
+      <button type="button" class="btn-back write-own-link" onclick="trackCreateVideoClick(); goToStep('create')">or write your own message</button>
       <button type="button" class="btn-back" onclick="trackBackClick('receiver', 'welcome'); goToStep('welcome')">←
         Back</button>
     </section>
@@ -1883,8 +1886,12 @@
       return swapNamePlaceholder(first || "Thanks so much for this — it truly made my day. Sending you a big hug!");
     }
     let pendingTemplate = null;
-    function useTemplate(btn) {
-      const container = btn.closest('.video-example');
+    // Advance to the create/message screen with this example's template pre-filled.
+    // Shared by the explicit "Use this" button AND the whole card body tap, so the
+    // occasion screen's biggest, most obvious tap target now moves the user forward
+    // (the small play control still previews the video in place).
+    function useTemplateFromCard(container) {
+      if (!container) return;
       const templateText = container.dataset.template;
       if (!templateText) return;
       // PostHog: Track template usage
@@ -1892,6 +1899,9 @@
       logFunnel('template_used', { properties: { template_preview: templateText.substring(0, 50) } });
       pendingTemplate = templateText;
       goToStep('create');
+    }
+    function useTemplate(btn) {
+      useTemplateFromCard(btn.closest('.video-example'));
     }
     function applyPendingTemplate() {
       const messageArea = document.getElementById('message');
@@ -2052,8 +2062,10 @@
       }
     }
     function handleExampleClick(container) {
-      const btn = container.querySelector('.example-controls button');
-      if (btn) toggleExamplePlay(btn);
+      // Card body tap is the primary FORWARD action now: advance to the message
+      // screen with this template pre-filled. Previewing the video is still one
+      // tap away via the explicit play control (which stops propagation).
+      useTemplateFromCard(container);
     }
     function toggleExamplePlay(btn) {
       const container = btn.closest('.video-example');
