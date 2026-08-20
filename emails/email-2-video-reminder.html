@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Got You A Little Something - Video Reminder</title>
+    <!-- Import elegant fonts using @import to avoid Klaviyo link errors -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Montserrat:wght@400;500;600&display=swap');
+
+        /* Essential reset for email clients */
+        body,
+        table,
+        td,
+        p,
+        a {
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+
+        table,
+        td {
+            mso-table-lspace: 0pt;
+            mso-table-rspace: 0pt;
+        }
+
+        img {
+            -ms-interpolation-mode: bicubic;
+            border: 0;
+            line-height: 100%;
+            outline: none;
+            text-decoration: none;
+        }
+
+        table {
+            border-collapse: collapse !important;
+        }
+    </style>
+</head>
+
+<body style="margin: 0; padding: 0; background-color: #F4F1EA; text-align: center;">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0"
+        style="background-color: #F4F1EA; padding: 40px 15px;" align="center">
+        <tr>
+            <td align="center" valign="top" style="background-color: #F4F1EA; padding: 12px;">
+                <!-- MAIN WHITE CARD STRUCTURE -->
+                <table width="100%" cellpadding="0" cellspacing="0" border="0"
+                    style="background-color: #FFFFFF; max-width: 500px; border-radius: 12px; border: 2px solid #D8D3C8; box-shadow: 0 10px 40px rgba(20,20,68,0.03); overflow: hidden;"
+                    align="center">
+
+                    <!-- BRAND LOGO TEXT (Header) -->
+                    <tr>
+                        <td align="center" style="padding: 40px 30px 8px; text-align: center;">
+                            <p align="center"
+                                style="margin: 0; font-family: 'Playfair Display', Georgia, serif; font-size: 16px; color: #141444; font-style: italic; font-weight: 500; letter-spacing: 0.5px; text-align: center;">
+                                Got You A Little Something
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- HERO HEADLINE -->
+                    <tr>
+                        <td align="center" style="padding: 12px 25px 14px; text-align: center;">
+                            <p align="center"
+                                style="margin: 0 0 8px; color: #AE8D4B; font-size: 28px; font-weight: 400; line-height: 1.2; font-family: 'Playfair Display', Georgia, serif; text-align: center;">
+                                &#10024; Make It Personal
+                            </p>
+                            <p align="center"
+                                style="margin: 0; color: #8A8A9D; font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 3px; font-family: 'Montserrat', Arial, sans-serif; text-align: center;">
+                                Don't forget your free video
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- INTRO TEXT -->
+                    <tr>
+                        <td align="center" style="padding: 10px 35px 25px; text-align: center;">
+                            <p align="center"
+                                style="margin: 0; color: #4A4A58; font-size: 15px; line-height: 1.8; font-family: 'Montserrat', Arial, sans-serif; text-align: center;">
+                                You claimed your 30% discount, but you left something special behind! Create a
+                                <strong style="color: #141444; font-weight: 600;">free personalized video
+                                    message</strong>
+                                - whether it's a heartfelt thank you or a surprise digital greeting.
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- VIDEO PREVIEW -->
+                    <tr>
+                        <td align="center" style="padding: 0 30px 0;">
+                            <table width="100%" cellpadding="0" cellspacing="0" border="0"
+                                style="border: 1px solid #D8D3C8; border-radius: 12px; overflow: hidden;"
+                                align="center">
+                                <!-- Image row -->
+                                <tr>
+                                    <td align="center" style="font-size: 0; line-height: 0; padding: 0; margin: 0;">
+                                        <a href="https://video.gotyoualittlesomething.com/?sku={{ person.klavioProduct|default:'' }}"
+                                            style="display: block; text-decoration: none; border: 0;">
+                                            <img src="https://d3k81ch9hvuctc.cloudfront.net/company/YrwgTA/images/77a0ddb2-a20c-4f03-8507-73a279789abf.jpeg"
+                                                width="100%" style="display: block; width: 100%; border: 0;"
+                                                alt="Video preview thumbnail">
+                                        </a>
+                                    </td>
+                                </tr>
+                                <!-- Play bar row -->
+                                <tr>
+                                    <td align="center"
+                                        style="padding: 0; background-color: #FFFFFF; border-top: 1px solid #D8D3C8;">
+                                        <a href="https://video.gotyoualittlesomething.com/?sku={{ person.klavioProduct|default:'' }}"
+                                            style="display: block; text-decoration: none; padding: 14px 20px; text-align: center;">
+                                            <p
+                                                style="margin: 0; color: #141444; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; font-family: 'Montserrat', Arial, sans-serif;">
+                                                Tap to see it in action
+                                            </p>
+                                        </a>
+                                    </td>
+                                </tr>
+
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="height: 25px;"></td>
+                    </tr>
+
+                    <!-- PERSUASION TEXT -->
+                    <tr>
+                        <td align="center" style="padding: 0 35px 25px; text-align: center;">
+                            <p align="center"
+                                style="margin: 0; color: #8A8A9D; font-size: 13px; font-style: italic; font-family: 'Playfair Display', Georgia, serif; text-align: center;">
+                                It takes less than 2 minutes to create, and results in a memory that lasts forever.
+                                Perfect for saying
+                                thank you or sending as a digital greeting.
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- CTA BUTTON -->
+                    <tr>
+                        <td align="center" style="padding: 0 30px 40px; text-align: center;">
+                            <table cellpadding="0" cellspacing="0" border="0" align="center">
+                                <tr>
+                                    <td align="center"
+                                        style="background-color: #141444; border-radius: 4px; padding: 0;">
+                                        <a href="https://video.gotyoualittlesomething.com/?sku={{ person.klavioProduct|default:'' }}"
+                                            style="display: block; color: #FFFFFF; text-decoration: none; padding: 18px 45px; font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 2px; font-family: 'Montserrat', Arial, sans-serif; white-space: nowrap; text-align: center;">
+                                            Create My Video
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+
+        <!-- FOOTER -->
+        <tr>
+            <td align="center" style="padding: 30px 20px;">
+                <p align="center"
+                    style="margin: 0 0 10px; color: #BDBDB5; font-size: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; font-family: 'Montserrat', Arial, sans-serif; text-align: center;">
+                    &copy; Got You A Little Something
+                </p>
+                <p align="center"
+                    style="margin: 0; color: #C8C8C0; font-size: 11px; font-style: italic; font-family: 'Playfair Display', Georgia, serif; text-align: center;">
+                    Made with love for gift-givers everywhere
+                </p>
+            </td>
+        </tr>
+    </table>
+</body>
+
+</html>
